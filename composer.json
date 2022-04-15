@@ -1,0 +1,58 @@
+{
+    "name": "wrkflow/php-api-sdk-builder",
+    "description": "A base package for building unified API SDKs with type strict and dependency in mind",
+    "type": "library",
+    "license": "MIT",
+    "homepage": "https://github.com/wrk-flow/php-api-sdk-builder",
+    "authors": [
+        {
+            "name": "Martin Kluska",
+            "email": "martin@kluska.cz"
+        }
+    ],
+    "require": {
+        "php": ">=8.1",
+        "juststeveking/uri-builder": "^2.0",
+        "psr/http-client": "^1.0"
+    },
+    "require-dev": {
+        "nyholm/psr7": "^1.5",
+        "phpstan/phpstan": "^1.4.10",
+        "phpstan/phpstan-deprecation-rules": "^1.0.0",
+        "phpstan/phpstan-phpunit": "^1.0.0",
+        "phpunit/phpunit": "^9.5.20",
+        "rector/rector": "^0.12.17",
+        "symplify/easy-coding-standard": "^10.1",
+        "illuminate/container": "^9"
+    },
+    "suggest": {
+        "laravel/framework": "SDKs work great with Laravel - solid container, by default uses nyholm/psr7.",
+        "wrkflow/larastrict": "Improve your Laravel code base with DDD and strict conventions."
+    },
+    "scripts": {
+        "check": "composer lint && composer test",
+        "lint:fix": "./vendor/bin/ecs --fix",
+        "lint:stan": "./vendor/bin/phpstan",
+        "lint:upgrade": "vendor/bin/rector process",
+        "lint": "composer lint:fix && composer lint:upgrade && composer lint:stan",
+        "test": "./vendor/bin/phpunit"
+    },
+    "autoload": {
+        "psr-4": {
+            "WrkFlow\\ApiSdkBuilder\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "WrkFlow\\ApiSdkBuilder\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "optimize-autoloader": true,
+        "allow-plugins": {
+            "symfony/thanks": false
+        }
+    }
+}
