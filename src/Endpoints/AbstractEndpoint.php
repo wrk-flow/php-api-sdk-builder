@@ -42,6 +42,8 @@ abstract class AbstractEndpoint
      */
     protected function makeResponse(string $class, ResponseInterface $response): AbstractResponse
     {
-        return $this->api->factory->container->makeResponse($class, $response);
+        return $this->api->factory()
+            ->container()
+            ->makeResponse($class, $response);
     }
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Wrkflow\ApiSdkBuilder\Tests;
+namespace Tests\Wrkflow\ApiSdkBuilder\Actions;
 
 use Nyholm\Psr7\Request;
 use PHPUnit\Framework\TestCase;
@@ -16,14 +16,14 @@ class BuildHeadersTest extends TestCase
         $request = new Request('GET', 'test');
         $result = (new BuildHeaders())->execute([
             new JsonHeaders(),
-            'test' => 'Test',
+            'test' => 'Tests',
             'Content-type' => ['application/xml'],
         ], $request);
 
         $this->assertEquals([
             'Accept' => ['application/json'],
             'Content-type' => ['application/json', 'application/xml'],
-            'test' => ['Test'],
+            'test' => ['Tests'],
         ], $result->getHeaders());
     }
 }

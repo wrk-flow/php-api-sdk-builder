@@ -20,9 +20,17 @@ abstract class AbstractApi implements HeadersContract
 
     public function __construct(
         public readonly AbstractEnvironment $environment,
-        public readonly ApiFactory $factory,
+        private readonly ApiFactory $factory,
     ) {
-        $this->buildHeaders = $this->factory->container->make(BuildHeaders::class);
+        $this->buildHeaders = $this->factory()
+            ->container()
+            ->make(BuildHeaders::class);
+    }
+
+    public function factory(): ApiFactory
+    {
+        // Makes the factory testable
+        return $this->factory;
     }
 
     public function uri(): Uri
@@ -35,7 +43,9 @@ abstract class AbstractApi implements HeadersContract
      */
     public function get(Uri $uri, array $headers = []): ResponseInterface
     {
-        $request = $this->factory->request->createRequest('GET', $uri->toString());
+        $request = $this->factory()
+            ->request()
+            ->createRequest('GET', $uri->toString());
 
         return $this->sendRequest($request, $headers);
     }
@@ -48,7 +58,9 @@ abstract class AbstractApi implements HeadersContract
         OptionsContract|StreamInterface|string $body = null,
         array $headers = []
     ): ResponseInterface {
-        $request = $this->factory->request->createRequest('POST', $uri->toString());
+        $request = $this->factory()
+            ->request()
+            ->createRequest('POST', $uri->toString());
 
         return $this->sendRequest($request, $headers, $body);
     }
@@ -66,7 +78,9 @@ abstract class AbstractApi implements HeadersContract
         $request = $this->buildHeaders->execute($mergedHeaders, $request);
         $request = $this->withBody($body, $request);
 
-        return $this->factory->client->sendRequest($request);
+        return $this->factory()
+            ->client()
+            ->sendRequest($request);
     }
 
     /**
@@ -77,7 +91,9 @@ abstract class AbstractApi implements HeadersContract
      */
     protected function makeEndpoint(string $endpoint): AbstractEndpoint
     {
-        return $this->factory->container->makeEndpoint($this, $endpoint);
+        return $this->factory()
+            ->container()
+            ->makeEndpoint($this, $endpoint);
     }
 
     protected function withBody(
@@ -91,7 +107,7 @@ abstract class AbstractApi implements HeadersContract
         }
 
         if ($body !== null) {
-            return $request->withBody($this->factory->stream->createStream($body));
+            return $request->withBody($this->factory()->stream()->createStream($body));
         }
 
         return $request;
