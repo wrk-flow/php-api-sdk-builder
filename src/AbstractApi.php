@@ -16,6 +16,13 @@ use WrkFlow\ApiSdkBuilder\Environments\AbstractEnvironment;
 
 abstract class AbstractApi implements HeadersContract
 {
+    /**
+     * A cache map of created endpoints: class -> instance.
+     *
+     * @var array<string,AbstractEndpoint>
+     */
+    protected array $cachedEndpoints = [];
+
     private readonly BuildHeaders $buildHeaders;
 
     public function __construct(
@@ -91,9 +98,15 @@ abstract class AbstractApi implements HeadersContract
      */
     protected function makeEndpoint(string $endpoint): AbstractEndpoint
     {
-        return $this->factory()
-            ->container()
-            ->makeEndpoint($this, $endpoint);
+        if (array_key_exists($endpoint, $this->cachedEndpoints) === false) {
+            $instance = $this->factory()
+                ->container()
+                ->makeEndpoint($this, $endpoint);
+
+            $this->cachedEndpoints[$endpoint] = $instance;
+        }
+
+        return $this->cachedEndpoints[$endpoint];
     }
 
     protected function withBody(
