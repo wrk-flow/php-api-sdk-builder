@@ -33,6 +33,7 @@ class LaravelContainerFactory implements SDKContainerFactoryContract
     {
         return $this->container->make($class, [
             'response' => $response,
+            'container' => $this,
         ]);
     }
 }

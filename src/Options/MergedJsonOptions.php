@@ -27,4 +27,12 @@ class MergedJsonOptions extends AbstractJsonOptions
 
         return $result;
     }
+
+    /**
+     * @return null[]|AbstractJsonOptions[]
+     */
+    public function getOptions(): array
+    {
+        return $this->options;
+    }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\WrkFlow\ApiSdkBuilder;
 
+use Closure;
 use JustSteveKing\UriBuilder\Uri;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
@@ -14,8 +15,15 @@ use WrkFlow\ApiSdkBuilder\ApiFactory;
 
 abstract class EndpointTestCase extends MockeryTestCase
 {
+    /**
+     * @var string
+     */
+    final public const BASE_URI = 'https://localhost/test';
+
     protected MockInterface $api;
+
     protected MockInterface $apiFactory;
+
     protected Uri $uri;
 
     protected function setUp(): void
@@ -23,7 +31,7 @@ abstract class EndpointTestCase extends MockeryTestCase
         parent::setUp();
 
         $this->api = Mockery::mock(AbstractApi::class);
-        $this->uri = Uri::fromString('https://localhost');
+        $this->uri = Uri::fromString(self::BASE_URI);
         $this->api->shouldReceive('uri')
             ->andReturn($this->uri);
         $this->apiFactory = Mockery::mock(ApiFactory::class);
@@ -31,10 +39,35 @@ abstract class EndpointTestCase extends MockeryTestCase
             ->andReturn($this->apiFactory);
     }
 
-    protected function expectPost(): ExpectationInterface
-    {
+    /**
+     * @param string $expectedUri expected url from the base url
+     * @param Closure(mixed):bool|null $assertBody    Checks the body. Return false if not valid.
+     * @param Closure(mixed):bool|null $assertHeaders Checks the headers. Return false if not valid.
+     */
+    protected function expectPost(
+        string $expectedUri,
+        ?Closure $assertBody = null,
+        ?Closure $assertHeaders = null,
+    ): ExpectationInterface {
         return $this->api->shouldReceive('post')
-            ->once();
+            ->once()
+            ->withArgs(function () use ($expectedUri, $assertBody, $assertHeaders) {
+                /** @var Uri $uri */
+                $uri = func_get_arg(0);
+                if ($uri->toString() !== $expectedUri) {
+                    return false;
+                }
+
+                if ($assertBody !== null && $assertBody(func_get_arg(1)) === false) {
+                    return false;
+                }
+
+                if ($assertHeaders !== null && $assertHeaders(func_get_arg(2)) === false) {
+                    return false;
+                }
+
+                return true;
+            });
     }
 
     protected function expectMakeResponse(
