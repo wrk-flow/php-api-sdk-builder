@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\WrkFlow\ApiSdkBuilder;
+namespace WrkFlow\ApiSdkBuilderTests;
 
 use Closure;
 use JustSteveKing\UriBuilder\Uri;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Wrkflow\ApiSdkBuilder\Actions;
+namespace Wrkflow\ApiSdkBuilderTests\Actions;
 
 use Nyholm\Psr7\Request;
 use PHPUnit\Framework\TestCase;
