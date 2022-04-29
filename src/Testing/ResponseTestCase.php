@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WrkFlow\ApiSdkBuilderTests;
+namespace WrkFlow\ApiSdkBuilder\Testing;
 
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;

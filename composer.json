@@ -41,7 +41,11 @@
     },
     "autoload": {
         "psr-4": {
-            "WrkFlow\\ApiSdkBuilder\\": "src/",
+            "WrkFlow\\ApiSdkBuilder\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
             "WrkFlow\\ApiSdkBuilderTests\\": "tests/"
         }
     },
