@@ -4,5 +4,4 @@ composer.lock
 /docs/.nuxt
 /docs/dist
 /docs/node_modules
-/docs/package-lock.json
 /docs/static/sw.js
