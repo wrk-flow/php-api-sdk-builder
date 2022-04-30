@@ -33,8 +33,10 @@
     },
     "scripts": {
         "check": "composer lint && composer test",
+        "lint:check": "./vendor/bin/ecs",
         "lint:fix": "./vendor/bin/ecs --fix",
         "lint:stan": "./vendor/bin/phpstan",
+        "lint:upgrade:check": "vendor/bin/rector process --dry-run",
         "lint:upgrade": "vendor/bin/rector process",
         "lint": "composer lint:fix && composer lint:upgrade && composer lint:stan",
         "test": "./vendor/bin/phpunit"
