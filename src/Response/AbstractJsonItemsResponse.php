@@ -97,7 +97,7 @@ abstract class AbstractJsonItemsResponse extends AbstractJsonResponse
     abstract protected function requiredRootKeys(): array;
 
     /**
-     * Return key that holds the items (somethink like data, items) in the root json data. If you return null root json
+     * Return key that holds the items (something like data, items) in the root json data. If you return null root json
      * will be used for items.
      */
     abstract protected function itemsKey(): ?string;

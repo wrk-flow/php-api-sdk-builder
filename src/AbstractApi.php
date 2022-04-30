@@ -75,7 +75,7 @@ abstract class AbstractApi implements HeadersContract
     /**
      * @param array<int|string,HeadersContract|string|string[]> $headers
      */
-    protected function sendRequest(
+    public function sendRequest(
         RequestInterface $request,
         array $headers = [],
         OptionsContract|StreamInterface|string|null $body = null

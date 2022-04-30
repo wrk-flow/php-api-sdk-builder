@@ -7,7 +7,7 @@ namespace WrkFlow\ApiSdkBuilder\Response\Concerns;
 /**
  * Paginated resource information - if not set it will throw PHP error.
  */
-trait PaginatedResource
+trait PaginatedResponse
 {
     protected int $itemsPerPage;
 

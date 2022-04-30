@@ -56,5 +56,14 @@
         "allow-plugins": {
             "symfony/thanks": false
         }
-    }
+    },
+    "archive": {
+        "exclude": ["/docs"]
+    },
+    "funding": [
+        {
+            "type": "github",
+            "url": "https://github.com/sponsors/pionl"
+        }
+    ]
 }
