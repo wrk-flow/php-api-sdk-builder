@@ -26,12 +26,18 @@ abstract class AbstractApi implements HeadersContract
     private readonly BuildHeaders $buildHeaders;
 
     public function __construct(
-        public readonly AbstractEnvironment $environment,
+        private readonly AbstractEnvironment $environment,
         private readonly ApiFactory $factory,
     ) {
         $this->buildHeaders = $this->factory()
             ->container()
             ->make(BuildHeaders::class);
+    }
+
+    public function environment(): AbstractEnvironment
+    {
+        // Makes the environment testable
+        return $this->environment;
     }
 
     public function factory(): ApiFactory
