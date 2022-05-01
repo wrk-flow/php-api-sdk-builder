@@ -2,6 +2,7 @@
 title: Headers
 category: Architecture
 position: 15
+fullscreen: true
 ---
 
 > Use `YourApi\Headers` namespace
@@ -14,9 +15,10 @@ can return a map of headers 'key' => 'header' or 'key' => 'headers'.
 
 **Available classes (fell free to PR more):**
 
-- JsonContentTypeHeaders
-- AcceptsJsonHeaders
-- JsonHeaders (sets the content type and accepts json headers)
+- `new JsonContentTypeHeaders()`
+- `new AcceptsJsonHeaders()`
+- `new JsonHeaders()` (sets the content type and accepts json headers)
+- `BearerTokenAuthorizationHeader(string $token)`
 
 Each header class can chain other headers (check JsonHeaders file).
 

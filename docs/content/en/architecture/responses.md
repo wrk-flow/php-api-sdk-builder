@@ -12,7 +12,8 @@ You are responsible to validate the:
 - build the data and set it in response (can raise an exception).
 - build an error entity if there is an error
 
-Currently, we are not throwing exceptions. Use `isSuccesfull` to determine if there is an error. 
+Currently, we are not throwing exceptions. Use `isSuccesfull` to determine if there is an error. This allows
+to work with the response with any state and adds more flexibility.
 
 <alert>
 
@@ -26,32 +27,56 @@ This can probably change. Maybe raising exception is always the best option.
 
 ## Base implementation
 
-1. Override **__construct** and try to build the response
+1. Override **__construct** and try to build the response (parse json / xml / etc).
 2. Create `private bool $isSuccessful = false;` and set it to true if the response is successful.
-3. Create properties and entities for your data.
+3. Implement `public function isSuccessful(): bool`
+4. Create properties and entities for your data. Use **getters** instead of properties
 
-## Json responses
+### Consumer functions
 
-To help parse JSON responses extend `AbstractJsonResponse` that will try to parse response to json and check if keys are present in an array. 
+These functions are provided for the consumer:
+
+- `isSuccessful: bool` - Indicates if the response is successfully and the data can be accessed.
+- `getResponse(): ResponseInterface` - Returns underlying response.
+
+## JSON response
+
+To help parse JSON responses extend `AbstractJsonResponse` that will try to parse response to json and check if keys are
+present in an array.
 
 - Raises `InvalidJsonResponseException` if the response is not json.
 - Raises `InvalidJsonResponseException` if the of json value is invalid.
 - Will not raise exception if any of desired keys is missing.
-- Use `$this->hasKeys(json: $json, keys: [...]): bool` to check if the array contains given keys.
-- Use `toArray` to get json data. Will raise exception if the data is not valid.
 
-### AbstractJsonItemsResponse
+### Consumer functions
+
+These functions are provided for the consumer:
+
+- `toArray(): array` - Returns the json. Will raise exception if the data is not valid.
+
+### Implementation
+
+- Implement `parseJson(array $json): bool;` to parse the json. Return false if not valid. **I recommend to create
+  properties and getters instead using toArray function**.
+- You can use `$this->hasKeys(json: $json, keys: [...]): bool` to check if the array contains given keys.
+- You can use [WorksWithJson](/architecture/utils#workswithjson) to easily get values from json with proper type.
+
+## JSON response with items array
 
 > For step by step implementation check  [Start building / create response](/start-building/create-response)
 
-When you want to provide a way to easily access array items in the json using transformer and base root keys validation
+Use this if you want to provide a way to easily access array items in the json using transformer and base root keys
+validation.
 
-You can use:
+### Consumer functions
 
-- `getRawItems` - Returns raw items array
-- `items` - Will return
+These functions are provided for the consumer
 
-#### Implementation
+- `getRawItems` - Returns raw items array.
+- `items` - Will return transformed data.
+- `loopItems` - Will provide a way to loop transformed items using closure.
+
+### Implementation
 
 ```php
 /**
@@ -75,7 +100,7 @@ abstract protected function requiredRootKeys(): array;
 abstract protected function itemsKey(): ?string;
 ```
 
-Then implement `items` / `loopItems`. These methods are only to force you to set correct typehints. 
+Then implement `items` / `loopItems`. These methods are only to force you to set correct typehints.
 
 ```php
 /**

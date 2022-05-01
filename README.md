@@ -6,6 +6,8 @@ composer require wrkflow/php-api-sdk-builder
 
 > This library is still in its early stages. But the main concepts will probably remain same.
 
+This package is for those who wants to build wants to consume external APIs with type strict code in mind.
+
 ## Features
 
 ![img](https://img.shields.io/badge/PHPStan-8-blue)
@@ -15,7 +17,7 @@ composer require wrkflow/php-api-sdk-builder
 - ✅ Uses PSR packages you already use for HTTP/S communication
 - 🏆 Forcing type strict implementation for input (request options) and output (`Response`)
 - 🎗 Encouraging `Data transfer objects`
-- 🎭 Re-usable headers using objects
+- 🎭 Re-usable and configurable headers using objects
 
 [📖 Read the documentation](https://php-sdk-builder.wrk-flow.com)
 
