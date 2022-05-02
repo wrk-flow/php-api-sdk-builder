@@ -4,9 +4,16 @@
 composer require wrkflow/php-api-sdk-builder
 ```
 
-> This library is still in its early stages. But the main concepts will probably remain same.
+> This package is still in its early stages. But the main concepts will probably remain same.
 
-This package is for those who wants to build wants to consume external APIs with type strict code in mind.
+This package helps you build PHP clients for external APIs with dependency injection and type strict code in mind.
+
+## Why to use?
+
+- If you want to consume external API without losing type strict code (Data transfer objects instead of array keys).
+- If you work with multiple APIs and want to use the same conventions.
+- If you want to provide type strict way to build request parameters.
+- If you want to save time building HTTP/s request.
 
 ## Features
 

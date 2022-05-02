@@ -24,7 +24,7 @@ use \JustSteveKing\UriBuilder\Uri;
 
 class LiveEnvironment  extends AbstractEnvironment  {
     public function uri(): Uri {
-        return ri::fromString('https://mgapi.mainapps.com/api/magellano');
+        return Uri::fromString('https://mgapi.mainapps.com/api/magellano');
     }
 }
 ```

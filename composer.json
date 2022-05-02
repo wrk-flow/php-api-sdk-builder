@@ -1,6 +1,6 @@
 {
     "name": "wrkflow/php-api-sdk-builder",
-    "description": "A base package for building unified API SDKs with type strict and dependency in mind",
+    "description": "This package helps you build PHP clients for external APIs with dependency injection and type strict code in mind.",
     "type": "library",
     "license": "MIT",
     "homepage": "https://github.com/wrk-flow/php-api-sdk-builder",
