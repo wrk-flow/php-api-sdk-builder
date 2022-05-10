@@ -17,6 +17,8 @@
         "psr/http-message": "^1.0.1"
     },
     "require-dev": {
+        "guzzlehttp/guzzle": "^7.4",
+        "http-interop/http-factory-guzzle": "^1.2",
         "illuminate/container": "^9",
         "mockery/mockery": "^1.5",
         "nyholm/psr7": "^1.5",
@@ -29,8 +31,10 @@
         "symplify/easy-coding-standard": "^10.2.2"
     },
     "suggest": {
-        "laravel/framework": "SDKs work great with Laravel - solid container, by default uses nyholm/psr7.",
-        "wrkflow/larastrict": "Improve your Laravel code base with DDD and strict conventions."
+        "laravel/framework": "SDKs work great with Laravel - solid container.",
+        "wrkflow/larastrict": "Improve your Laravel code base with strict conventions.",
+        "guzzlehttp/guzzle": "If you want to use GuzzleLaravelApiFactory.",
+        "http-interop/http-factory-guzzle": "If you want to use GuzzleLaravelApiFactory."
     },
     "scripts": {
         "check": "composer lint && composer test",
