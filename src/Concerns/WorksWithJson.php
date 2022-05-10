@@ -6,6 +6,8 @@ namespace WrkFlow\ApiSdkBuilder\Concerns;
 
 trait WorksWithJson
 {
+    use WorksWithValue;
+
     /**
      * @param array<string, mixed>  $data
      */
@@ -28,32 +30,5 @@ trait WorksWithJson
     protected function getBool(array $data, string $key): ?bool
     {
         return $this->boolVal($data[$key] ?? null);
-    }
-
-    protected function floatVal(mixed $value): ?float
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        return floatval($value);
-    }
-
-    protected function intVal(mixed $value): ?int
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        return (int) $value;
-    }
-
-    protected function boolVal(mixed $value): ?bool
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        return boolval($value);
     }
 }
