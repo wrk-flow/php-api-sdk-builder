@@ -11,7 +11,7 @@ class AcceptsXMLHeaders implements HeadersContract
     public function headers(): array
     {
         return [
-            'Content-type' => 'application/xml',
+            'Accept' => 'application/xml',
         ];
     }
 }
