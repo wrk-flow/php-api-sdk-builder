@@ -13,6 +13,7 @@ use WrkFlow\ApiSdkBuilder\Contracts\HeadersContract;
 use WrkFlow\ApiSdkBuilder\Contracts\OptionsContract;
 use WrkFlow\ApiSdkBuilder\Endpoints\AbstractEndpoint;
 use WrkFlow\ApiSdkBuilder\Environments\AbstractEnvironment;
+use WrkFlow\ApiSdkBuilder\Factories\ApiFactory;
 
 abstract class AbstractApi implements HeadersContract
 {

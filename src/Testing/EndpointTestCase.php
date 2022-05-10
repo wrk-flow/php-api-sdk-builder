@@ -11,7 +11,7 @@ use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery\ExpectationInterface;
 use Mockery\MockInterface;
 use WrkFlow\ApiSdkBuilder\AbstractApi;
-use WrkFlow\ApiSdkBuilder\ApiFactory;
+use WrkFlow\ApiSdkBuilder\Factories\ApiFactory;
 
 abstract class EndpointTestCase extends MockeryTestCase
 {

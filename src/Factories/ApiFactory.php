@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WrkFlow\ApiSdkBuilder;
+namespace WrkFlow\ApiSdkBuilder\Factories;
 
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
