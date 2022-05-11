@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Response;
 
+use Closure;
 use Psr\Http\Message\ResponseInterface;
 use SimpleXMLElement;
 use WrkFlow\ApiSdkBuilder\Contracts\SDKContainerFactoryContract;
-use Closure;
 use WrkFlow\ApiSdkBuilder\Transformers\AbstractXMLTransformer;
 
 abstract class AbstractXMLItemsResponse extends AbstractXMLResponse
