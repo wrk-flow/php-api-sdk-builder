@@ -11,5 +11,5 @@ abstract class AbstractXMLTransformer
 {
     use WorksWithXML;
 
-    abstract public function transform(SimpleXMLElement $item): object;
+    abstract public function transform(SimpleXMLElement $item): object|array;
 }

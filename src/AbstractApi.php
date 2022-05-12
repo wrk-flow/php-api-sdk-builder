@@ -123,7 +123,7 @@ abstract class AbstractApi implements HeadersContract
         if ($body instanceof StreamInterface) {
             return $request->withBody($body);
         } elseif ($body instanceof OptionsContract) {
-            $body = $body->toBody();
+            $body = $body->toBody($this->environment());
         }
 
         if ($body !== null) {
