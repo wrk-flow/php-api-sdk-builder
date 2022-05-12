@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Exceptions;
 
-use Exception;
 use Throwable;
 
-class InvalidJsonResponseException extends Exception
+class InvalidJsonResponseException extends ResponseException
 {
     /**
      * @param array<string, mixed>|null  $response
