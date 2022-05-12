@@ -7,7 +7,7 @@ namespace WrkFlow\ApiSdkBuilder\Contracts;
 use Psr\Http\Message\ResponseInterface;
 use WrkFlow\ApiSdkBuilder\AbstractApi;
 use WrkFlow\ApiSdkBuilder\Endpoints\AbstractEndpoint;
-use WrkFlow\ApiSdkBuilder\Response\AbstractResponse;
+use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
 
 interface SDKContainerFactoryContract
 {

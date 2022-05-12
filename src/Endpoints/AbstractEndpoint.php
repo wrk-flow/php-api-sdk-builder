@@ -7,7 +7,7 @@ namespace WrkFlow\ApiSdkBuilder\Endpoints;
 use JustSteveKing\UriBuilder\Uri;
 use Psr\Http\Message\ResponseInterface;
 use WrkFlow\ApiSdkBuilder\AbstractApi;
-use WrkFlow\ApiSdkBuilder\Response\AbstractResponse;
+use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
 
 abstract class AbstractEndpoint
 {

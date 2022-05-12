@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WrkFlow\ApiSdkBuilder\Response\Concerns;
+namespace WrkFlow\ApiSdkBuilder\Responses\Concerns;
 
 /**
  * Paginated resource information - if not set it will throw PHP error.

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WrkFlow\ApiSdkBuilder\Response;
+namespace WrkFlow\ApiSdkBuilder\Responses;
 
 use Psr\Http\Message\ResponseInterface;
 use SimpleXMLElement;

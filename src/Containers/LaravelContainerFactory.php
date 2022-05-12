@@ -9,7 +9,7 @@ use Psr\Http\Message\ResponseInterface;
 use WrkFlow\ApiSdkBuilder\AbstractApi;
 use WrkFlow\ApiSdkBuilder\Contracts\SDKContainerFactoryContract;
 use WrkFlow\ApiSdkBuilder\Endpoints\AbstractEndpoint;
-use WrkFlow\ApiSdkBuilder\Response\AbstractResponse;
+use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
 
 class LaravelContainerFactory implements SDKContainerFactoryContract
 {

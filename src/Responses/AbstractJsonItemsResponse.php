@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WrkFlow\ApiSdkBuilder\Response;
+namespace WrkFlow\ApiSdkBuilder\Responses;
 
 use Closure;
 use Psr\Http\Message\ResponseInterface;
