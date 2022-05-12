@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Concerns;
 
+use DateTime;
+use DateTimeImmutable;
+use DateTimeInterface;
 use SimpleXMLElement;
 use WrkFlow\ApiSdkBuilder\Exceptions\MissingValueForKeyException;
 
@@ -76,17 +79,17 @@ trait WorksWithXML
     }
 
     /**
-     * @return \DateTime|\DateTimeImmutable|null
+     * @return DateTime|DateTimeImmutable|null
      */
-    protected function getDateTime(SimpleXMLElement $xml, string $key): ?\DateTimeInterface
+    protected function getDateTime(SimpleXMLElement $xml, string $key): ?DateTimeInterface
     {
         return $this->dateTimeVal($this->getValue($xml, $key));
     }
 
     /**
-     * @return \DateTime|\DateTimeImmutable
+     * @return DateTime|DateTimeImmutable
      */
-    protected function getRequiredDateTime(SimpleXMLElement $xml, string $key): \DateTimeInterface
+    protected function getRequiredDateTime(SimpleXMLElement $xml, string $key): DateTimeInterface
     {
         $value = $this->getDateTime($xml, $key);
 

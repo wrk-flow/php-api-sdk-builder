@@ -44,7 +44,7 @@
         "lint:stan": "./vendor/bin/phpstan",
         "lint:upgrade:check": "vendor/bin/rector process --dry-run",
         "lint:upgrade": "vendor/bin/rector process",
-        "lint": "composer lint:fix && composer lint:upgrade && composer lint:stan",
+        "lint": "composer lint:upgrade && composer lint:fix && composer lint:stan",
         "test": "./vendor/bin/phpunit"
     },
     "autoload": {
