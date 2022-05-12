@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Concerns;
 
+use DateTime;
+use DateTimeImmutable;
+use DateTimeInterface;
+
 trait WorksWithValue
 {
     protected function stringVal(mixed $value): ?string
@@ -40,5 +44,19 @@ trait WorksWithValue
         }
 
         return boolval($value);
+    }
+
+    /**
+     * @return DateTime|DateTimeImmutable|null
+     */
+    protected function dateTimeVal(mixed $value): ?DateTimeInterface
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        // TODO validate?
+
+        return new DateTime($value);
     }
 }
