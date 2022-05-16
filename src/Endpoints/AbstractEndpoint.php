@@ -40,10 +40,21 @@ abstract class AbstractEndpoint
      *
      * @return T
      */
-    protected function makeResponse(string $class, ResponseInterface $response): AbstractResponse
-    {
-        return $this->api->factory()
-            ->container()
-            ->makeResponse($class, $response);
+    protected function makeResponse(
+        string $class,
+        ResponseInterface $response,
+        ?int $expectedStatusCode = null
+    ): AbstractResponse {
+        $container = $this->api->factory()
+            ->container();
+
+        $statusCode = $response->getStatusCode();
+
+        if ($expectedStatusCode === $statusCode ||
+            ($expectedStatusCode === null && ($statusCode === 200 || $statusCode === 201))) {
+            return $container->makeResponse($class, $response);
+        }
+
+        $this->api->createFailedResponseException($statusCode, $response);
     }
 }

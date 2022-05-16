@@ -40,13 +40,14 @@ abstract class AbstractXMLItemsResponse extends AbstractXMLResponse
      */
     protected function transformUsingArray(): array
     {
-        $items = $this->isSuccessful() ? $this->getRawItems() : [];
+        $items = $this->getRawItems();
+        $newItems = [];
 
-        if ($items === []) {
-            return [];
+        foreach ($items as $item) {
+            $newItems[] = $this->transformer->transform($item);
         }
 
-        return array_map(fn (array $item) => $this->transformer->transform($item), $items);
+        return $newItems;
     }
 
     /**
@@ -54,11 +55,7 @@ abstract class AbstractXMLItemsResponse extends AbstractXMLResponse
      */
     protected function transformUsingLoop(Closure $onItem): bool
     {
-        $items = $this->isSuccessful() ? $this->getRawItems() : [];
-
-        if ($items === []) {
-            return false;
-        }
+        $items = $this->getRawItems();
 
         foreach ($items as $item) {
             $onItem($this->transformer->transform($item));

@@ -21,12 +21,18 @@ abstract class AbstractJsonItemsResponse extends AbstractJsonResponse
         parent::__construct($response);
 
         $this->transformer = $container->make($this->getTransformerClass());
+
+        $checkKeys = $this->requiredRootKeys();
+
+        if ($checkKeys !== []) {
+            $this->checkKeys($this->json(), $checkKeys);
+        }
     }
 
     public function getRawItems(): array
     {
         $itemsKey = $this->itemsKey();
-        $root = $this->toArray();
+        $root = $this->json();
 
         if ($itemsKey === null) {
             return $root;
@@ -44,24 +50,12 @@ abstract class AbstractJsonItemsResponse extends AbstractJsonResponse
      */
     abstract public function loopItems(Closure $onItem): bool;
 
-    protected function parseJson(array $json): bool
-    {
-        $checkKeys = $this->requiredRootKeys();
-        return ($checkKeys !== [] && $this->hasKeys($json, $checkKeys) === false) === false;
-    }
-
     /**
      * You will receive transformer entity in the array.
      */
     protected function transformUsingArray(): array
     {
-        $items = $this->isSuccessful() ? $this->getRawItems() : [];
-
-        if ($items === []) {
-            return [];
-        }
-
-        return array_map(fn (array $item) => $this->transformer->transform($item), $items);
+        return array_map(fn (array $item) => $this->transformer->transform($item), $this->getRawItems());
     }
 
     /**
@@ -69,7 +63,7 @@ abstract class AbstractJsonItemsResponse extends AbstractJsonResponse
      */
     protected function transformUsingLoop(Closure $onItem): bool
     {
-        $items = $this->isSuccessful() ? $this->getRawItems() : [];
+        $items = $this->getRawItems();
 
         if ($items === []) {
             return false;

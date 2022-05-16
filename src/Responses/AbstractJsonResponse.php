@@ -10,9 +10,7 @@ use WrkFlow\ApiSdkBuilder\Exceptions\InvalidJsonResponseException;
 
 abstract class AbstractJsonResponse extends AbstractResponse
 {
-    private bool $isSuccessful = false;
-
-    private array $json;
+    protected array $json;
 
     public function __construct(ResponseInterface $response)
     {
@@ -22,52 +20,52 @@ abstract class AbstractJsonResponse extends AbstractResponse
         $json = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
 
         if (is_array($json) === false) {
-            throw new InvalidJsonResponseException('Response is no a json');
+            throw new InvalidJsonResponseException($response, 'Response is not a json');
         }
 
         try {
-            $this->isSuccessful = $this->parseJson($json);
-
-            if ($this->isSuccessful) {
-                $this->json = $json;
-            }
+            $this->parseJson($json);
+            $this->json = $json;
         } catch (TypeError $typeError) {
             throw new InvalidJsonResponseException(
+                $response,
                 'Failed to parse json: ' . $typeError->getMessage(),
                 $json,
-                $typeError->getCode(),
                 $typeError
             );
         }
     }
 
-    public function isSuccessful(): bool
-    {
-        return $this->isSuccessful;
-    }
-
     /**
      * Response must be successful to access json.
      */
-    public function toArray(): array
+    public function json(): array
     {
         return $this->json;
     }
 
-    abstract protected function parseJson(array $json): bool;
+    abstract protected function parseJson(array $json): void;
 
-    protected function hasKeys(array $json, array $keys): bool
+    protected function checkKeys(array $json, array $keys): void
     {
         if ($keys === []) {
-            return false;
+            return;
         }
 
+        $missingKeys = [];
         foreach ($keys as $key) {
             if (array_key_exists($key, $json) === false) {
-                return false;
+                $missingKeys[] = $key;
             }
         }
 
-        return true;
+        if ($missingKeys === []) {
+            return;
+        }
+
+        throw new InvalidJsonResponseException($this->response, 'Response is missing required keys: ' . implode(
+            ',',
+            $missingKeys
+        ), $this->json);
     }
 }

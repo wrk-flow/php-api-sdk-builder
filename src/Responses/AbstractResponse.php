@@ -13,8 +13,6 @@ abstract class AbstractResponse implements ResponseContract
     {
     }
 
-    abstract public function isSuccessful(): bool;
-
     public function getResponse(): ResponseInterface
     {
         return $this->response;

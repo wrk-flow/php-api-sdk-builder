@@ -6,6 +6,6 @@ namespace WrkFlow\ApiSdkBuilder\Exceptions;
 
 use Exception;
 
-class SDKException extends Exception
+class ApiException extends Exception
 {
 }

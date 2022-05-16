@@ -15,6 +15,10 @@ abstract class AbstractXMLResponse extends AbstractResponse
     {
         parent::__construct($response);
 
-        $this->xml = new SimpleXMLElement($response->getBody()->getContents());
+        $xml = new SimpleXMLElement($response->getBody()->getContents());
+
+        $this->xml = $this->parseXml($xml);
     }
+
+    abstract protected function parseXml(SimpleXMLElement $xml): SimpleXMLElement;
 }

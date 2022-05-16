@@ -13,6 +13,8 @@ use WrkFlow\ApiSdkBuilder\Contracts\HeadersContract;
 use WrkFlow\ApiSdkBuilder\Contracts\OptionsContract;
 use WrkFlow\ApiSdkBuilder\Endpoints\AbstractEndpoint;
 use WrkFlow\ApiSdkBuilder\Environments\AbstractEnvironment;
+use WrkFlow\ApiSdkBuilder\Exceptions\BadRequestException;
+use WrkFlow\ApiSdkBuilder\Exceptions\ServerFailedException;
 use WrkFlow\ApiSdkBuilder\Factories\ApiFactory;
 
 abstract class AbstractApi implements HeadersContract
@@ -95,6 +97,15 @@ abstract class AbstractApi implements HeadersContract
         return $this->factory()
             ->client()
             ->sendRequest($request);
+    }
+
+    public function createFailedResponseException(int $statusCode, ResponseInterface $response): void
+    {
+        if ($statusCode >= 400 && $statusCode < 500) {
+            throw new BadRequestException($response);
+        }
+
+        throw new ServerFailedException($response);
     }
 
     /**

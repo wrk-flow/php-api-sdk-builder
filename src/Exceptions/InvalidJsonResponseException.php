@@ -4,24 +4,25 @@ declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Exceptions;
 
+use Psr\Http\Message\ResponseInterface;
 use Throwable;
 
 class InvalidJsonResponseException extends ResponseException
 {
     /**
-     * @param array<string, mixed>|null  $response
+     * @param array<string, mixed>|null $json
      */
     public function __construct(
+        ResponseInterface $response,
         string $message = '',
-        private readonly ?array $response = null,
-        int $code = 0,
+        private readonly ?array $json = null,
         ?Throwable $previous = null
     ) {
-        parent::__construct($message, $code, $previous);
+        parent::__construct($response, $message, $previous);
     }
 
-    public function getResponse(): ?array
+    public function getJSON(): ?array
     {
-        return $this->response;
+        return $this->json;
     }
 }
