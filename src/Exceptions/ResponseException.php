@@ -11,7 +11,7 @@ class ResponseException extends ApiException
 {
     public function __construct(
         private readonly ResponseInterface $response,
-        ?string $message = null,
+        string $message = '',
         ?Throwable $previous = null
     ) {
         parent::__construct($message, $response->getStatusCode(), $previous);

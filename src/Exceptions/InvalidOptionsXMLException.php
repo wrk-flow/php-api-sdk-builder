@@ -4,6 +4,6 @@ declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Exceptions;
 
-class InvalidOptionsXMLException extends ResponseException
+class InvalidOptionsXMLException extends ApiException
 {
 }

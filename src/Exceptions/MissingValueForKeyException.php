@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Exceptions;
 
-class MissingValueForKeyException extends ResponseException
+class MissingValueForKeyException extends ApiException
 {
     public function __construct(string $key)
     {

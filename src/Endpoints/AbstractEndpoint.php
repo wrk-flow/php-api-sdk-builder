@@ -55,6 +55,6 @@ abstract class AbstractEndpoint
             return $container->makeResponse($class, $response);
         }
 
-        $this->api->createFailedResponseException($statusCode, $response);
+        throw $this->api->createFailedResponseException($statusCode, $response);
     }
 }

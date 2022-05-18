@@ -63,9 +63,7 @@ abstract class AbstractJsonResponse extends AbstractResponse
             return;
         }
 
-        throw new InvalidJsonResponseException($this->response, 'Response is missing required keys: ' . implode(
-            ',',
-            $missingKeys
-        ), $this->json);
+        $message = 'Response is missing required keys: ' . implode(',', $missingKeys);
+        throw new InvalidJsonResponseException($this->response, $message, $json);
     }
 }

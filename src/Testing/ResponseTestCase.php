@@ -9,6 +9,7 @@ use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery\MockInterface;
 use Psr\Http\Message\ResponseInterface;
 use WrkFlow\ApiSdkBuilder\Contracts\SDKContainerFactoryContract;
+use WrkFlow\ApiSdkBuilder\Testing\Responses\JsonResponse;
 
 abstract class ResponseTestCase extends MockeryTestCase
 {
@@ -35,11 +36,6 @@ abstract class ResponseTestCase extends MockeryTestCase
 
     protected function createJsonResponse(array $response): ResponseInterface
     {
-        $responseMock = Mockery::mock(ResponseInterface::class);
-        $responseMock->shouldReceive('getBody')
-            ->once()
-            ->andReturn(json_encode($response, JSON_THROW_ON_ERROR));
-
-        return $responseMock;
+        return new JsonResponse($response);
     }
 }

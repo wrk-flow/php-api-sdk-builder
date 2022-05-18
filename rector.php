@@ -26,6 +26,7 @@ return static function (RectorConfig $config): void {
     $config->import(SetList::CODING_STYLE);
     $config->importNames();
 
+
     $config->rule(AddVoidReturnTypeWhereNoReturnRector::class);
     $config->ruleWithConfiguration(
         BooleanInBooleanNotRuleFixerRector::class,
@@ -33,4 +34,9 @@ return static function (RectorConfig $config): void {
             AbstractFalsyScalarRuleFixerRector::TREAT_AS_NON_EMPTY => false,
         ]
     );
+
+    $config->skip([
+        AddVoidReturnTypeWhereNoReturnRector::class => [__DIR__ . '/src/Testing/Response.php'],
+    ]);
+
 };

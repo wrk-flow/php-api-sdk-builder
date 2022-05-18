@@ -8,10 +8,11 @@ use Closure;
 use JustSteveKing\UriBuilder\Uri;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
-use Mockery\ExpectationInterface;
 use Mockery\MockInterface;
+use Psr\Http\Message\ResponseInterface;
 use WrkFlow\ApiSdkBuilder\AbstractApi;
 use WrkFlow\ApiSdkBuilder\Factories\ApiFactory;
+use WrkFlow\ApiSdkBuilder\Testing\Responses\Response;
 
 abstract class EndpointTestCase extends MockeryTestCase
 {
@@ -48,8 +49,10 @@ abstract class EndpointTestCase extends MockeryTestCase
         string $expectedUri,
         ?Closure $assertBody = null,
         ?Closure $assertHeaders = null,
-    ): ExpectationInterface {
-        return $this->api->shouldReceive('post')
+    ): ResponseInterface {
+        $response = new Response();
+
+        $this->api->shouldReceive('post')
             ->once()
             ->withArgs(function () use ($expectedUri, $assertBody, $assertHeaders) {
                 /** @var Uri $uri */
@@ -67,12 +70,15 @@ abstract class EndpointTestCase extends MockeryTestCase
                 }
 
                 return true;
-            });
+            })
+            ->andReturn($response);
+
+        return $response;
     }
 
     protected function expectMakeResponse(
         string $expectedClass,
-        ExpectationInterface $expectedResponse
+        ResponseInterface $expectedResponse
     ): MockInterface {
         $return = Mockery::mock($expectedClass);
         $this->apiFactory->shouldReceive('container->makeResponse')
@@ -82,7 +88,7 @@ abstract class EndpointTestCase extends MockeryTestCase
                     return false;
                 }
 
-                return $response !== $expectedResponse;
+                return $response === $expectedResponse;
             })
             ->andReturn($return);
 
