@@ -21,7 +21,7 @@ trait WorksWithValue
 
     protected function floatVal(mixed $value): ?float
     {
-        if ($value === null) {
+        if ($value === null || $value === '') {
             return null;
         }
 
@@ -30,7 +30,7 @@ trait WorksWithValue
 
     protected function intVal(mixed $value): ?int
     {
-        if ($value === null) {
+        if ($value === null || $value === '') {
             return null;
         }
 
@@ -39,7 +39,7 @@ trait WorksWithValue
 
     protected function boolVal(mixed $value): ?bool
     {
-        if ($value === null) {
+        if ($value === null || $value === '') {
             return null;
         }
 
@@ -51,7 +51,7 @@ trait WorksWithValue
      */
     protected function dateTimeVal(mixed $value): ?DateTimeInterface
     {
-        if ($value === null) {
+        if ($value === null || $value === '') {
             return null;
         }
 
