@@ -12,7 +12,7 @@ use WrkFlow\ApiSdkBuilder\Containers\LaravelContainerFactory;
 /**
  * Factory that we can create with Laravel container.
  */
-class LaravelFactory extends ApiFactory
+class LaravelApiFactory extends ApiFactory
 {
     public function __construct(
         LaravelContainerFactory $laravelContainer,
