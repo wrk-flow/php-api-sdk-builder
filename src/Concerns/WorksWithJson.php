@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Concerns;
 
+use DateTime;
+use DateTimeImmutable;
 use DateTimeInterface;
 use WrkFlow\ApiSdkBuilder\Exceptions\ArrayIsEmptyException;
 use WrkFlow\ApiSdkBuilder\Exceptions\MissingValueForKeyException;
@@ -86,11 +88,17 @@ trait WorksWithJson
         return $value;
     }
 
+    /**
+     * @return DateTime|DateTimeImmutable|null
+     */
     protected function getDateTime(array $data, string $key): ?DateTimeInterface
     {
         return $this->dateTimeVal($data[$key] ?? null);
     }
 
+    /**
+     * @return DateTime|DateTimeImmutable
+     */
     protected function getRequiredDateTime(array $data, string $key): DateTimeInterface
     {
         $value = $this->getDateTime($data, $key);

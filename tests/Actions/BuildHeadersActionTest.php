@@ -6,15 +6,15 @@ namespace Wrkflow\ApiSdkBuilderTests\Actions;
 
 use Nyholm\Psr7\Request;
 use PHPUnit\Framework\TestCase;
-use WrkFlow\ApiSdkBuilder\Actions\BuildHeaders;
+use WrkFlow\ApiSdkBuilder\Actions\BuildHeadersAction;
 use WrkFlow\ApiSdkBuilder\Headers\JsonHeaders;
 
-class BuildHeadersTest extends TestCase
+class BuildHeadersActionTest extends TestCase
 {
     public function testWithInnerHeaders(): void
     {
         $request = new Request('GET', 'test');
-        $result = (new BuildHeaders())->execute([
+        $result = (new BuildHeadersAction())->execute([
             new JsonHeaders(),
             'test' => 'Tests',
             'Content-type' => ['application/xml'],

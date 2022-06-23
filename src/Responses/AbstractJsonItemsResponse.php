@@ -15,10 +15,17 @@ abstract class AbstractJsonItemsResponse extends AbstractJsonResponse
 
     public function __construct(
         ResponseInterface $response,
+        array $body,
         // It is important that "container" name is used for dependency injection.
         SDKContainerFactoryContract $container
     ) {
-        parent::__construct($response);
+        parent::__construct($response, $body);
+
+        $checkKeys = $this->requiredRootKeys();
+
+        if ($checkKeys !== []) {
+            $this->checkKeys($body, $checkKeys);
+        }
 
         $this->transformer = $container->make($this->getTransformerClass());
     }
@@ -43,15 +50,6 @@ abstract class AbstractJsonItemsResponse extends AbstractJsonResponse
      * @param Closure(mixed):void $onItem
      */
     abstract public function loopItems(Closure $onItem): bool;
-
-    protected function parseJson(array $json): void
-    {
-        $checkKeys = $this->requiredRootKeys();
-
-        if ($checkKeys !== []) {
-            $this->checkKeys($json, $checkKeys);
-        }
-    }
 
     /**
      * You will receive transformer entity in the array.

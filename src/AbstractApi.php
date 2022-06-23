@@ -8,7 +8,7 @@ use JustSteveKing\UriBuilder\Uri;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
-use WrkFlow\ApiSdkBuilder\Actions\BuildHeaders;
+use WrkFlow\ApiSdkBuilder\Actions\BuildHeadersAction;
 use WrkFlow\ApiSdkBuilder\Contracts\HeadersContract;
 use WrkFlow\ApiSdkBuilder\Contracts\OptionsContract;
 use WrkFlow\ApiSdkBuilder\Endpoints\AbstractEndpoint;
@@ -27,15 +27,16 @@ abstract class AbstractApi implements HeadersContract
      */
     protected array $cachedEndpoints = [];
 
-    private readonly BuildHeaders $buildHeaders;
+    private readonly BuildHeadersAction $buildHeadersAction;
 
     public function __construct(
         private readonly AbstractEnvironment $environment,
         private readonly ApiFactory $factory,
     ) {
-        $this->buildHeaders = $this->factory()
-            ->container()
-            ->make(BuildHeaders::class);
+        $container = $this->factory()
+            ->container();
+
+        $this->buildHeadersAction = $container->make(BuildHeadersAction::class);
     }
 
     public function environment(): AbstractEnvironment
@@ -92,7 +93,7 @@ abstract class AbstractApi implements HeadersContract
     ): ResponseInterface {
         $mergedHeaders = array_merge($this->environment->headers(), $this->headers(), $headers);
 
-        $request = $this->buildHeaders->execute($mergedHeaders, $request);
+        $request = $this->buildHeadersAction->execute($mergedHeaders, $request);
         $request = $this->withBody($body, $request);
 
         return $this->factory()

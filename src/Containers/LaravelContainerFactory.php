@@ -29,11 +29,12 @@ class LaravelContainerFactory implements SDKContainerFactoryContract
         return $this->container->make($class);
     }
 
-    public function makeResponse(string $class, ResponseInterface $response): AbstractResponse
+    public function makeResponse(string $class, ResponseInterface $response, mixed $body): AbstractResponse
     {
         return $this->container->make($class, [
             'response' => $response,
             'container' => $this,
+            'body' => $body,
         ]);
     }
 }

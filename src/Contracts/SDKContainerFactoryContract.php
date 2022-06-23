@@ -36,5 +36,5 @@ interface SDKContainerFactoryContract
      *
      * @return T
      */
-    public function makeResponse(string $class, ResponseInterface $response): AbstractResponse;
+    public function makeResponse(string $class, ResponseInterface $response, mixed $body): AbstractResponse;
 }

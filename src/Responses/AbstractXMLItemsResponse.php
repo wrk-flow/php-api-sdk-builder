@@ -16,10 +16,11 @@ abstract class AbstractXMLItemsResponse extends AbstractXMLResponse
 
     public function __construct(
         ResponseInterface $response,
+        SimpleXMLElement $body,
         // It is important that "container" name is used for dependency injection.
         SDKContainerFactoryContract $container
     ) {
-        parent::__construct($response);
+        parent::__construct($response, $body);
 
         $this->transformer = $container->make($this->getTransformerClass());
     }

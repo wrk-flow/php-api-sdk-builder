@@ -6,19 +6,14 @@ namespace WrkFlow\ApiSdkBuilder\Responses;
 
 use Psr\Http\Message\ResponseInterface;
 use SimpleXMLElement;
+use WrkFlow\ApiSdkBuilder\Contracts\BodyIsXmlContract;
 
-abstract class AbstractXMLResponse extends AbstractResponse
+abstract class AbstractXMLResponse extends AbstractResponse implements BodyIsXmlContract
 {
-    protected SimpleXMLElement $xml;
-
-    public function __construct(ResponseInterface $response)
-    {
+    public function __construct(
+        ResponseInterface $response,
+        protected SimpleXMLElement $xml
+    ) {
         parent::__construct($response);
-
-        $xml = new SimpleXMLElement($response->getBody()->getContents());
-
-        $this->xml = $this->parseXml($xml);
     }
-
-    abstract protected function parseXml(SimpleXMLElement $xml): SimpleXMLElement;
 }
