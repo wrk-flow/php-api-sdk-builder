@@ -1,5 +1,3 @@
-# https://help.github.com/en/categories/automating-your-workflow-with-github-actions
-
 name: "Check"
 
 on:
@@ -10,103 +8,8 @@ on:
       - "!gh-pages"
 
 jobs:
-  coding-standards:
-    name: "Coding Standard"
-    runs-on: "ubuntu-latest"
-
-    strategy:
-      matrix:
-        php-version:
-          - "8.1"
-
-    steps:
-      - name: "Checkout"
-        uses: actions/checkout@v3
-
-      - name: "Install PHP"
-        uses: "shivammathur/setup-php@v2"
-        with:
-          coverage: "none"
-          php-version: "${{ matrix.php-version }}"
-
-      - name: "Validate Composer"
-        run: "composer validate"
-
-      - name: "Install dependencies"
-        run: "composer install --no-interaction --no-progress"
-
-      - name: "ECS"
-        run: "composer lint:check"
-
-      - name: "Rector"
-        run: "composer lint:upgrade:check"
-
-  tests:
-    name: "Tests"
-    runs-on: "ubuntu-latest"
-
-    strategy:
-      fail-fast: false
-      matrix:
-        php-version:
-          - "8.1"
-        dependencies:
-          - "lowest"
-          - "highest"
-
-    steps:
-      - name: "Checkout"
-        uses: actions/checkout@v3
-
-      - name: "Install PHP"
-        uses: "shivammathur/setup-php@v2"
-        with:
-          coverage: "none"
-          php-version: "${{ matrix.php-version }}"
-
-      - name: "Install lowest dependencies"
-        if: ${{ matrix.dependencies == 'lowest' }}
-        run: "composer update --prefer-lowest --no-interaction --no-progress"
-
-      - name: "Install highest dependencies"
-        if: ${{ matrix.dependencies == 'highest' }}
-        run: "composer update --no-interaction --no-progress"
-
-      - name: "Tests"
-        run: "composer test"
-
-  static-analysis:
-    name: "PHPStan"
-    runs-on: "ubuntu-latest"
-
-    strategy:
-      fail-fast: false
-      matrix:
-        php-version:
-          - "8.1"
-        dependencies:
-          - "lowest"
-          - "highest"
-
-    steps:
-      - name: "Checkout"
-        uses: actions/checkout@v3
-
-      - name: "Install PHP"
-        uses: "shivammathur/setup-php@v2"
-        with:
-          coverage: "none"
-          php-version: "${{ matrix.php-version }}"
-          extensions: mbstring
-          tools: composer:v2
-
-      - name: "Install lowest dependencies"
-        if: ${{ matrix.dependencies == 'lowest' }}
-        run: "composer update --prefer-lowest --no-interaction --no-progress"
-
-      - name: "Install highest dependencies"
-        if: ${{ matrix.dependencies == 'highest' }}
-        run: "composer update --no-interaction --no-progress"
-
-      - name: "PHPStan"
-        run: "composer lint:stan"
+  run:
+    uses: wrk-flow/reusable-workflows/.github/workflows/php-check.yml@main
+    secrets: inherit
+    with:
+      gistID: bdae700e21749c3532d7961f1d8b252b
