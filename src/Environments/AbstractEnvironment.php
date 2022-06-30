@@ -23,4 +23,11 @@ abstract class AbstractEnvironment implements HeadersContract
     {
         return $this->headers;
     }
+
+    public function addHeader(array|HeadersContract $header): self
+    {
+        $this->headers[] = $header;
+
+        return $this;
+    }
 }

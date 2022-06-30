@@ -10,5 +10,5 @@ abstract class AbstractJsonTransformer
 {
     use WorksWithJson;
 
-    abstract public function transform(array $item): object;
+    abstract public function transform(array $item): object|array;
 }

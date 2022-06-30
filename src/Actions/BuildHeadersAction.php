@@ -7,7 +7,7 @@ namespace WrkFlow\ApiSdkBuilder\Actions;
 use Psr\Http\Message\RequestInterface;
 use WrkFlow\ApiSdkBuilder\Contracts\HeadersContract;
 
-class BuildHeaders
+class BuildHeadersAction
 {
     /**
      * @param array<int|string,HeadersContract|string|string[]> $headers

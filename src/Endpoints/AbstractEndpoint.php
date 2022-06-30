@@ -7,12 +7,14 @@ namespace WrkFlow\ApiSdkBuilder\Endpoints;
 use JustSteveKing\UriBuilder\Uri;
 use Psr\Http\Message\ResponseInterface;
 use WrkFlow\ApiSdkBuilder\AbstractApi;
-use WrkFlow\ApiSdkBuilder\Response\AbstractResponse;
+use WrkFlow\ApiSdkBuilder\Actions\MakeBodyFromResponseAction;
+use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
 
 abstract class AbstractEndpoint
 {
     public function __construct(
-        protected AbstractApi $api
+        protected AbstractApi $api,
+        private readonly MakeBodyFromResponseAction $makeBodyFromResponseAction,
     ) {
     }
 
@@ -40,10 +42,23 @@ abstract class AbstractEndpoint
      *
      * @return T
      */
-    protected function makeResponse(string $class, ResponseInterface $response): AbstractResponse
-    {
-        return $this->api->factory()
-            ->container()
-            ->makeResponse($class, $response);
+    protected function makeResponse(
+        string $class,
+        ResponseInterface $response,
+        ?int $expectedStatusCode = null
+    ): AbstractResponse {
+        $container = $this->api->factory()
+            ->container();
+
+        $statusCode = $response->getStatusCode();
+
+        if ($expectedStatusCode === $statusCode ||
+            ($expectedStatusCode === null && ($statusCode === 200 || $statusCode === 201))) {
+            $body = $this->makeBodyFromResponseAction->execute($class, $response);
+
+            return $container->makeResponse($class, $response, $body);
+        }
+
+        throw $this->api->createFailedResponseException($statusCode, $response);
     }
 }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Options;
 
+use WrkFlow\ApiSdkBuilder\Environments\AbstractEnvironment;
+
 class MergedJsonOptions extends AbstractJsonOptions
 {
     /**
@@ -14,7 +16,7 @@ class MergedJsonOptions extends AbstractJsonOptions
     ) {
     }
 
-    public function toArray(): array
+    public function toArray(AbstractEnvironment $environment): array
     {
         $result = [];
         foreach ($this->options as $option) {
@@ -22,7 +24,7 @@ class MergedJsonOptions extends AbstractJsonOptions
                 continue;
             }
 
-            $result = array_merge($result, $option->toArray());
+            $result = array_merge($result, $option->toArray($environment));
         }
 
         return $result;

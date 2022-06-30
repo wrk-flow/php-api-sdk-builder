@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Contracts;
 
+use WrkFlow\ApiSdkBuilder\Environments\AbstractEnvironment;
+
 interface OptionsContract
 {
-    public function toBody(): string;
+    public function toBody(AbstractEnvironment $environment): string;
 }

@@ -7,7 +7,7 @@ namespace WrkFlow\ApiSdkBuilder\Contracts;
 use Psr\Http\Message\ResponseInterface;
 use WrkFlow\ApiSdkBuilder\AbstractApi;
 use WrkFlow\ApiSdkBuilder\Endpoints\AbstractEndpoint;
-use WrkFlow\ApiSdkBuilder\Response\AbstractResponse;
+use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
 
 interface SDKContainerFactoryContract
 {
@@ -36,5 +36,5 @@ interface SDKContainerFactoryContract
      *
      * @return T
      */
-    public function makeResponse(string $class, ResponseInterface $response): AbstractResponse;
+    public function makeResponse(string $class, ResponseInterface $response, mixed $body): AbstractResponse;
 }

@@ -25,10 +25,10 @@ class GuzzleLaravelApiFactory extends ApiFactory
         StreamFactory $streamFactory
     ) {
         parent::__construct(
-            $requestFactory,
-            $client,
-            $streamFactory,
-            $laravelContainer
+            request: $requestFactory,
+            client: $client,
+            stream: $streamFactory,
+            container: $laravelContainer
         );
     }
 }

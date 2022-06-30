@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WrkFlow\ApiSdkBuilder\Response;
+namespace WrkFlow\ApiSdkBuilder\Responses;
 
 use Closure;
 use Psr\Http\Message\ResponseInterface;
@@ -15,10 +15,17 @@ abstract class AbstractJsonItemsResponse extends AbstractJsonResponse
 
     public function __construct(
         ResponseInterface $response,
+        array $body,
         // It is important that "container" name is used for dependency injection.
         SDKContainerFactoryContract $container
     ) {
-        parent::__construct($response);
+        parent::__construct($response, $body);
+
+        $checkKeys = $this->requiredRootKeys();
+
+        if ($checkKeys !== []) {
+            $this->checkKeys($body, $checkKeys);
+        }
 
         $this->transformer = $container->make($this->getTransformerClass());
     }
@@ -26,7 +33,7 @@ abstract class AbstractJsonItemsResponse extends AbstractJsonResponse
     public function getRawItems(): array
     {
         $itemsKey = $this->itemsKey();
-        $root = $this->toArray();
+        $root = $this->json();
 
         if ($itemsKey === null) {
             return $root;
@@ -44,24 +51,12 @@ abstract class AbstractJsonItemsResponse extends AbstractJsonResponse
      */
     abstract public function loopItems(Closure $onItem): bool;
 
-    protected function parseJson(array $json): bool
-    {
-        $checkKeys = $this->requiredRootKeys();
-        return ($checkKeys !== [] && $this->hasKeys($json, $checkKeys) === false) === false;
-    }
-
     /**
      * You will receive transformer entity in the array.
      */
     protected function transformUsingArray(): array
     {
-        $items = $this->isSuccessful() ? $this->getRawItems() : [];
-
-        if ($items === []) {
-            return [];
-        }
-
-        return array_map(fn (array $item) => $this->transformer->transform($item), $items);
+        return array_map(fn (array $item) => $this->transformer->transform($item), $this->getRawItems());
     }
 
     /**
@@ -69,7 +64,7 @@ abstract class AbstractJsonItemsResponse extends AbstractJsonResponse
      */
     protected function transformUsingLoop(Closure $onItem): bool
     {
-        $items = $this->isSuccessful() ? $this->getRawItems() : [];
+        $items = $this->getRawItems();
 
         if ($items === []) {
             return false;
