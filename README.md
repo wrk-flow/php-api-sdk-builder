@@ -19,6 +19,7 @@ This package helps you build PHP clients for external APIs with dependency injec
 
 ![img](https://img.shields.io/badge/PHPStan-8-blue)
 ![php](https://img.shields.io/badge/PHP-8.1-B0B3D6)
+![coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/pionl/bdae700e21749c3532d7961f1d8b252b/raw/coverage.json)
 
 - 🛠 Dependency injection using your favorite framework (Laravel, _PR for more_)
 - ✅ Uses PSR packages you already use for HTTP/S communication
