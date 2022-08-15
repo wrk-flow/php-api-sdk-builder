@@ -10,10 +10,13 @@ use SimpleXMLElement;
 use WrkFlow\ApiSdkBuilder\Contracts\BodyIsJsonContract;
 use WrkFlow\ApiSdkBuilder\Contracts\BodyIsXmlContract;
 use WrkFlow\ApiSdkBuilder\Exceptions\InvalidJsonResponseException;
+use Wrkflow\GetValue\DataHolders\ArrayData;
+use Wrkflow\GetValue\DataHolders\XMLData;
+use Wrkflow\GetValue\GetValue;
 
 class MakeBodyFromResponseAction
 {
-    public function execute(string $responseClass, ResponseInterface $response): array|SimpleXMLElement|null
+    public function execute(string $responseClass, ResponseInterface $response): ?GetValue
     {
         $implements = class_implements($responseClass);
 
@@ -26,13 +29,13 @@ class MakeBodyFromResponseAction
         }
 
         if (array_key_exists(BodyIsXmlContract::class, $implements)) {
-            return new SimpleXMLElement($response->getBody()->getContents());
+            return new GetValue(new XMLData(new SimpleXMLElement($response->getBody()->getContents())));
         }
 
         return null;
     }
 
-    protected function convertToJson(ResponseInterface $response): array
+    protected function convertToJson(ResponseInterface $response): GetValue
     {
         $json = null;
         try {
@@ -43,14 +46,9 @@ class MakeBodyFromResponseAction
                 throw new InvalidJsonResponseException($response, 'Response is not a json');
             }
 
-            return $json;
+            return new GetValue(new ArrayData($json));
         } catch (JsonException $jsonException) {
-            throw new InvalidJsonResponseException(
-                $response,
-                'Failed to build json: ' . $jsonException->getMessage(),
-                $json,
-                $jsonException
-            );
+            throw new InvalidJsonResponseException($response, 'Failed to build json: ' . $jsonException->getMessage(), $json, $jsonException);
         }
     }
 }

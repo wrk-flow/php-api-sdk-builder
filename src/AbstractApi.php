@@ -9,6 +9,8 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use WrkFlow\ApiSdkBuilder\Actions\BuildHeadersAction;
+use WrkFlow\ApiSdkBuilder\Actions\MakeBodyFromResponseAction;
+use WrkFlow\ApiSdkBuilder\Actions\SendRequestAction;
 use WrkFlow\ApiSdkBuilder\Contracts\HeadersContract;
 use WrkFlow\ApiSdkBuilder\Contracts\OptionsContract;
 use WrkFlow\ApiSdkBuilder\Endpoints\AbstractEndpoint;
@@ -17,6 +19,7 @@ use WrkFlow\ApiSdkBuilder\Exceptions\BadRequestException;
 use WrkFlow\ApiSdkBuilder\Exceptions\ResponseException;
 use WrkFlow\ApiSdkBuilder\Exceptions\ServerFailedException;
 use WrkFlow\ApiSdkBuilder\Factories\ApiFactory;
+use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
 
 abstract class AbstractApi implements HeadersContract
 {
@@ -27,7 +30,7 @@ abstract class AbstractApi implements HeadersContract
      */
     protected array $cachedEndpoints = [];
 
-    private readonly BuildHeadersAction $buildHeadersAction;
+    private readonly SendRequestAction $sendRequestAction;
 
     public function __construct(
         private readonly AbstractEnvironment $environment,
@@ -36,7 +39,7 @@ abstract class AbstractApi implements HeadersContract
         $container = $this->factory()
             ->container();
 
-        $this->buildHeadersAction = $container->make(BuildHeadersAction::class);
+        $this->sendRequestAction = $container->make(SendRequestAction::class);
     }
 
     public function environment(): AbstractEnvironment
@@ -57,48 +60,99 @@ abstract class AbstractApi implements HeadersContract
     }
 
     /**
-     * @param array<HeadersContract> $headers
+     * @template TResponse of AbstractResponse
+     *
+     * @param array<int|string,HeadersContract|string|string[]> $headers
+     *
+     * @return TResponse
      */
-    public function get(Uri $uri, array $headers = []): ResponseInterface
-    {
+    public function get(
+        string $responseClass,
+        Uri $uri,
+        array $headers = [],
+        ?int $expectedResponseStatusCode = null,
+    ): AbstractResponse {
         $request = $this->factory()
             ->request()
             ->createRequest('GET', $uri->toString());
 
-        return $this->sendRequest($request, $headers);
+        return $this->sendRequestAction
+            ->execute($this, $request, $responseClass, null, $headers, $expectedResponseStatusCode);
     }
 
     /**
+     * @template TResponse of AbstractResponse
+     *
+     * @param class-string<TResponse>                           $responseClass
      * @param array<int|string,HeadersContract|string|string[]> $headers
+     * @param int|null                                          $expectedResponseStatusCode Will raise and failed
+     *                                                                                      exception if response
+     *
+     * @return TResponse
      */
     public function post(
+        string $responseClass,
         Uri $uri,
         OptionsContract|StreamInterface|string $body = null,
-        array $headers = []
-    ): ResponseInterface {
+        array $headers = [],
+        ?int $expectedResponseStatusCode = null,
+    ): AbstractResponse {
         $request = $this->factory()
             ->request()
             ->createRequest('POST', $uri->toString());
 
-        return $this->sendRequest($request, $headers, $body);
+        return $this->sendRequestAction
+            ->execute($this, $request, $responseClass, $body, $headers, $expectedResponseStatusCode);
     }
 
     /**
+     * @template TResponse of AbstractResponse
+     *
+     * @param class-string<TResponse>                           $responseClass
      * @param array<int|string,HeadersContract|string|string[]> $headers
+     * @param int|null                                          $expectedResponseStatusCode Will raise and failed
+     *                                                                                      exception if response
+     *
+     * @return TResponse
      */
-    public function sendRequest(
-        RequestInterface $request,
+    public function put(
+        string $responseClass,
+        Uri $uri,
+        OptionsContract|StreamInterface|string $body = null,
         array $headers = [],
-        OptionsContract|StreamInterface|string|null $body = null
-    ): ResponseInterface {
-        $mergedHeaders = array_merge($this->environment->headers(), $this->headers(), $headers);
+        ?int $expectedResponseStatusCode = null,
+    ): AbstractResponse {
+        $request = $this->factory()
+            ->request()
+            ->createRequest('PUT', $uri->toString());
 
-        $request = $this->buildHeadersAction->execute($mergedHeaders, $request);
-        $request = $this->withBody($body, $request);
+        return $this->sendRequestAction
+            ->execute($this, $request, $responseClass, $body, $headers, $expectedResponseStatusCode);
+    }
 
-        return $this->factory()
-            ->client()
-            ->sendRequest($request);
+    /**
+     * @template TResponse of AbstractResponse
+     *
+     * @param class-string<TResponse>                           $responseClass
+     * @param array<int|string,HeadersContract|string|string[]> $headers
+     * @param int|null                                          $expectedResponseStatusCode Will raise and failed
+     *                                                                                      exception if response
+     *
+     * @return TResponse
+     */
+    public function delete(
+        string $responseClass,
+        Uri $uri,
+        OptionsContract|StreamInterface|string $body = null,
+        array $headers = [],
+        ?int $expectedResponseStatusCode = null,
+    ): AbstractResponse {
+        $request = $this->factory()
+            ->request()
+            ->createRequest('DELETE', $uri->toString());
+
+        return $this->sendRequestAction
+            ->execute($this, $request, $responseClass, $body, $headers, $expectedResponseStatusCode);
     }
 
     public function createFailedResponseException(int $statusCode, ResponseInterface $response): ResponseException
@@ -112,6 +166,7 @@ abstract class AbstractApi implements HeadersContract
 
     /**
      * @template T of AbstractEndpoint
+     *
      * @param class-string<T> $endpoint
      *
      * @return T
@@ -127,22 +182,5 @@ abstract class AbstractApi implements HeadersContract
         }
 
         return $this->cachedEndpoints[$endpoint];
-    }
-
-    protected function withBody(
-        OptionsContract|StreamInterface|string|null $body,
-        RequestInterface $request
-    ): RequestInterface {
-        if ($body instanceof StreamInterface) {
-            return $request->withBody($body);
-        } elseif ($body instanceof OptionsContract) {
-            $body = $body->toBody($this->environment());
-        }
-
-        if ($body !== null) {
-            return $request->withBody($this->factory()->stream()->createStream($body));
-        }
-
-        return $request;
     }
 }

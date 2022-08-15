@@ -8,6 +8,7 @@ use Closure;
 use Psr\Http\Message\ResponseInterface;
 use WrkFlow\ApiSdkBuilder\Contracts\SDKContainerFactoryContract;
 use WrkFlow\ApiSdkBuilder\Transformers\AbstractJsonTransformer;
+use Wrkflow\GetValue\GetValue;
 
 abstract class AbstractJsonItemsResponse extends AbstractJsonResponse
 {
@@ -15,7 +16,7 @@ abstract class AbstractJsonItemsResponse extends AbstractJsonResponse
 
     public function __construct(
         ResponseInterface $response,
-        array $body,
+        GetValue $body,
         // It is important that "container" name is used for dependency injection.
         SDKContainerFactoryContract $container
     ) {
@@ -36,10 +37,10 @@ abstract class AbstractJsonItemsResponse extends AbstractJsonResponse
         $root = $this->json();
 
         if ($itemsKey === null) {
-            return $root;
+            return $root->data->get();
         }
 
-        return $root[$itemsKey];
+        return $root->getRequiredArray($itemsKey);
     }
 
     abstract public function items(): array;

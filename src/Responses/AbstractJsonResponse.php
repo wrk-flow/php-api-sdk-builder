@@ -7,12 +7,13 @@ namespace WrkFlow\ApiSdkBuilder\Responses;
 use Psr\Http\Message\ResponseInterface;
 use WrkFlow\ApiSdkBuilder\Contracts\BodyIsJsonContract;
 use WrkFlow\ApiSdkBuilder\Exceptions\InvalidJsonResponseException;
+use Wrkflow\GetValue\GetValue;
 
 abstract class AbstractJsonResponse extends AbstractResponse implements BodyIsJsonContract
 {
     public function __construct(
         ResponseInterface $response,
-        protected array $json
+        protected readonly GetValue $body
     ) {
         parent::__construct($response);
     }
@@ -20,12 +21,12 @@ abstract class AbstractJsonResponse extends AbstractResponse implements BodyIsJs
     /**
      * Response must be successful to access json.
      */
-    public function json(): array
+    public function json(): GetValue
     {
-        return $this->json;
+        return $this->body;
     }
 
-    protected function checkKeys(array $json, array $keys): void
+    protected function checkKeys(GetValue $json, array $keys): void
     {
         if ($keys === []) {
             return;
@@ -33,7 +34,7 @@ abstract class AbstractJsonResponse extends AbstractResponse implements BodyIsJs
 
         $missingKeys = [];
         foreach ($keys as $key) {
-            if (array_key_exists($key, $json) === false) {
+            if ($json->data->getValue($key) !== null) {
                 $missingKeys[] = $key;
             }
         }
@@ -43,6 +44,6 @@ abstract class AbstractJsonResponse extends AbstractResponse implements BodyIsJs
         }
 
         $message = 'Response is missing required keys: ' . implode(',', $missingKeys);
-        throw new InvalidJsonResponseException($this->response, $message, $json);
+        throw new InvalidJsonResponseException($this->response, $message, $json->data->get());
     }
 }

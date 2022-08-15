@@ -8,6 +8,7 @@ use Psr\Http\Message\ResponseInterface;
 use WrkFlow\ApiSdkBuilder\AbstractApi;
 use WrkFlow\ApiSdkBuilder\Endpoints\AbstractEndpoint;
 use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
+use Wrkflow\GetValue\GetValue;
 
 interface SDKContainerFactoryContract
 {
@@ -36,5 +37,5 @@ interface SDKContainerFactoryContract
      *
      * @return T
      */
-    public function makeResponse(string $class, ResponseInterface $response, mixed $body): AbstractResponse;
+    public function makeResponse(string $class, ResponseInterface $response, ?GetValue $body): AbstractResponse;
 }

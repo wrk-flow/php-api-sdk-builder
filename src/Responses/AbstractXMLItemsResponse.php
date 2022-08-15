@@ -6,9 +6,10 @@ namespace WrkFlow\ApiSdkBuilder\Responses;
 
 use Closure;
 use Psr\Http\Message\ResponseInterface;
-use SimpleXMLElement;
 use WrkFlow\ApiSdkBuilder\Contracts\SDKContainerFactoryContract;
 use WrkFlow\ApiSdkBuilder\Transformers\AbstractXMLTransformer;
+use Wrkflow\GetValue\GetValue;
+use Wrkflow\GetValue\Transformers\ArrayItemGetterTransformer;
 
 abstract class AbstractXMLItemsResponse extends AbstractXMLResponse
 {
@@ -16,7 +17,7 @@ abstract class AbstractXMLItemsResponse extends AbstractXMLResponse
 
     public function __construct(
         ResponseInterface $response,
-        SimpleXMLElement $body,
+        GetValue $body,
         // It is important that "container" name is used for dependency injection.
         SDKContainerFactoryContract $container
     ) {
@@ -25,7 +26,7 @@ abstract class AbstractXMLItemsResponse extends AbstractXMLResponse
         $this->transformer = $container->make($this->getTransformerClass());
     }
 
-    abstract public function getRawItems(): SimpleXMLElement;
+    abstract protected function getItemsKey(): string;
 
     abstract public function items(): array;
 
@@ -41,14 +42,11 @@ abstract class AbstractXMLItemsResponse extends AbstractXMLResponse
      */
     protected function transformUsingArray(): array
     {
-        $items = $this->getRawItems();
-        $newItems = [];
-
-        foreach ($items as $item) {
-            $newItems[] = $this->transformer->transform($item);
-        }
-
-        return $newItems;
+        return $this->body->getArray($this->getItemsKey(), [
+            new ArrayItemGetterTransformer(function (GetValue $getValue) {
+                return $this->transformer->transform($getValue);
+            }),
+        ]);
     }
 
     /**
@@ -56,13 +54,15 @@ abstract class AbstractXMLItemsResponse extends AbstractXMLResponse
      */
     protected function transformUsingLoop(Closure $onItem): bool
     {
-        $items = $this->getRawItems();
+        $result = $this->body->getArray($this->getItemsKey(), [
+            new ArrayItemGetterTransformer(function (GetValue $getValue) use ($onItem) {
+                $result = $this->transformer->transform($getValue);
+                $onItem($result);
+                return true;
+            }),
+        ]);
 
-        foreach ($items as $item) {
-            $onItem($this->transformer->transform($item));
-        }
-
-        return true;
+        return $result !== [];
     }
 
     /**
