@@ -48,7 +48,12 @@ class MakeBodyFromResponseAction
 
             return new GetValue(new ArrayData($json));
         } catch (JsonException $jsonException) {
-            throw new InvalidJsonResponseException($response, 'Failed to build json: ' . $jsonException->getMessage(), $json, $jsonException);
+            throw new InvalidJsonResponseException(
+                $response,
+                'Failed to build json: ' . $jsonException->getMessage(),
+                $json,
+                $jsonException
+            );
         }
     }
 }

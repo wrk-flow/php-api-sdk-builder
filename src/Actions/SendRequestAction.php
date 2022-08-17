@@ -10,6 +10,7 @@ use Psr\Http\Message\StreamInterface;
 use WrkFlow\ApiSdkBuilder\AbstractApi;
 use WrkFlow\ApiSdkBuilder\Contracts\HeadersContract;
 use WrkFlow\ApiSdkBuilder\Contracts\OptionsContract;
+use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
 
 class SendRequestAction
 {
@@ -37,9 +38,10 @@ class SendRequestAction
         OptionsContract|StreamInterface|string|null $body = null,
         array $headers = [],
         ?int $expectedResponseStatusCode = null
-    ) {
+    ): AbstractResponse {
         $response = $this->sendRequest($api, $request, $body, $headers);
-        $container = $api->factory()->container();
+        $container = $api->factory()
+            ->container();
 
         $statusCode = $response->getStatusCode();
 
@@ -71,7 +73,6 @@ class SendRequestAction
             ->client()
             ->sendRequest($request);
     }
-
 
     protected function withBody(
         AbstractApi $api,

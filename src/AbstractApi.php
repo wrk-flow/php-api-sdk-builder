@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace WrkFlow\ApiSdkBuilder;
 
 use JustSteveKing\UriBuilder\Uri;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
-use WrkFlow\ApiSdkBuilder\Actions\BuildHeadersAction;
-use WrkFlow\ApiSdkBuilder\Actions\MakeBodyFromResponseAction;
 use WrkFlow\ApiSdkBuilder\Actions\SendRequestAction;
+use WrkFlow\ApiSdkBuilder\Contracts\ApiContract;
+use WrkFlow\ApiSdkBuilder\Contracts\ApiFactoryContract;
 use WrkFlow\ApiSdkBuilder\Contracts\HeadersContract;
 use WrkFlow\ApiSdkBuilder\Contracts\OptionsContract;
 use WrkFlow\ApiSdkBuilder\Endpoints\AbstractEndpoint;
@@ -18,10 +17,9 @@ use WrkFlow\ApiSdkBuilder\Environments\AbstractEnvironment;
 use WrkFlow\ApiSdkBuilder\Exceptions\BadRequestException;
 use WrkFlow\ApiSdkBuilder\Exceptions\ResponseException;
 use WrkFlow\ApiSdkBuilder\Exceptions\ServerFailedException;
-use WrkFlow\ApiSdkBuilder\Factories\ApiFactory;
 use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
 
-abstract class AbstractApi implements HeadersContract
+abstract class AbstractApi implements ApiContract
 {
     /**
      * A cache map of created endpoints: class -> instance.
@@ -34,12 +32,11 @@ abstract class AbstractApi implements HeadersContract
 
     public function __construct(
         private readonly AbstractEnvironment $environment,
-        private readonly ApiFactory $factory,
+        private readonly ApiFactoryContract $factory,
     ) {
-        $container = $this->factory()
-            ->container();
-
-        $this->sendRequestAction = $container->make(SendRequestAction::class);
+        $this->sendRequestAction = $this->factory()
+            ->container()
+            ->make(SendRequestAction::class);
     }
 
     public function environment(): AbstractEnvironment
@@ -48,7 +45,7 @@ abstract class AbstractApi implements HeadersContract
         return $this->environment;
     }
 
-    public function factory(): ApiFactory
+    public function factory(): ApiFactoryContract
     {
         // Makes the factory testable
         return $this->factory;
@@ -62,6 +59,7 @@ abstract class AbstractApi implements HeadersContract
     /**
      * @template TResponse of AbstractResponse
      *
+     * @param class-string<TResponse>                           $responseClass
      * @param array<int|string,HeadersContract|string|string[]> $headers
      *
      * @return TResponse

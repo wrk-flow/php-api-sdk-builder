@@ -9,12 +9,12 @@ position: 11
 API is built using these conventions:
 
 - **API object:** provides the API interface
-- **Environments:** provides user customization of the API 
+- **Environments:** provides user customization of the API
 - **Endpoints:** provides a way to call API endpoint and return response
-  - **Options:** provides ability to send data to the API endpoint
+    - **Options:** provides ability to send data to the API endpoint
 - **Response:** Holds the response data with defined "options".
-  - **Entities:** Data transfer objects for responses.
-  - **Transformers:** Transform classes that will transform any data (response array) to entity.
+    - **Entities:** Data transfer objects for responses.
+    - **Transformers:** Transform classes that will transform any data (response array) to entity.
 
 ## API
 
@@ -22,7 +22,7 @@ API is built using these conventions:
 
 API is the main class that holds:
 
-- which environment we should use, 
+- which environment we should use,
 - which endpoints are available
 - defines base headers for the environment
 
@@ -77,32 +77,29 @@ Factory is later used in your API to build endpoints, responses.
 
 ## Transformers
 
-- Try to indicate within the name of class what is the input / output.
+- Try to indicate within the name of class what is the input / output (like *UnitAvailabilityToEntity* or *
+  JsonToUnitAvailability*).
 - Always add `transform(IntType $object): OutType` function that will make the transformation.
-- Extend `AbstractJsonTransformer` if you are converting array to entity object. Contains helper method from `WorksWithJson`
+- We do recommend implementing `GetValueTransformerContract` interface which then can be used with `*GetterTransformers`
 
 ```php
-use WrkFlow\ApiSdkBuilder\Transformers\AbstractJsonTransformer;
+use use Wrkflow\GetValue\Transformers\ArrayItemGetterTransformer;
 
-class JsonToUnitAvailabilityEntity extends AbstractJsonTransformer
+class JsonToUnitAvailabilityEntity implements GetValueTransformerContract
 {
-    private const KEY_AVAILABILITY_STATUS = 'availabilityStatus';
-
-    public function transform(array $item): UnitAvailabilityEntity
+    public function transform(GetValue $value, string $key): UnitAvailabilityEntity
     {
-        $id = $this->getInt($item, 'ID');
-        $isAvailable = $this->getBool($item, 'isAvailable');
+        $id = $value->getRequiredInt('ID');
+        $isAvailable = $value->getRequiredBool('isAvailable');
 
-        $availabilityStates = [];
-        if (array_key_exists(self::KEY_AVAILABILITY_STATUS, $item) === true
-            && is_array($item[self::KEY_AVAILABILITY_STATUS]) === true) {
-            foreach ($item[self::KEY_AVAILABILITY_STATUS] as $item) {
-                $availabilityStates[] = new UnitAvailabilityStateEntity(
-                    day: $item['day'],
-                    state: AvailabilityState::from($item['status']),
+        $availabilityStates = $value->getArray('availabilityStatus', [
+            new ArrayItemGetterTransformer(function (GetValue $value): UnitAvailabilityStateEntity {
+                return new UnitAvailabilityStateEntity(
+                    day: $value->getRequiredString('day'),
+                    state: $value->getRequiredEnum('status', AvailabilityState::class),
                 );
-            }
-        }
+            }),
+        ]);
 
         return new UnitAvailabilityEntity(
             id: $id,
@@ -115,9 +112,10 @@ class JsonToUnitAvailabilityEntity extends AbstractJsonTransformer
 
 ## Entities
 
-Entities are Data transfer objects. We do place them in `Entities` namespace when it is used by more responses. Otherwise, it is located in same folder as the endpoint. 
+Entities are Data transfer objects. We do place them in `Entities` namespace when it is used by more responses.
+Otherwise, it is located in same folder as the endpoint.
 
-The entity should be immutable. 
+The entity should be immutable.
 
 ```php
 class UnitAvailabilityEntity

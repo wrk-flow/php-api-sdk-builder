@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Testing\Responses;
 
-class JsonResponse extends Response
+class JsonResponseMock extends ResponseMock
 {
     public function __construct(
         public readonly array $json,

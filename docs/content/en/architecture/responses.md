@@ -61,11 +61,11 @@ These functions are provided for the consumer:
 - You can use `$this->hasKeys(json: $json, keys: [...]): bool` to check if the array contains given keys.
 - You can use [WorksWithJson](/architecture/utils#workswithjson) to easily get values from json with proper type.
 
-## JSON response with items array
+## JSON/XML response with items array
 
 > For step by step implementation check  [Start building / create response](/start-building/create-response)
 
-Use this if you want to provide a way to easily access array items in the json using transformer and base root keys
+Use this if you want to provide an easy access to transformed items (from XML/JSON to entity
 validation.
 
 ### Consumer functions

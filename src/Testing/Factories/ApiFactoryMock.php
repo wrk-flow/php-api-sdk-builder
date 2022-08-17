@@ -2,41 +2,34 @@
 
 declare(strict_types=1);
 
-namespace WrkFlow\ApiSdkBuilder\Factories;
+namespace WrkFlow\ApiSdkBuilder\Testing\Factories;
 
+use Mockery;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use WrkFlow\ApiSdkBuilder\Contracts\ApiFactoryContract;
 use WrkFlow\ApiSdkBuilder\Contracts\SDKContainerFactoryContract;
 
-class ApiFactory implements ApiFactoryContract
+class ApiFactoryMock implements ApiFactoryContract
 {
-    public function __construct(
-        private readonly RequestFactoryInterface $request,
-        private readonly ClientInterface $client,
-        private readonly StreamFactoryInterface $stream,
-        private readonly SDKContainerFactoryContract $container,
-    ) {
-    }
-
     public function request(): RequestFactoryInterface
     {
-        return $this->request;
+        return Mockery::mock(RequestFactoryInterface::class);
     }
 
     public function client(): ClientInterface
     {
-        return $this->client;
+        return Mockery::mock(ClientInterface::class);
     }
 
     public function stream(): StreamFactoryInterface
     {
-        return $this->stream;
+        return new StreamFactoryMock();
     }
 
     public function container(): SDKContainerFactoryContract
     {
-        return $this->container;
+        return Mockery::mock(SDKContainerFactoryContract::class);
     }
 }

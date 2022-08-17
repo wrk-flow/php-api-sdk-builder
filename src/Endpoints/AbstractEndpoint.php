@@ -5,16 +5,12 @@ declare(strict_types=1);
 namespace WrkFlow\ApiSdkBuilder\Endpoints;
 
 use JustSteveKing\UriBuilder\Uri;
-use Psr\Http\Message\ResponseInterface;
-use WrkFlow\ApiSdkBuilder\AbstractApi;
-use WrkFlow\ApiSdkBuilder\Actions\MakeBodyFromResponseAction;
-use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
+use WrkFlow\ApiSdkBuilder\Contracts\ApiContract;
 
 abstract class AbstractEndpoint
 {
     public function __construct(
-        protected AbstractApi $api,
-        private readonly MakeBodyFromResponseAction $makeBodyFromResponseAction,
+        protected ApiContract $api,
     ) {
     }
 
@@ -33,32 +29,5 @@ abstract class AbstractEndpoint
         }
 
         return $uri->addPath($uri->path() . $basePath);
-    }
-
-    /**
-     * @template T of AbstractResponse
-     *
-     * @param class-string<T> $class
-     *
-     * @return T
-     */
-    protected function makeResponse(
-        string $class,
-        ResponseInterface $response,
-        ?int $expectedStatusCode = null
-    ): AbstractResponse {
-        $container = $this->api->factory()
-            ->container();
-
-        $statusCode = $response->getStatusCode();
-
-        if ($expectedStatusCode === $statusCode ||
-            ($expectedStatusCode === null && ($statusCode === 200 || $statusCode === 201))) {
-            $body = $this->makeBodyFromResponseAction->execute($class, $response);
-
-            return $container->makeResponse($class, $response, $body);
-        }
-
-        throw $this->api->createFailedResponseException($statusCode, $response);
     }
 }
