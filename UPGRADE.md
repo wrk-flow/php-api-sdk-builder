@@ -7,6 +7,8 @@
 - `WrkFlow\ApiSdkBuilder\Contracts\OptionsContract` has new signature for `toBody(AbstractEnvironment $environment)`.
 - `WrkFlow\ApiSdkBuilder\Options\AbstractJsonOptions`  has new signature for `toArray(AbstractEnvironment $environment)`.
 - `WrkFlow\ApiSdkBuilder\Contracts\SDKContainerFactoryContract` has new signature `mixed $body` parameter for `makeResponse(string $class, ResponseInterface $response, mixed $body): AbstractResponse;`
+- `WrkFlow\ApiSdkBuilder\Factories\GuzzleLaravelApiFactory` removed in favor of LaravelServiceProvider provider with HTTP auto discovery.
+- `WrkFlow\ApiSdkBuilder\Factories\LaravelApiFactory` removed in favor of LaravelServiceProvider provider with HTTP auto discovery.
 
 ### Response classes
 

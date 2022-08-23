@@ -4,12 +4,18 @@ declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Actions;
 
+use Exception;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use WrkFlow\ApiSdkBuilder\AbstractApi;
 use WrkFlow\ApiSdkBuilder\Contracts\HeadersContract;
 use WrkFlow\ApiSdkBuilder\Contracts\OptionsContract;
+use WrkFlow\ApiSdkBuilder\Events\RequestConnectionFailedEvent;
+use WrkFlow\ApiSdkBuilder\Events\RequestFailedEvent;
+use WrkFlow\ApiSdkBuilder\Events\ResponseReceivedEvent;
+use WrkFlow\ApiSdkBuilder\Events\SendingRequestEvent;
+use WrkFlow\ApiSdkBuilder\Exceptions\ResponseException;
 use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
 
 class SendRequestAction
@@ -39,20 +45,57 @@ class SendRequestAction
         array $headers = [],
         ?int $expectedResponseStatusCode = null
     ): AbstractResponse {
-        $response = $this->sendRequest($api, $request, $body, $headers);
-        $container = $api->factory()
-            ->container();
+        $dispatcher = $api->factory()
+            ->eventDispatcher();
+        $timeStart = (float) microtime(true);
 
-        $statusCode = $response->getStatusCode();
+        $id = md5($request->getUri() . microtime(true));
 
-        if ($expectedResponseStatusCode === $statusCode ||
-            ($expectedResponseStatusCode === null && ($statusCode === 200 || $statusCode === 201))) {
-            $body = $this->makeBodyFromResponseAction->execute($responseClass, $response);
+        try {
+            $dispatcher?->dispatch(new SendingRequestEvent($id, $request, $timeStart));
 
-            return $container->makeResponse($responseClass, $response, $body);
+            $response = $this->sendRequest($api, $request, $body, $headers);
+            $container = $api->factory()
+                ->container();
+
+            $statusCode = $response->getStatusCode();
+
+            if ($expectedResponseStatusCode === $statusCode ||
+                ($expectedResponseStatusCode === null && ($statusCode === 200 || $statusCode === 201))) {
+                $body = $this->makeBodyFromResponseAction->execute($responseClass, $response);
+
+                $finalResponse = $container->makeResponse($responseClass, $response, $body);
+
+                $dispatcher?->dispatch(new ResponseReceivedEvent(
+                    id: $id,
+                    request: $request,
+                    response: $finalResponse,
+                    requestDurationInSeconds: $this->getRequestDuration($timeStart)
+                ));
+
+                return $finalResponse;
+            }
+
+            throw $api->createFailedResponseException($statusCode, $response);
+        } catch (Exception $exception) {
+            if ($exception instanceof ResponseException) {
+                $dispatcher?->dispatch(new RequestFailedEvent(
+                    id: $id,
+                    request: $request,
+                    exception: $exception,
+                    requestDurationInSeconds: $this->getRequestDuration($timeStart)
+                ));
+            } else {
+                $dispatcher?->dispatch(new RequestConnectionFailedEvent(
+                    id: $id,
+                    request: $request,
+                    exception: $exception,
+                    requestDurationInSeconds: $this->getRequestDuration($timeStart)
+                ));
+            }
+
+            throw $exception;
         }
-
-        throw $api->createFailedResponseException($statusCode, $response);
     }
 
     /**
@@ -90,5 +133,10 @@ class SendRequestAction
         }
 
         return $request;
+    }
+
+    protected function getRequestDuration(float $timeStart): float
+    {
+        return (float) microtime(true) - $timeStart;
     }
 }

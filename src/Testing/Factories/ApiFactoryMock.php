@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace WrkFlow\ApiSdkBuilder\Testing\Factories;
 
 use Mockery;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
@@ -31,5 +32,10 @@ class ApiFactoryMock implements ApiFactoryContract
     public function container(): SDKContainerFactoryContract
     {
         return Mockery::mock(SDKContainerFactoryContract::class);
+    }
+
+    public function eventDispatcher(): ?EventDispatcherInterface
+    {
+        return Mockery::mock(EventDispatcherInterface::class);
     }
 }

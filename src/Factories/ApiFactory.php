@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Factories;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
@@ -17,6 +18,7 @@ class ApiFactory implements ApiFactoryContract
         private readonly ClientInterface $client,
         private readonly StreamFactoryInterface $stream,
         private readonly SDKContainerFactoryContract $container,
+        private readonly ?EventDispatcherInterface $eventDispatcher = null,
     ) {
     }
 
@@ -38,5 +40,10 @@ class ApiFactory implements ApiFactoryContract
     public function container(): SDKContainerFactoryContract
     {
         return $this->container;
+    }
+
+    public function eventDispatcher(): ?EventDispatcherInterface
+    {
+        return $this->eventDispatcher;
     }
 }

@@ -36,7 +36,9 @@ return static function (RectorConfig $config): void {
     );
 
     $config->skip([
-        AddVoidReturnTypeWhereNoReturnRector::class => [__DIR__ . '/src/Testing/Response.php'],
+        AddVoidReturnTypeWhereNoReturnRector::class => [
+            __DIR__ . '/src/Testing/Response.php',
+        ],
     ]);
 
 };
