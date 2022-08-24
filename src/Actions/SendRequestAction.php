@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace WrkFlow\ApiSdkBuilder\Actions;
 
 use Exception;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -45,76 +46,61 @@ class SendRequestAction
         array $headers = [],
         ?int $expectedResponseStatusCode = null
     ): AbstractResponse {
-        $dispatcher = $api->factory()
-            ->eventDispatcher();
         $timeStart = (float) microtime(true);
 
         $id = md5($request->getUri() . microtime(true));
 
-        try {
-            $dispatcher?->dispatch(new SendingRequestEvent($id, $request, $timeStart));
+        $dispatcher = $api
+            ->factory()
+            ->eventDispatcher();
 
-            $response = $this->sendRequest($api, $request, $body, $headers);
-            $container = $api->factory()
-                ->container();
+        $response = $this->sendRequest($id, $timeStart, $dispatcher, $api, $request, $body, $headers);
 
-            $statusCode = $response->getStatusCode();
-
-            if ($expectedResponseStatusCode === $statusCode ||
-                ($expectedResponseStatusCode === null && ($statusCode === 200 || $statusCode === 201))) {
-                $body = $this->makeBodyFromResponseAction->execute($responseClass, $response);
-
-                $finalResponse = $container->makeResponse($responseClass, $response, $body);
-
-                $dispatcher?->dispatch(new ResponseReceivedEvent(
-                    id: $id,
-                    request: $request,
-                    response: $finalResponse,
-                    requestDurationInSeconds: $this->getRequestDuration($timeStart)
-                ));
-
-                return $finalResponse;
-            }
-
-            throw $api->createFailedResponseException($statusCode, $response);
-        } catch (Exception $exception) {
-            if ($exception instanceof ResponseException) {
-                $dispatcher?->dispatch(new RequestFailedEvent(
-                    id: $id,
-                    request: $request,
-                    exception: $exception,
-                    requestDurationInSeconds: $this->getRequestDuration($timeStart)
-                ));
-            } else {
-                $dispatcher?->dispatch(new RequestConnectionFailedEvent(
-                    id: $id,
-                    request: $request,
-                    exception: $exception,
-                    requestDurationInSeconds: $this->getRequestDuration($timeStart)
-                ));
-            }
-
-            throw $exception;
-        }
+        return $this->handleResponse(
+            api: $api,
+            response: $response,
+            expectedResponseStatusCode: $expectedResponseStatusCode,
+            responseClass: $responseClass,
+            dispatcher: $dispatcher,
+            id: $id,
+            request: $request,
+            timeStart: $timeStart
+        );
     }
 
     /**
      * @param array<int|string,HeadersContract|string|string[]> $headers
      */
     protected function sendRequest(
+        string $requestId,
+        float $timeStart,
+        ?EventDispatcherInterface $dispatcher,
         AbstractApi $api,
         RequestInterface $request,
         OptionsContract|StreamInterface|string|null $body = null,
         array $headers = []
     ): ResponseInterface {
-        $mergedHeaders = array_merge($api->environment()->headers(), $api->headers(), $headers);
+        $dispatcher?->dispatch(new SendingRequestEvent($requestId, $request, $timeStart));
 
-        $request = $this->buildHeadersAction->execute($mergedHeaders, $request);
-        $request = $this->withBody($api, $body, $request);
+        try {
+            $mergedHeaders = array_merge($api->environment()->headers(), $api->headers(), $headers);
 
-        return $api->factory()
-            ->client()
-            ->sendRequest($request);
+            $request = $this->buildHeadersAction->execute($mergedHeaders, $request);
+            $request = $this->withBody($api, $body, $request);
+
+            return $api->factory()
+                ->client()
+                ->sendRequest($request);
+        } catch (Exception $exception) {
+            $dispatcher?->dispatch(new RequestConnectionFailedEvent(
+                id: $requestId,
+                request: $request,
+                exception: $exception,
+                requestDurationInSeconds: $this->getRequestDuration($timeStart)
+            ));
+
+            throw $exception;
+        }
     }
 
     protected function withBody(
@@ -138,5 +124,65 @@ class SendRequestAction
     protected function getRequestDuration(float $timeStart): float
     {
         return (float) microtime(true) - $timeStart;
+    }
+
+    /**
+     * @template TResponse of AbstractResponse
+     *
+     * @param class-string<TResponse> $responseClass
+     * @param int|null                $expectedResponseStatusCode                           Will raise and failed
+     *                                                                                      exception if response
+     *                                                                                      status code is different
+     *
+     * @return TResponse
+     */
+    protected function handleResponse(
+        AbstractApi $api,
+        ResponseInterface $response,
+        ?int $expectedResponseStatusCode,
+        string $responseClass,
+        ?EventDispatcherInterface $dispatcher,
+        string $id,
+        RequestInterface $request,
+        float $timeStart
+    ): mixed {
+        try {
+            $container = $api->factory()
+                ->container();
+
+            $statusCode = $response->getStatusCode();
+
+            if ($expectedResponseStatusCode === $statusCode ||
+                ($expectedResponseStatusCode === null && ($statusCode === 200 || $statusCode === 201))) {
+                $body = $this->makeBodyFromResponseAction->execute($responseClass, $response);
+
+                $finalResponse = $container->makeResponse($responseClass, $response, $body);
+
+                $dispatcher?->dispatch(new ResponseReceivedEvent(
+                    id: $id,
+                    request: $request,
+                    response: $finalResponse,
+                    requestDurationInSeconds: $this->getRequestDuration($timeStart)
+                ));
+
+                return $finalResponse;
+            }
+
+            throw $api->createFailedResponseException($statusCode, $response);
+        } catch (Exception $exception) {
+            // Wrap any custom exception to response exception because we have a response
+            if ($exception instanceof ResponseException === false) {
+                $exception = new ResponseException($response, $exception->getMessage(), $exception);
+            }
+
+            $dispatcher?->dispatch(new RequestFailedEvent(
+                id: $id,
+                request: $request,
+                exception: $exception,
+                requestDurationInSeconds: $this->getRequestDuration($timeStart)
+            ));
+
+            throw $exception;
+        }
     }
 }

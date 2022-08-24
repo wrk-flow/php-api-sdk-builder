@@ -19,15 +19,21 @@ abstract class AbstractEndpoint
      */
     abstract protected function basePath(): string;
 
-    protected function uri(): Uri
+    protected function uri(string $appendPath = ''): Uri
     {
         $uri = $this->api->uri();
-        $basePath = $this->basePath();
+        $basePath = $this->appendSlashIfNeeded($this->basePath());
+        $appendPath = $this->appendSlashIfNeeded($appendPath);
 
-        if ($basePath !== '' && $basePath[0] !== '/') {
-            $basePath = '/' . $basePath;
+        return $uri->addPath($uri->path() . $basePath . $appendPath);
+    }
+
+    private function appendSlashIfNeeded(string $path): string
+    {
+        if ($path !== '' && $path[0] !== '/') {
+            $path = '/' . $path;
         }
 
-        return $uri->addPath($uri->path() . $basePath);
+        return $path;
     }
 }

@@ -38,7 +38,7 @@ class UnitsEndpoint extends AbstractEndpoint
         int $id,
         GetUnitsOptions $options = null,
     ): UnitsResponse {
-        $result = $this->api->post($this->uri()->addPath($id), $options);
+        $result = $this->api->post($this->uri($id), $options);
 
         return $this->makeResponse(UnitsResponse::class, $result);
     }
@@ -59,7 +59,7 @@ In your endpoint use `$this->api->X()` to call API.
 Use `$this->uri()` to get endpoints base url. You can append query data as you please: 
 
 - For adding query data use `$this->uri()->addQueryParam('key', 'myvalue')`
-- Add path parameter using `$this->uri()->addPath($id)`. No need to add `/`.
+- Add path parameter using `$this->uri($id)`. No need to add `/`.
 - For more check [JustSteveKing/uri-builder](https://github.com/JustSteveKing/uri-builder).
 
 ### Passing data
