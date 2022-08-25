@@ -10,8 +10,10 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use WrkFlow\ApiSdkBuilder\AbstractApi;
+use WrkFlow\ApiSdkBuilder\Contracts\EnvironmentFakeResponseContract;
 use WrkFlow\ApiSdkBuilder\Contracts\HeadersContract;
 use WrkFlow\ApiSdkBuilder\Contracts\OptionsContract;
+use WrkFlow\ApiSdkBuilder\Environments\AbstractEnvironment;
 use WrkFlow\ApiSdkBuilder\Events\RequestConnectionFailedEvent;
 use WrkFlow\ApiSdkBuilder\Events\RequestFailedEvent;
 use WrkFlow\ApiSdkBuilder\Events\ResponseReceivedEvent;
@@ -44,7 +46,8 @@ class SendRequestAction
         string $responseClass,
         OptionsContract|StreamInterface|string|null $body = null,
         array $headers = [],
-        ?int $expectedResponseStatusCode = null
+        ?int $expectedResponseStatusCode = null,
+        ?ResponseInterface $fakedResponse = null
     ): AbstractResponse {
         $timeStart = (float) microtime(true);
 
@@ -54,7 +57,20 @@ class SendRequestAction
             ->factory()
             ->eventDispatcher();
 
-        $response = $this->sendRequest($id, $timeStart, $dispatcher, $api, $request, $body, $headers);
+        $environment = $api->environment();
+
+        $request = $this->buildRequest($environment, $api, $headers, $request, $body);
+
+        $response = $this->sendRequest(
+            environment: $environment,
+            api: $api,
+            dispatcher: $dispatcher,
+            request: $request,
+            responseClass: $responseClass,
+            requestId: $id,
+            timeStart: $timeStart,
+            fakedResponse: $fakedResponse
+        );
 
         return $this->handleResponse(
             api: $api,
@@ -69,24 +85,29 @@ class SendRequestAction
     }
 
     /**
-     * @param array<int|string,HeadersContract|string|string[]> $headers
+     * @param class-string<AbstractResponse>                           $responseClass
      */
     protected function sendRequest(
+        AbstractEnvironment $environment,
+        AbstractApi $api,
+        ?EventDispatcherInterface $dispatcher,
+        RequestInterface $request,
+        string $responseClass,
         string $requestId,
         float $timeStart,
-        ?EventDispatcherInterface $dispatcher,
-        AbstractApi $api,
-        RequestInterface $request,
-        OptionsContract|StreamInterface|string|null $body = null,
-        array $headers = []
+        ?ResponseInterface $fakedResponse = null
     ): ResponseInterface {
-        $dispatcher?->dispatch(new SendingRequestEvent($requestId, $request, $timeStart));
-
         try {
-            $mergedHeaders = array_merge($api->environment()->headers(), $api->headers(), $headers);
+            $dispatcher?->dispatch(new SendingRequestEvent($requestId, $request, $timeStart));
 
-            $request = $this->buildHeadersAction->execute($mergedHeaders, $request);
-            $request = $this->withBody($api, $body, $request);
+            if ($fakedResponse !== null) {
+                return $fakedResponse;
+            } elseif ($environment instanceof EnvironmentFakeResponseContract) {
+                $response = $environment->getResponse($request, $responseClass, $api->factory());
+                if ($response !== null) {
+                    return $response;
+                }
+            }
 
             return $api->factory()
                 ->client()
@@ -184,5 +205,18 @@ class SendRequestAction
 
             throw $exception;
         }
+    }
+
+    protected function buildRequest(
+        AbstractEnvironment $environment,
+        AbstractApi $api,
+        array $headers,
+        RequestInterface $request,
+        StreamInterface|string|OptionsContract|null $body
+    ): RequestInterface {
+        $mergedHeaders = array_merge($environment->headers(), $api->headers(), $headers);
+
+        $request = $this->buildHeadersAction->execute($mergedHeaders, $request);
+        return $this->withBody($api, $body, $request);
     }
 }

@@ -11,7 +11,7 @@ class XMLContentTypeHeaders implements HeadersContract
     public function headers(): array
     {
         return [
-            'Content-type' => 'application/xml',
+            'Content-Type' => 'application/xml',
         ];
     }
 }

@@ -7,6 +7,7 @@ namespace WrkFlow\ApiSdkBuilder\Factories;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use WrkFlow\ApiSdkBuilder\Contracts\ApiFactoryContract;
 use WrkFlow\ApiSdkBuilder\Contracts\SDKContainerFactoryContract;
@@ -18,8 +19,14 @@ class ApiFactory implements ApiFactoryContract
         private readonly ClientInterface $client,
         private readonly StreamFactoryInterface $stream,
         private readonly SDKContainerFactoryContract $container,
+        private readonly ResponseFactoryInterface $response,
         private readonly ?EventDispatcherInterface $eventDispatcher = null,
     ) {
+    }
+
+    public function response(): ResponseFactoryInterface
+    {
+        return $this->response;
     }
 
     public function request(): RequestFactoryInterface

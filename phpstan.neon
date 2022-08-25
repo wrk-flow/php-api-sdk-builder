@@ -3,6 +3,7 @@ includes:
     - vendor/phpstan/phpstan-phpunit/rules.neon
     - vendor/phpstan/phpstan-deprecation-rules/rules.neon
     - vendor/phpstan/phpstan-mockery/extension.neon
+    - phpstan-baseline.neon
 
 parameters:
 
@@ -18,6 +19,3 @@ parameters:
 
     # it is impossible to map toArray()
     checkMissingIterableValueType: false
-
-    ignoreErrors:
-        - '#^Method WrkFlow\\ApiSdkBuilder\\AbstractApi\:\:makeEndpoint\(\) should return T#'

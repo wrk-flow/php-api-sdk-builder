@@ -1,0 +1,12 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Method WrkFlow\\\\ApiSdkBuilder\\\\AbstractApi\\:\\:getOverrideEndpointClassIfCan\\(\\) should return class\\-string\\<T of WrkFlow\\\\ApiSdkBuilder\\\\Endpoints\\\\AbstractEndpoint\\> but returns class\\-string\\<WrkFlow\\\\ApiSdkBuilder\\\\Endpoints\\\\AbstractEndpoint\\>\\.$#"
+			count: 1
+			path: src/AbstractApi.php
+
+		-
+			message: "#^Method WrkFlow\\\\ApiSdkBuilder\\\\AbstractApi\\:\\:makeEndpoint\\(\\) should return T of WrkFlow\\\\ApiSdkBuilder\\\\Endpoints\\\\AbstractEndpoint but returns WrkFlow\\\\ApiSdkBuilder\\\\Endpoints\\\\AbstractEndpoint\\.$#"
+			count: 1
+			path: src/AbstractApi.php
+

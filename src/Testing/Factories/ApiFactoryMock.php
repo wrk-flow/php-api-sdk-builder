@@ -8,12 +8,18 @@ use Mockery;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use WrkFlow\ApiSdkBuilder\Contracts\ApiFactoryContract;
 use WrkFlow\ApiSdkBuilder\Contracts\SDKContainerFactoryContract;
 
 class ApiFactoryMock implements ApiFactoryContract
 {
+    public function response(): ResponseFactoryInterface
+    {
+        return Mockery::mock(ResponseFactoryInterface::class);
+    }
+
     public function request(): RequestFactoryInterface
     {
         return Mockery::mock(RequestFactoryInterface::class);

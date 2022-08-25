@@ -11,6 +11,7 @@ use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use WrkFlow\ApiSdkBuilder\Contracts\ApiFactoryContract;
 use WrkFlow\ApiSdkBuilder\Contracts\SDKContainerFactoryContract;
@@ -24,6 +25,9 @@ class MakeApiFactory
     ) {
     }
 
+    /**
+     * Builds API factory using http discovery package
+     */
     public function execute(): ApiFactoryContract
     {
         $request = $this->containerOr(
@@ -32,6 +36,10 @@ class MakeApiFactory
         );
 
         $client = $this->containerOr(ClientInterface::class, fn () => Psr18ClientDiscovery::find());
+        $response = $this->containerOr(
+            ResponseFactoryInterface::class,
+            fn () => Psr17FactoryDiscovery::findResponseFactory()
+        );
 
         $stream = $this->containerOr(
             StreamFactoryInterface::class,
@@ -47,6 +55,7 @@ class MakeApiFactory
             client: $client,
             stream: $stream,
             container: $this->factoryContract,
+            response: $response,
             eventDispatcher: $eventDispatcher
         );
     }

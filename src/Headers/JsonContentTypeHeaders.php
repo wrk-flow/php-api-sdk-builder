@@ -11,7 +11,7 @@ class JsonContentTypeHeaders implements HeadersContract
     public function headers(): array
     {
         return [
-            'Content-type' => 'application/json',
+            'Content-Type' => 'application/json',
         ];
     }
 }

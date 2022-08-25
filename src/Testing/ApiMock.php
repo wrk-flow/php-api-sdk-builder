@@ -29,6 +29,8 @@ class ApiMock implements ApiContract
 
     public array $deleteExpectations = [];
 
+    public array $fakeExpectations = [];
+
     public readonly TestingEnvironmentMock $environment;
 
     public function __construct()
@@ -79,6 +81,26 @@ class ApiMock implements ApiContract
     ): AbstractResponse {
         $this->postExpectations = $this->assertRequest(
             $this->postExpectations,
+            $responseClass,
+            $uri,
+            $body,
+            $headers,
+            $expectedResponseStatusCode
+        );
+
+        return $this->returnResponseMock($responseClass);
+    }
+
+    public function fake(
+        ResponseInterface $response,
+        string $responseClass,
+        Uri $uri,
+        StreamInterface|string|OptionsContract $body = null,
+        array $headers = [],
+        ?int $expectedResponseStatusCode = null
+    ): AbstractResponse {
+        $this->fakeExpectations = $this->assertRequest(
+            $this->fakeExpectations,
             $responseClass,
             $uri,
             $body,

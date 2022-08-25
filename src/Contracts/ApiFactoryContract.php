@@ -7,6 +7,7 @@ namespace WrkFlow\ApiSdkBuilder\Contracts;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 
 interface ApiFactoryContract
@@ -16,6 +17,8 @@ interface ApiFactoryContract
     public function client(): ClientInterface;
 
     public function stream(): StreamFactoryInterface;
+
+    public function response(): ResponseFactoryInterface;
 
     public function container(): SDKContainerFactoryContract;
 

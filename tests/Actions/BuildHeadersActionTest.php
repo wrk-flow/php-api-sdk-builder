@@ -17,12 +17,12 @@ class BuildHeadersActionTest extends TestCase
         $result = (new BuildHeadersAction())->execute([
             new JsonHeaders(),
             'test' => 'Tests',
-            'Content-type' => ['application/xml'],
+            'Content-Type' => ['application/xml'],
         ], $request);
 
         $this->assertEquals([
             'Accept' => ['application/json'],
-            'Content-type' => ['application/json', 'application/xml'],
+            'Content-Type' => ['application/json', 'application/xml'],
             'test' => ['Tests'],
         ], $result->getHeaders());
     }

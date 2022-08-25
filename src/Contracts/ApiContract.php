@@ -88,5 +88,26 @@ interface ApiContract extends HeadersContract
         ?int $expectedResponseStatusCode = null
     ): AbstractResponse;
 
+    /**
+     * Sends a fake request with fake response (will all events in place).
+     *
+     * @template TResponse of AbstractResponse
+     *
+     * @param class-string<TResponse>                           $responseClass
+     * @param array<int|string,HeadersContract|string|string[]> $headers
+     * @param int|null                                          $expectedResponseStatusCode Will raise and failed
+     * exception if response
+     *
+     * @return TResponse
+     */
+    public function fake(
+        ResponseInterface $response,
+        string $responseClass,
+        Uri $uri,
+        OptionsContract|StreamInterface|string $body = null,
+        array $headers = [],
+        ?int $expectedResponseStatusCode = null
+    ): AbstractResponse;
+
     public function createFailedResponseException(int $statusCode, ResponseInterface $response): ResponseException;
 }
