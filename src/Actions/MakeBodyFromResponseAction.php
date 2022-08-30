@@ -29,7 +29,7 @@ class MakeBodyFromResponseAction
         }
 
         if (array_key_exists(BodyIsXmlContract::class, $implements)) {
-            return new GetValue(new XMLData(new SimpleXMLElement($response->getBody()->getContents())));
+            return new GetValue(new XMLData(new SimpleXMLElement((string) $response->getBody())));
         }
 
         return null;
