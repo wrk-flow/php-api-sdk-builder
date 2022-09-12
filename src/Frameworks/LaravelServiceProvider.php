@@ -54,13 +54,14 @@ class LaravelServiceProvider extends ServiceProvider
         ?ResponseInterface $response = null,
         ?Exception $exception = null
     ): array {
+        $maxContentSize = 10000;
         return array_filter([
             'exception' => $exception?->getMessage(),
             'request_url' => (string) $request->getUri(),
-            'request_body' => (string) $request->getBody(),
+            'request_body' => substr((string) $request->getBody(), 0, $maxContentSize),
             'request_headers' => $request->getHeaders(),
             'request_duration' => $requestDurationInSeconds,
-            'response_body' => $response !== null ? (string) $response->getBody() : null,
+            'response_body' => $response !== null ? substr((string) $response->getBody(), 0, $maxContentSize) : null,
             'response_headers' => $response?->getHeaders(),
         ]);
     }
