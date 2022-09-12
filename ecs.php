@@ -13,6 +13,8 @@ return static function (ECSConfig $containerConfigurator): void {
     $containerConfigurator->import(SetList::CLEAN_CODE);
 
     $containerConfigurator->parallel();
-    $containerConfigurator->paths([__DIR__ . '/src', __DIR__ . '/tests', __DIR__ . '/ecs.php',  __DIR__ . '/rector.php']);
+    $containerConfigurator->paths(
+        [__DIR__ . '/src', __DIR__ . '/tests', __DIR__ . '/ecs.php',  __DIR__ . '/rector.php']
+    );
     $containerConfigurator->skip([YodaStyleFixer::class]);
 };
