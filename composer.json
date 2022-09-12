@@ -22,7 +22,6 @@
         "ext-simplexml": "*",
         "guzzlehttp/guzzle": "^7.4",
         "http-interop/http-factory-guzzle": "^1.2",
-        "illuminate/container": "^9",
         "laravel/framework": "^9.25",
         "mockery/mockery": "^1.5",
         "nyholm/psr7": "^1.5",
