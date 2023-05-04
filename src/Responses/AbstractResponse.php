@@ -9,8 +9,9 @@ use WrkFlow\ApiSdkBuilder\Contracts\ResponseContract;
 
 abstract class AbstractResponse implements ResponseContract
 {
-    public function __construct(protected readonly ResponseInterface $response)
-    {
+    public function __construct(
+        protected readonly ResponseInterface $response
+    ) {
     }
 
     public function getResponse(): ResponseInterface

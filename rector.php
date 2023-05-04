@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Rector\CodingStyle\Rector\ClassConst\VarConstantCommentRector;
+use Rector\CodingStyle\Rector\Stmt\NewlineAfterStatementRector;
 use Rector\Config\RectorConfig;
 use Rector\Core\ValueObject\PhpVersion;
 use Rector\Set\ValueObject\LevelSetList;
@@ -20,15 +22,18 @@ return static function (RectorConfig $config): void {
     $config->import(SetList::CODING_STYLE);
     $config->importNames();
 
-    $config->rule(AddVoidReturnTypeWhereNoReturnRector::class);
+    $config->rule(rectorClass: AddVoidReturnTypeWhereNoReturnRector::class);
     $config->ruleWithConfiguration(
-        BooleanInBooleanNotRuleFixerRector::class,
-        [
+        rectorClass: BooleanInBooleanNotRuleFixerRector::class,
+        configuration: [
             AbstractFalsyScalarRuleFixerRector::TREAT_AS_NON_EMPTY => false,
         ]
     );
 
     $config->skip([
         AddVoidReturnTypeWhereNoReturnRector::class => [__DIR__ . '/src/Testing/Response.php'],
+        VarConstantCommentRector::class,
+        // Collides with ECS ClassAttributesSeparationFixer
+        NewlineAfterStatementRector::class,
     ]);
 };

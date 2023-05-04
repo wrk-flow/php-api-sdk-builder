@@ -60,7 +60,7 @@ trait ItemsTransform
     protected function transformUsingLoop(Closure $onItem): bool
     {
         $result = $this->getRawItems([
-            new ArrayItemGetterTransformer(function (GetValue $getValue, string $key) use ($onItem) {
+            new ArrayItemGetterTransformer(function (GetValue $getValue, string $key) use ($onItem): bool {
                 $result = $this->transformer()
                     ->transform($getValue, $key);
                 $onItem($result);

@@ -12,8 +12,9 @@ class StringStream implements StreamInterface, Stringable
 {
     protected int $offset = 0;
 
-    public function __construct(public string $string)
-    {
+    public function __construct(
+        public string $string
+    ) {
     }
 
     public function __toString(): string

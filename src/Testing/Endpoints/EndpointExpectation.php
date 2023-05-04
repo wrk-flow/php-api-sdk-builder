@@ -10,9 +10,6 @@ use WrkFlow\ApiSdkBuilder\Contracts\OptionsContract;
 
 class EndpointExpectation
 {
-    /**
-     * @param Closure|StreamInterface|array|string|OptionsContract|null $assertBody
-     */
     public function __construct(
         public readonly string $expectedResponseClass,
         public readonly string $expectedUriPath,

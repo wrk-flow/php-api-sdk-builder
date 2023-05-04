@@ -51,7 +51,7 @@ abstract class AbstractFakeEndpoint extends AbstractEndpoint
 
         if ($responseBody instanceof StreamInterface) {
             $response = $response->withBody($responseBody);
-        } elseif ($responseBody !== null) {
+        } elseif ($responseBody instanceof GetValue) {
             $stream = null;
 
             $responseHeaders = [];
@@ -70,7 +70,7 @@ abstract class AbstractFakeEndpoint extends AbstractEndpoint
                     ->createStream((string) json_encode($rawBody, JSON_THROW_ON_ERROR));
             }
 
-            if ($stream !== null) {
+            if ($stream instanceof StreamInterface) {
                 $response = $response->withBody($stream);
             }
 

@@ -20,7 +20,7 @@ class MergedJsonOptions extends AbstractJsonOptions
     {
         $result = [];
         foreach ($this->options as $option) {
-            if ($option === null) {
+            if ($option instanceof AbstractJsonOptions === false) {
                 continue;
             }
 

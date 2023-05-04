@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use PhpCsFixer\Fixer\ClassNotation\ClassAttributesSeparationFixer;
 use PhpCsFixer\Fixer\ControlStructure\YodaStyleFixer;
 use Symplify\EasyCodingStandard\Config\ECSConfig;
 use Symplify\EasyCodingStandard\ValueObject\Set\SetList;
@@ -17,4 +18,12 @@ return static function (ECSConfig $containerConfigurator): void {
         [__DIR__ . '/src', __DIR__ . '/tests', __DIR__ . '/ecs.php', __DIR__ . '/rector.php']
     );
     $containerConfigurator->skip([YodaStyleFixer::class]);
+
+    $containerConfigurator->rulesWithConfiguration([
+        ClassAttributesSeparationFixer::class => [
+            'elements' => [
+                'const' => 'only_if_meta',
+            ],
+        ],
+    ]);
 };
