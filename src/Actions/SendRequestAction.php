@@ -19,13 +19,16 @@ use WrkFlow\ApiSdkBuilder\Events\RequestFailedEvent;
 use WrkFlow\ApiSdkBuilder\Events\ResponseReceivedEvent;
 use WrkFlow\ApiSdkBuilder\Events\SendingRequestEvent;
 use WrkFlow\ApiSdkBuilder\Exceptions\ResponseException;
+use WrkFlow\ApiSdkBuilder\Log\Contracts\LoggerContract;
+use WrkFlow\ApiSdkBuilder\Log\Entities\LoggerConfigEntity;
 use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
 
-class SendRequestAction
+final class SendRequestAction
 {
     public function __construct(
         private readonly BuildHeadersAction $buildHeadersAction,
         private readonly MakeBodyFromResponseAction $makeBodyFromResponseAction,
+        private readonly GetLoggerAction $getLoggerAction,
     ) {
     }
 
@@ -57,6 +60,11 @@ class SendRequestAction
             ->factory()
             ->eventDispatcher();
 
+        $loggerConfig = $api->factory()
+            ->loggerConfig();
+
+        $logger = $this->getLoggerAction->execute(config: $loggerConfig, host: $request->getUri()->getHost());
+
         $environment = $api->environment();
 
         $request = $this->buildRequest($environment, $api, $headers, $request, $body);
@@ -65,6 +73,8 @@ class SendRequestAction
             environment: $environment,
             api: $api,
             dispatcher: $dispatcher,
+            logger: $logger,
+            loggerConfig: $loggerConfig,
             request: $request,
             responseClass: $responseClass,
             requestId: $id,
@@ -78,6 +88,8 @@ class SendRequestAction
             expectedResponseStatusCode: $expectedResponseStatusCode,
             responseClass: $responseClass,
             dispatcher: $dispatcher,
+            logger: $logger,
+            loggerConfig: $loggerConfig,
             id: $id,
             request: $request,
             timeStart: $timeStart
@@ -87,10 +99,12 @@ class SendRequestAction
     /**
      * @param class-string<AbstractResponse>                           $responseClass
      */
-    protected function sendRequest(
+    private function sendRequest(
         AbstractEnvironment $environment,
         AbstractApi $api,
         ?EventDispatcherInterface $dispatcher,
+        ?LoggerContract $logger,
+        LoggerConfigEntity $loggerConfig,
         RequestInterface $request,
         string $responseClass,
         string $requestId,
@@ -100,11 +114,11 @@ class SendRequestAction
         try {
             $dispatcher?->dispatch(new SendingRequestEvent($requestId, $request, $timeStart));
 
-            if ($fakedResponse !== null) {
+            if ($fakedResponse instanceof ResponseInterface) {
                 return $fakedResponse;
             } elseif ($environment instanceof EnvironmentFakeResponseContract) {
                 $response = $environment->getResponse($request, $responseClass, $api->factory());
-                if ($response !== null) {
+                if ($response instanceof ResponseInterface) {
                     return $response;
                 }
             }
@@ -113,18 +127,20 @@ class SendRequestAction
                 ->client()
                 ->sendRequest($request);
         } catch (Exception $exception) {
-            $dispatcher?->dispatch(new RequestConnectionFailedEvent(
+            $event = new RequestConnectionFailedEvent(
                 id: $requestId,
                 request: $request,
                 exception: $exception,
                 requestDurationInSeconds: $this->getRequestDuration($timeStart)
-            ));
+            );
+            $dispatcher?->dispatch($event);
+            $logger?->requestConnectionFailed(event: $event, config: $loggerConfig);
 
             throw $exception;
         }
     }
 
-    protected function withBody(
+    private function withBody(
         AbstractApi $api,
         OptionsContract|StreamInterface|string|null $body,
         RequestInterface $request
@@ -142,7 +158,7 @@ class SendRequestAction
         return $request;
     }
 
-    protected function getRequestDuration(float $timeStart): float
+    private function getRequestDuration(float $timeStart): float
     {
         return (float) microtime(true) - $timeStart;
     }
@@ -157,12 +173,14 @@ class SendRequestAction
      *
      * @return TResponse
      */
-    protected function handleResponse(
+    private function handleResponse(
         AbstractApi $api,
         ResponseInterface $response,
         ?int $expectedResponseStatusCode,
         string $responseClass,
         ?EventDispatcherInterface $dispatcher,
+        ?LoggerContract $logger,
+        LoggerConfigEntity $loggerConfig,
         string $id,
         RequestInterface $request,
         float $timeStart
@@ -179,12 +197,14 @@ class SendRequestAction
 
                 $finalResponse = $container->makeResponse($responseClass, $response, $body);
 
-                $dispatcher?->dispatch(new ResponseReceivedEvent(
+                $event = new ResponseReceivedEvent(
                     id: $id,
                     request: $request,
                     response: $finalResponse,
                     requestDurationInSeconds: $this->getRequestDuration($timeStart)
-                ));
+                );
+                $dispatcher?->dispatch($event);
+                $logger?->responseReceivedEvent(event: $event, config: $loggerConfig);
 
                 return $finalResponse;
             }
@@ -196,18 +216,20 @@ class SendRequestAction
                 $exception = new ResponseException($response, $exception->getMessage(), $exception);
             }
 
-            $dispatcher?->dispatch(new RequestFailedEvent(
+            $event = new RequestFailedEvent(
                 id: $id,
                 request: $request,
                 exception: $exception,
                 requestDurationInSeconds: $this->getRequestDuration($timeStart)
-            ));
+            );
+            $dispatcher?->dispatch($event);
+            $logger?->requestFailed(event: $event, config: $loggerConfig);
 
             throw $exception;
         }
     }
 
-    protected function buildRequest(
+    private function buildRequest(
         AbstractEnvironment $environment,
         AbstractApi $api,
         array $headers,

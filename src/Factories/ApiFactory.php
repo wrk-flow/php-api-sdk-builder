@@ -11,9 +11,12 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use WrkFlow\ApiSdkBuilder\Contracts\ApiFactoryContract;
 use WrkFlow\ApiSdkBuilder\Contracts\SDKContainerFactoryContract;
+use WrkFlow\ApiSdkBuilder\Log\Entities\LoggerConfigEntity;
 
 class ApiFactory implements ApiFactoryContract
 {
+    private readonly LoggerConfigEntity $loggerConfig;
+
     public function __construct(
         private readonly RequestFactoryInterface $request,
         private readonly ClientInterface $client,
@@ -21,7 +24,10 @@ class ApiFactory implements ApiFactoryContract
         private readonly SDKContainerFactoryContract $container,
         private readonly ResponseFactoryInterface $response,
         private readonly ?EventDispatcherInterface $eventDispatcher = null,
+        LoggerConfigEntity $loggerConfig = null,
     ) {
+        // By, default no logging is used
+        $this->loggerConfig = $loggerConfig ?? new LoggerConfigEntity();
     }
 
     public function response(): ResponseFactoryInterface
@@ -52,5 +58,10 @@ class ApiFactory implements ApiFactoryContract
     public function eventDispatcher(): ?EventDispatcherInterface
     {
         return $this->eventDispatcher;
+    }
+
+    public function loggerConfig(): LoggerConfigEntity
+    {
+        return $this->loggerConfig;
     }
 }

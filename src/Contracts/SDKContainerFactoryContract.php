@@ -22,6 +22,8 @@ interface SDKContainerFactoryContract
     public function makeEndpoint(AbstractApi $api, string $endpointClass): AbstractEndpoint;
 
     /**
+     * Dynamically creates an instance of the given class.
+     * - Some classes should be cached for performance (as singletons).
      * @template T
      *
      * @param class-string<T> $class
@@ -29,6 +31,13 @@ interface SDKContainerFactoryContract
      * @return T
      */
     public function make(string $class): mixed;
+
+    /**
+     * Checks if the container has a binding for the given class or key.
+     *
+     * @param class-string|string $classOrKey
+     */
+    public function has(string $classOrKey): bool;
 
     /**
      * @template T of AbstractResponse

@@ -37,8 +37,6 @@ abstract class AbstractApi implements ApiContract
     private readonly array $overrideEndpoints;
 
     /**
-     * @param AbstractEnvironment                                                   $environment
-     * @param ApiFactoryContract                                                    $factory
      * @param array<class-string<AbstractEndpoint>, class-string<AbstractEndpoint>> $overrideEndpoints
      */
     public function __construct(
@@ -91,7 +89,13 @@ abstract class AbstractApi implements ApiContract
             ->createRequest('GET', $uri->toString());
 
         return $this->sendRequestAction
-            ->execute($this, $request, $responseClass, null, $headers, $expectedResponseStatusCode);
+            ->execute(
+                api: $this,
+                request: $request,
+                responseClass: $responseClass,
+                headers: $headers,
+                expectedResponseStatusCode: $expectedResponseStatusCode
+            );
     }
 
     /**
@@ -116,7 +120,14 @@ abstract class AbstractApi implements ApiContract
             ->createRequest('POST', $uri->toString());
 
         return $this->sendRequestAction
-            ->execute($this, $request, $responseClass, $body, $headers, $expectedResponseStatusCode);
+            ->execute(
+                api: $this,
+                request: $request,
+                responseClass: $responseClass,
+                body: $body,
+                headers: $headers,
+                expectedResponseStatusCode: $expectedResponseStatusCode
+            );
     }
 
     /**
@@ -141,7 +152,14 @@ abstract class AbstractApi implements ApiContract
             ->createRequest('PUT', $uri->toString());
 
         return $this->sendRequestAction
-            ->execute($this, $request, $responseClass, $body, $headers, $expectedResponseStatusCode);
+            ->execute(
+                api: $this,
+                request: $request,
+                responseClass: $responseClass,
+                body: $body,
+                headers: $headers,
+                expectedResponseStatusCode: $expectedResponseStatusCode
+            );
     }
 
     /**

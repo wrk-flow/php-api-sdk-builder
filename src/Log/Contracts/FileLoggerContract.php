@@ -1,0 +1,9 @@
+<?php
+
+declare(strict_types=1);
+
+namespace WrkFlow\ApiSdkBuilder\Log\Contracts;
+
+interface FileLoggerContract extends LoggerContract
+{
+}

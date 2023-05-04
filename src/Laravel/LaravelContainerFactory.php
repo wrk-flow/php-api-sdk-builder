@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WrkFlow\ApiSdkBuilder\Containers;
+namespace WrkFlow\ApiSdkBuilder\Laravel;
 
 use Illuminate\Contracts\Container\Container;
 use Psr\Http\Message\ResponseInterface;
@@ -13,8 +13,9 @@ use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
 
 class LaravelContainerFactory implements SDKContainerFactoryContract
 {
-    public function __construct(private readonly Container $container)
-    {
+    public function __construct(
+        private readonly Container $container
+    ) {
     }
 
     public function makeEndpoint(AbstractApi $api, string $endpointClass): AbstractEndpoint
@@ -27,6 +28,11 @@ class LaravelContainerFactory implements SDKContainerFactoryContract
     public function make(string $class): mixed
     {
         return $this->container->make($class);
+    }
+
+    public function has(string $classOrKey): bool
+    {
+        return $this->container->has($classOrKey);
     }
 
     public function makeResponse(string $class, ResponseInterface $response, mixed $body): AbstractResponse

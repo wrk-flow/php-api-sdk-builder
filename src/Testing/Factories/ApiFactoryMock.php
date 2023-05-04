@@ -12,6 +12,7 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use WrkFlow\ApiSdkBuilder\Contracts\ApiFactoryContract;
 use WrkFlow\ApiSdkBuilder\Contracts\SDKContainerFactoryContract;
+use WrkFlow\ApiSdkBuilder\Log\Entities\LoggerConfigEntity;
 
 class ApiFactoryMock implements ApiFactoryContract
 {
@@ -43,5 +44,10 @@ class ApiFactoryMock implements ApiFactoryContract
     public function eventDispatcher(): ?EventDispatcherInterface
     {
         return Mockery::mock(EventDispatcherInterface::class);
+    }
+
+    public function loggerConfig(): LoggerConfigEntity
+    {
+        return new LoggerConfigEntity(logger: '');
     }
 }
