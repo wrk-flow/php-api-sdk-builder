@@ -29,7 +29,7 @@ abstract class AbstractApi implements ApiContract
      */
     protected array $cachedEndpoints = [];
 
-    private readonly SendRequestAction $sendRequestAction;
+    private ?SendRequestAction $sendRequestAction = null;
 
     /**
      * @var array<class-string<AbstractEndpoint>, class-string<AbstractEndpoint>>
@@ -48,9 +48,6 @@ abstract class AbstractApi implements ApiContract
             $overrideEndpoints,
             $environment instanceof EnvironmentOverrideEndpointsContract ? $environment->endpoints() : []
         );
-        $this->sendRequestAction = $this->factory()
-            ->container()
-            ->make(SendRequestAction::class);
     }
 
     public function environment(): AbstractEnvironment
@@ -88,7 +85,7 @@ abstract class AbstractApi implements ApiContract
             ->request()
             ->createRequest('GET', $uri->toString());
 
-        return $this->sendRequestAction
+        return $this->sendRequestAction()
             ->execute(
                 api: $this,
                 request: $request,
@@ -119,7 +116,7 @@ abstract class AbstractApi implements ApiContract
             ->request()
             ->createRequest('POST', $uri->toString());
 
-        return $this->sendRequestAction
+        return $this->sendRequestAction()
             ->execute(
                 api: $this,
                 request: $request,
@@ -151,7 +148,7 @@ abstract class AbstractApi implements ApiContract
             ->request()
             ->createRequest('PUT', $uri->toString());
 
-        return $this->sendRequestAction
+        return $this->sendRequestAction()
             ->execute(
                 api: $this,
                 request: $request,
@@ -183,7 +180,7 @@ abstract class AbstractApi implements ApiContract
             ->request()
             ->createRequest('DELETE', $uri->toString());
 
-        return $this->sendRequestAction
+        return $this->sendRequestAction()
             ->execute($this, $request, $responseClass, $body, $headers, $expectedResponseStatusCode);
     }
 
@@ -207,7 +204,7 @@ abstract class AbstractApi implements ApiContract
         array $headers = [],
         ?int $expectedResponseStatusCode = null
     ): AbstractResponse {
-        return $this->sendRequestAction
+        return $this->sendRequestAction()
             ->execute(
                 api: $this,
                 request: $this->factory()
@@ -282,5 +279,16 @@ abstract class AbstractApi implements ApiContract
         }
 
         return $endpoint;
+    }
+
+    private function sendRequestAction(): SendRequestAction
+    {
+        if ($this->sendRequestAction instanceof SendRequestAction === false) {
+            $this->sendRequestAction = $this->factory()
+                ->container()
+                ->make(SendRequestAction::class);
+        }
+
+        return $this->sendRequestAction;
     }
 }
