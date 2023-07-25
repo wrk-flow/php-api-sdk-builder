@@ -77,7 +77,7 @@ class LaravelServiceProvider extends ServiceProvider
         }
     }
 
-    public static function getConfig(Container $container): ApiSdkConfig
+    protected static function getConfig(Container $container): ApiSdkConfig
     {
         return $container->make(ApiSdkConfig::class);
     }
@@ -127,7 +127,7 @@ class LaravelServiceProvider extends ServiceProvider
         $this->app->singleton(
             abstract: FileLogger::class,
             concrete: static fn (Application $application) => new FileLogger(
-                filesystemOperator: self::getFileSystemOperator($application),
+                filesystemOperator: static::getFileSystemOperator($application),
                 logger: $application->make(LoggerInterface::class),
                 fileLogPathService: $application->make(FileLogPathService::class),
                 getExtensionFromContentTypeAction: $application->make(GetExtensionFromContentTypeAction::class),
@@ -136,7 +136,7 @@ class LaravelServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(ClearFileLogsAction::class, static fn (Application $application) => new ClearFileLogsAction(
-            filesystemOperator: self::getFileSystemOperator($application),
+            filesystemOperator: static::getFileSystemOperator($application),
             fileLogPathService: $application->make(FileLogPathService::class),
             logger: $application->make(LoggerInterface::class),
         ));
@@ -193,10 +193,11 @@ class LaravelServiceProvider extends ServiceProvider
         );
     }
 
-    private static function getFileSystemOperator(Application $application): FilesystemOperator
+    protected static function getFileSystemOperator(Application $application): FilesystemOperator
     {
-        /** @var FilesystemManager $fileManager */
         $fileManager = $application->make(FilesystemManager::class);
+        assert($fileManager instanceof FilesystemManager);
+
         $disk = $fileManager->disk();
         if ($disk instanceof FilesystemAdapter === false) {
             throw new LogicException(
