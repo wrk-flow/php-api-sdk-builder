@@ -19,7 +19,6 @@ use Laravel\Telescope\Watchers\ClientRequestWatcher;
 use League\Flysystem\FilesystemOperator;
 use LogicException;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use Psr\Log\LoggerInterface;
 use WrkFlow\ApiSdkBuilder\Actions\MakeApiFactory;
 use WrkFlow\ApiSdkBuilder\Contracts\ApiFactoryContract;
 use WrkFlow\ApiSdkBuilder\Contracts\SDKContainerFactoryContract;
@@ -30,20 +29,22 @@ use WrkFlow\ApiSdkBuilder\Laravel\Commands\ClearFileLogsCommand;
 use WrkFlow\ApiSdkBuilder\Laravel\Configs\ApiSdkConfig;
 use WrkFlow\ApiSdkBuilder\Log\Actions\BuildRequestHttpFileAction;
 use WrkFlow\ApiSdkBuilder\Log\Actions\ClearFileLogsAction;
-use WrkFlow\ApiSdkBuilder\Log\Actions\GetExtensionFromContentTypeAction;
 use WrkFlow\ApiSdkBuilder\Log\Contracts\BuildRequestLogFileActionContract;
 use WrkFlow\ApiSdkBuilder\Log\Contracts\DebugLoggerContract;
 use WrkFlow\ApiSdkBuilder\Log\Contracts\FileLoggerContract;
 use WrkFlow\ApiSdkBuilder\Log\Contracts\FileLogPathServiceContract;
 use WrkFlow\ApiSdkBuilder\Log\Contracts\InfoLoggerContract;
+use WrkFlow\ApiSdkBuilder\Log\Contracts\InfoOrFailFileLoggerContract;
 use WrkFlow\ApiSdkBuilder\Log\Entities\LoggerConfigEntity;
 use WrkFlow\ApiSdkBuilder\Log\Loggers\DebugLogger;
 use WrkFlow\ApiSdkBuilder\Log\Loggers\FileLogger;
 use WrkFlow\ApiSdkBuilder\Log\Loggers\InfoLogger;
+use WrkFlow\ApiSdkBuilder\Log\Loggers\InfoOrFailFileLogger;
 use WrkFlow\ApiSdkBuilder\Log\Services\FileLogPathService;
 
 class LaravelServiceProvider extends ServiceProvider
 {
+    final public const KeyFilesystemOperator = 'api_sdk_filesystem_operator';
     private const ConfigPath = __DIR__ . '/Configs/api_sdk.php';
     private const ConfigKey = 'api_sdk';
 
@@ -70,8 +71,9 @@ class LaravelServiceProvider extends ServiceProvider
         $clearAt = $config->getTimeForClearSchedule();
 
         if ($clearAt !== null) {
-            /** @var Schedule $schedule */
             $schedule = $this->app->make(Schedule::class);
+            assert($schedule instanceof Schedule);
+
             $schedule->command(ClearFileLogsCommand::class)
                 ->dailyAt($clearAt);
         }
@@ -105,8 +107,8 @@ class LaravelServiceProvider extends ServiceProvider
         $this->app->singleton(
             abstract: ApiFactoryContract::class,
             concrete: static function (Container $container): ApiFactoryContract {
-                /** @var MakeApiFactory $makeApiFactory */
                 $makeApiFactory = $container->make(MakeApiFactory::class);
+                assert($makeApiFactory instanceof MakeApiFactory);
 
                 return $makeApiFactory->execute(loggerConfig: $container->make(LoggerConfigEntity::class));
             }
@@ -119,27 +121,33 @@ class LaravelServiceProvider extends ServiceProvider
             abstract: BuildRequestLogFileActionContract::class,
             concrete: BuildRequestHttpFileAction::class
         );
+        $this->app->singleton(abstract: ClearFileLogsAction::class, concrete: ClearFileLogsAction::class);
         $this->app->singleton(abstract: FileLogPathServiceContract::class, concrete: FileLogPathService::class);
         $this->app->singleton(abstract: DebugLoggerContract::class, concrete: DebugLogger::class);
         $this->app->singleton(abstract: FileLoggerContract::class, concrete: FileLogger::class);
         $this->app->singleton(abstract: InfoLoggerContract::class, concrete: InfoLogger::class);
+        $this->app->singleton(abstract: InfoOrFailFileLoggerContract::class, concrete: InfoOrFailFileLogger::class);
 
-        $this->app->singleton(
-            abstract: FileLogger::class,
-            concrete: static fn (Application $application) => new FileLogger(
-                filesystemOperator: static::getFileSystemOperator($application),
-                logger: $application->make(LoggerInterface::class),
-                fileLogPathService: $application->make(FileLogPathService::class),
-                getExtensionFromContentTypeAction: $application->make(GetExtensionFromContentTypeAction::class),
-                buildRequestLogFileAction: $application->make(BuildRequestLogFileActionContract::class),
-            )
+        // Not sure if we provided FilesystemOperator to whole Laravel application
+        // if it would break some package usage... So lets be explicit.
+        $this->app->bind(
+            abstract: self::KeyFilesystemOperator,
+            concrete: static fn (Application $application) => static::getFileSystemOperator($application)
         );
+        $this->app
+            ->when(FileLogger::class)
+            ->needs(FilesystemOperator::class)
+            ->give(self::KeyFilesystemOperator);
 
-        $this->app->bind(ClearFileLogsAction::class, static fn (Application $application) => new ClearFileLogsAction(
-            filesystemOperator: static::getFileSystemOperator($application),
-            fileLogPathService: $application->make(FileLogPathService::class),
-            logger: $application->make(LoggerInterface::class),
-        ));
+        $this->app
+            ->when(FileLogger::class)
+            ->needs(FilesystemOperator::class)
+            ->give(self::KeyFilesystemOperator);
+
+        $this->app
+            ->when(ClearFileLogsAction::class)
+            ->needs(FilesystemOperator::class)
+            ->give(self::KeyFilesystemOperator);
     }
 
     protected function getEventDispatcher(): Dispatcher

@@ -64,9 +64,9 @@ class InfoLogger implements InfoLoggerContract
             ? 'FAILED'
             : (string) $response->getStatusCode();
 
-        // example.com GET 200 /api/v1/clients/1 [20s]
-        // example.com GET 500 /api/v1/clients/1 [20s]
-        // example.com GET FAILED /api/v1/clients/1 [20s]
+        // GET 200 example.com /api/v1/clients/1 [20s]
+        // GET example.com 500 /api/v1/clients/1 [20s]
+        // GET example.com FAILED /api/v1/clients/1 [20s]
         $this->logger->info(
             message: sprintf(
                 '%s %s %s %s [%ds]',

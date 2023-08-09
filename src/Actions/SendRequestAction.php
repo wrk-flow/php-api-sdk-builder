@@ -97,7 +97,7 @@ final class SendRequestAction
     }
 
     /**
-     * @param class-string<AbstractResponse>                           $responseClass
+     * @param class-string<AbstractResponse> $responseClass
      */
     private function sendRequest(
         AbstractEnvironment $environment,
@@ -127,6 +127,8 @@ final class SendRequestAction
                 ->client()
                 ->sendRequest($request);
         } catch (Exception $exception) {
+            $this->rethrowIfPHPUnitException($exception);
+
             $event = new RequestConnectionFailedEvent(
                 id: $requestId,
                 request: $request,
@@ -167,7 +169,7 @@ final class SendRequestAction
      * @template TResponse of AbstractResponse
      *
      * @param class-string<TResponse> $responseClass
-     * @param int|null                $expectedResponseStatusCode                           Will raise and failed
+     * @param int|null                $expectedResponseStatusCode Will raise and failed
      *                                                                                      exception if response
      *                                                                                      status code is different
      *
@@ -211,6 +213,8 @@ final class SendRequestAction
 
             throw $api->createFailedResponseException($statusCode, $response);
         } catch (Exception $exception) {
+            $this->rethrowIfPHPUnitException($exception);
+
             // Wrap any custom exception to response exception because we have a response
             if ($exception instanceof ResponseException === false) {
                 $exception = new ResponseException($response, $exception->getMessage(), $exception);
@@ -240,5 +244,18 @@ final class SendRequestAction
 
         $request = $this->buildHeadersAction->execute($mergedHeaders, $request);
         return $this->withBody($api, $body, $request);
+    }
+
+    /**
+     * If we are using assert mocking, we do not want to log the exception and
+     * rethrow it.
+     */
+    private function rethrowIfPHPUnitException(Exception $exception): void
+    {
+        // PHPUnit can be missing.
+        $class = '\\' . \PHPUnit\Exception::class;
+        if ($exception instanceof $class) {
+            throw $exception;
+        }
     }
 }

@@ -20,7 +20,7 @@ return [
          * - Log multiple domains: 'domain.com:debug,otherdomain.com:info',
          * - Log all except given domain: '*:info,domain.com:'
          */
-        ApiSdkConfig::KeyLoggingType => env('API_SDK_LOGGING', '*:info'),
+        ApiSdkConfig::KeyLoggingType => env('API_SDK_LOGGING', '*:info_file'),
         /**
          * List of available loggers key-ed by their name and their implementation.
          *
