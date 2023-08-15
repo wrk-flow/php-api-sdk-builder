@@ -32,12 +32,12 @@ abstract class AbstractApi implements ApiContract
     private ?SendRequestAction $sendRequestAction = null;
 
     /**
-     * @var array<class-string<AbstractEndpoint>, class-string<AbstractEndpoint>>
+     * @var array<class-string, class-string<AbstractEndpoint>>
      */
     private readonly array $overrideEndpoints;
 
     /**
-     * @param array<class-string<AbstractEndpoint>, class-string<AbstractEndpoint>> $overrideEndpoints
+     * @param array<class-string, class-string<AbstractEndpoint>> $overrideEndpoints
      */
     public function __construct(
         private readonly AbstractEnvironment $environment,

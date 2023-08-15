@@ -9,7 +9,7 @@ use WrkFlow\ApiSdkBuilder\Endpoints\AbstractEndpoint;
 interface EnvironmentOverrideEndpointsContract
 {
     /**
-     * @return array<class-string<AbstractEndpoint>, class-string<AbstractEndpoint>>
+     * @return array<class-string, class-string<AbstractEndpoint>>
      */
     public function endpoints(): array;
 }
