@@ -67,15 +67,15 @@ final class LaravelServiceProvider extends ServiceProvider
         $config = self::getConfig($this->app);
         $this->passEventsToTelescopeHttpCatcher($config);
 
-        $clearAt = $config->getTimeForClearSchedule();
-
-        if ($clearAt !== null) {
-            $schedule = $this->app->make(Schedule::class);
-            assert($schedule instanceof Schedule);
-
-            $schedule->command(ClearFileLogsCommand::class)
+        $this->callAfterResolving(Schedule::class, static function (Schedule $schedule) use ($config): void {
+            $clearAt = $config->getTimeForClearSchedule();
+            if ($clearAt === null) {
+                return;
+            }
+            $schedule
+                ->command(ClearFileLogsCommand::class)
                 ->dailyAt($clearAt);
-        }
+        });
     }
 
     /**
