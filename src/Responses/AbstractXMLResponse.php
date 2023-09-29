@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace WrkFlow\ApiSdkBuilder\Responses;
 
 use Psr\Http\Message\ResponseInterface;
-use WrkFlow\ApiSdkBuilder\Contracts\BodyIsXmlContract;
+use WrkFlow\ApiSdkBuilder\Interfaces\BodyIsXmlInterface;
 use Wrkflow\GetValue\GetValue;
 
-abstract class AbstractXMLResponse extends AbstractResponse implements BodyIsXmlContract
+abstract class AbstractXMLResponse extends AbstractResponse implements BodyIsXmlInterface
 {
     public function __construct(
         ResponseInterface $response,

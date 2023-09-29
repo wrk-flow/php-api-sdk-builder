@@ -18,32 +18,32 @@ class ApiSdkConfig extends AbstractConfig
 
     public function getLoggers(): LoggersMapEntity
     {
-        return new LoggersMapEntity($this->get(keyOrPath: [self::KeyLogging, self::KeyLoggers]));
+        return new LoggersMapEntity($this->config->getArray([self::KeyLogging, self::KeyLoggers]));
     }
 
     public function getLogging(): string
     {
-        return $this->get([self::KeyLogging, self::KeyLoggingType]);
+        return $this->config->getRequiredString([self::KeyLogging, self::KeyLoggingType]);
     }
 
     public function isTelescopeEnabled(): bool
     {
-        return (bool) $this->get(keyOrPath: self::KeyIsTelescopeEnabled);
+        return $this->config->getRequiredBool(self::KeyIsTelescopeEnabled);
     }
 
     public function getTimeForClearSchedule(): ?string
     {
-        return $this->get(keyOrPath: [self::KeyLogging, self::KeyTimeForClearLogSchedule], default: null);
+        return $this->config->getString([self::KeyLogging, self::KeyTimeForClearLogSchedule]);
     }
 
     public function getLogFileBaseDirectory(): string
     {
-        return $this->get(keyOrPath: [self::KeyLogging, self::KeyLogFileBaseDirectory]);
+        return $this->config->getRequiredString([self::KeyLogging, self::KeyLogFileBaseDirectory]);
     }
 
     public function getKeepLogFilesForDays(): int
     {
-        return (int) $this->get(keyOrPath: [self::KeyLogging, self::KeyKeepLogFilesForDays]);
+        return $this->config->getRequiredInt([self::KeyLogging, self::KeyKeepLogFilesForDays]);
     }
 
     protected function getConfigFileName(): string

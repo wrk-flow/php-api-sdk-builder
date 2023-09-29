@@ -26,9 +26,9 @@ Each header class can chain other headers (check JsonHeaders file).
   <code-block label="Simple header" active>
 
   ```php
-use WrkFlow\ApiSdkBuilder\Contracts\HeadersContract;
+use WrkFlow\ApiSdkBuilder\Interfaces\HeadersInterface;
 
-class AcceptsJsonHeaders implements HeadersContract
+class AcceptsJsonHeaders implements HeadersInterface
 {
     public function headers(): array
     {
@@ -43,9 +43,9 @@ class AcceptsJsonHeaders implements HeadersContract
   <code-block label="Combining headers">
 
   ```php
-use WrkFlow\ApiSdkBuilder\Contracts\HeadersContract;
+use WrkFlow\ApiSdkBuilder\Interfaces\HeadersInterface;
 
-class JsonHeaders implements HeadersContract
+class JsonHeaders implements HeadersInterface
 {
     public function headers(): array
     {

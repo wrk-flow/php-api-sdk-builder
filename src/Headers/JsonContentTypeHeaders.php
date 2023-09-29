@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Headers;
 
-use WrkFlow\ApiSdkBuilder\Contracts\HeadersContract;
+use WrkFlow\ApiSdkBuilder\Interfaces\HeadersInterface;
 
-class JsonContentTypeHeaders implements HeadersContract
+class JsonContentTypeHeaders implements HeadersInterface
 {
     public function headers(): array
     {

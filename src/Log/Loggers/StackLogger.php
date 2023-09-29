@@ -7,22 +7,27 @@ namespace WrkFlow\ApiSdkBuilder\Log\Loggers;
 use WrkFlow\ApiSdkBuilder\Events\RequestConnectionFailedEvent;
 use WrkFlow\ApiSdkBuilder\Events\RequestFailedEvent;
 use WrkFlow\ApiSdkBuilder\Events\ResponseReceivedEvent;
-use WrkFlow\ApiSdkBuilder\Log\Contracts\LoggerContract;
 use WrkFlow\ApiSdkBuilder\Log\Entities\LoggerConfigEntity;
+use WrkFlow\ApiSdkBuilder\Log\Entities\LoggerFailConfigEntity;
+use WrkFlow\ApiSdkBuilder\Log\Interfaces\ApiLoggerInterface;
 
-class StackLogger implements LoggerContract
+class StackLogger implements ApiLoggerInterface
 {
     /**
-     * @param array<LoggerContract> $loggers
+     * @param array<ApiLoggerInterface> $loggers
      */
     public function __construct(
         private readonly array $loggers,
     ) {
     }
 
-    public function requestFailed(RequestFailedEvent $event, LoggerConfigEntity $config): void
+    public function requestFailed(RequestFailedEvent $event, LoggerFailConfigEntity $config): void
     {
         foreach ($this->loggers as $logger) {
+            if ($config->shouldIgnoreLogger(logger: $logger)) {
+                continue;
+            }
+
             $logger->requestFailed(event: $event, config: $config);
         }
     }

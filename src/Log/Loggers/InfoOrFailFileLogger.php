@@ -11,6 +11,7 @@ use WrkFlow\ApiSdkBuilder\Log\Contracts\FileLoggerContract;
 use WrkFlow\ApiSdkBuilder\Log\Contracts\InfoLoggerContract;
 use WrkFlow\ApiSdkBuilder\Log\Contracts\InfoOrFailFileLoggerContract;
 use WrkFlow\ApiSdkBuilder\Log\Entities\LoggerConfigEntity;
+use WrkFlow\ApiSdkBuilder\Log\Entities\LoggerFailConfigEntity;
 
 class InfoOrFailFileLogger implements InfoOrFailFileLoggerContract
 {
@@ -25,10 +26,15 @@ class InfoOrFailFileLogger implements InfoOrFailFileLoggerContract
         $this->logger->responseReceivedEvent($event, $config);
     }
 
-    public function requestFailed(RequestFailedEvent $event, LoggerConfigEntity $config): void
+    public function requestFailed(RequestFailedEvent $event, LoggerFailConfigEntity $config): void
     {
-        $this->logger->requestFailed($event, $config);
-        $this->fileLogger->requestFailed($event, $config);
+        if ($config->shouldIgnoreLogger($this->logger) === false) {
+            $this->logger->requestFailed($event, $config);
+        }
+
+        if ($config->shouldIgnoreLogger($this->fileLogger) === false) {
+            $this->fileLogger->requestFailed($event, $config);
+        }
     }
 
     public function requestConnectionFailed(RequestConnectionFailedEvent $event, LoggerConfigEntity $config): void

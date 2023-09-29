@@ -11,8 +11,10 @@ use Psr\Log\LoggerInterface;
 use WrkFlow\ApiSdkBuilder\Events\RequestConnectionFailedEvent;
 use WrkFlow\ApiSdkBuilder\Events\RequestFailedEvent;
 use WrkFlow\ApiSdkBuilder\Events\ResponseReceivedEvent;
+use WrkFlow\ApiSdkBuilder\Log\Actions\GetTextForLogAction;
 use WrkFlow\ApiSdkBuilder\Log\Contracts\InfoLoggerContract;
 use WrkFlow\ApiSdkBuilder\Log\Entities\LoggerConfigEntity;
+use WrkFlow\ApiSdkBuilder\Log\Entities\LoggerFailConfigEntity;
 
 /**
  * Writes each request/response info to log as info (only request method, status code, host and path).
@@ -21,10 +23,11 @@ class InfoLogger implements InfoLoggerContract
 {
     public function __construct(
         private readonly LoggerInterface $logger,
+        private readonly GetTextForLogAction $getTextForLogAction,
     ) {
     }
 
-    public function requestFailed(RequestFailedEvent $event, LoggerConfigEntity $config): void
+    public function requestFailed(RequestFailedEvent $event, LoggerFailConfigEntity $config): void
     {
         $this->debug(
             request: $event->request,
@@ -58,23 +61,12 @@ class InfoLogger implements InfoLoggerContract
         ?ResponseInterface $response = null,
         ?Exception $exception = null
     ): void {
-        $uri = $request->getUri();
-
-        $statusCode = $response instanceof ResponseInterface === false
-            ? 'FAILED'
-            : (string) $response->getStatusCode();
-
-        // GET 200 example.com /api/v1/clients/1 [20s]
-        // GET example.com 500 /api/v1/clients/1 [20s]
-        // GET example.com FAILED /api/v1/clients/1 [20s]
         $this->logger->info(
-            message: sprintf(
-                '%s %s %s %s [%ds]',
-                $request->getMethod(),
-                $statusCode,
-                $uri->getHost(),
-                $uri->getPath(),
-                $requestDurationInSeconds
+            message: $this->getTextForLogAction->execute(
+                request: $request,
+                requestDurationInSeconds: $requestDurationInSeconds,
+                response: $response,
+                exception: $exception
             ),
             context: $exception instanceof Exception === false ? [] : [
                 'exception' => $exception->getMessage(),

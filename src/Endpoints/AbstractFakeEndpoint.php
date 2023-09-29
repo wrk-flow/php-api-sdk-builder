@@ -7,10 +7,10 @@ namespace WrkFlow\ApiSdkBuilder\Endpoints;
 use Psr\Http\Message\StreamInterface;
 use SimpleXMLElement;
 use WrkFlow\ApiSdkBuilder\Actions\BuildHeadersAction;
-use WrkFlow\ApiSdkBuilder\Contracts\ApiContract;
-use WrkFlow\ApiSdkBuilder\Contracts\OptionsContract;
 use WrkFlow\ApiSdkBuilder\Headers\JsonHeaders;
 use WrkFlow\ApiSdkBuilder\Headers\XMLHeaders;
+use WrkFlow\ApiSdkBuilder\Interfaces\ApiInterface;
+use WrkFlow\ApiSdkBuilder\Interfaces\OptionsInterface;
 use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
 use Wrkflow\GetValue\GetValue;
 use Wrkflow\GetValue\GetValueFactory;
@@ -18,7 +18,7 @@ use Wrkflow\GetValue\GetValueFactory;
 abstract class AbstractFakeEndpoint extends AbstractEndpoint
 {
     public function __construct(
-        ApiContract $api,
+        ApiInterface $api,
         protected readonly GetValueFactory $getValueFactory,
         protected readonly BuildHeadersAction $buildHeadersAction
     ) {
@@ -40,7 +40,7 @@ abstract class AbstractFakeEndpoint extends AbstractEndpoint
     protected function makeResponse(
         string $responseClass,
         GetValue|StreamInterface|null $responseBody = null,
-        OptionsContract|StreamInterface|string $requestBody = null,
+        OptionsInterface|StreamInterface|string $requestBody = null,
         array $headers = [],
         ?int $expectedResponseStatusCode = null
     ): AbstractResponse {

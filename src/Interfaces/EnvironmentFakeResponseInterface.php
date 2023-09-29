@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace WrkFlow\ApiSdkBuilder\Contracts;
+namespace WrkFlow\ApiSdkBuilder\Interfaces;
 
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use WrkFlow\ApiSdkBuilder\Contracts\ApiFactoryContract;
 use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
 
-interface EnvironmentFakeResponseContract
+interface EnvironmentFakeResponseInterface
 {
     /**
      * @param class-string<AbstractResponse> $responseClass

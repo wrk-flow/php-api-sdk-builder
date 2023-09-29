@@ -7,7 +7,6 @@ namespace WrkFlow\ApiSdkBuilder\Laravel;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Filesystem\FilesystemManager;
 use Illuminate\Http\Client\Events\ConnectionFailed;
@@ -42,9 +41,9 @@ use WrkFlow\ApiSdkBuilder\Log\Loggers\InfoLogger;
 use WrkFlow\ApiSdkBuilder\Log\Loggers\InfoOrFailFileLogger;
 use WrkFlow\ApiSdkBuilder\Log\Services\FileLogPathService;
 
-class LaravelServiceProvider extends ServiceProvider
+final class LaravelServiceProvider extends ServiceProvider
 {
-    final public const KeyFilesystemOperator = 'api_sdk_filesystem_operator';
+    public const KeyFilesystemOperator = 'api_sdk_filesystem_operator';
     private const ConfigPath = __DIR__ . '/Configs/api_sdk.php';
     private const ConfigKey = 'api_sdk';
 
@@ -65,7 +64,7 @@ class LaravelServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(path: self::ConfigPath, key: self::ConfigKey);
 
-        $config = static::getConfig($this->app);
+        $config = self::getConfig($this->app);
         $this->passEventsToTelescopeHttpCatcher($config);
 
         $clearAt = $config->getTimeForClearSchedule();
@@ -79,23 +78,53 @@ class LaravelServiceProvider extends ServiceProvider
         }
     }
 
-    protected static function getConfig(Container $container): ApiSdkConfig
+    /**
+     * @template T of object
+     * @param class-string<T> $class
+     *
+     * @return T
+     */
+    protected static function make(Container $container, string $class): object
     {
-        return $container->make(ApiSdkConfig::class);
+        $object = $container->make($class);
+        assert($object instanceof $class);
+        return $object;
     }
 
-    protected function bindEvents(): void
+    protected static function getFileSystemOperator(Container $container): FilesystemOperator
+    {
+        $fileManager = $container->make(FilesystemManager::class);
+        assert($fileManager instanceof FilesystemManager);
+
+        $disk = $fileManager->disk();
+        if ($disk instanceof FilesystemAdapter === false) {
+            throw new LogicException(
+                'FilesystemManager::disk() must return an instance of FilesystemAdapter for FileLogger to work'
+            );
+        }
+
+        return $disk->getDriver();
+    }
+
+    private function getConfig(Container $container): ApiSdkConfig
+    {
+        $config = self::make(container: $container, class: ApiSdkConfig::class);
+        assert($config instanceof ApiSdkConfig);
+        return $config;
+    }
+
+    private function bindEvents(): void
     {
         $this->app->singleton(abstract: LaravelPsrEventDispatcher::class, concrete: LaravelPsrEventDispatcher::class);
         $this->app->bind(abstract: EventDispatcherInterface::class, concrete: LaravelPsrEventDispatcher::class);
     }
 
-    protected function bindApi(): void
+    private function bindApi(): void
     {
         $this->app->singleton(abstract: SDKContainerFactoryContract::class, concrete: LaravelContainerFactory::class);
 
         $this->app->bind(LoggerConfigEntity::class, static function (Container $container): LoggerConfigEntity {
-            $apiConfig = static::getConfig($container);
+            $apiConfig = self::getConfig($container);
 
             return new LoggerConfigEntity(
                 logger: $apiConfig->getLogging(),
@@ -107,15 +136,15 @@ class LaravelServiceProvider extends ServiceProvider
         $this->app->singleton(
             abstract: ApiFactoryContract::class,
             concrete: static function (Container $container): ApiFactoryContract {
-                $makeApiFactory = $container->make(MakeApiFactory::class);
-                assert($makeApiFactory instanceof MakeApiFactory);
+                $makeApiFactory = self::make(container: $container, class: MakeApiFactory::class);
+                $loggerConfig = self::make(container: $container, class: LoggerConfigEntity::class);
 
-                return $makeApiFactory->execute(loggerConfig: $container->make(LoggerConfigEntity::class));
+                return $makeApiFactory->execute(loggerConfig: $loggerConfig);
             }
         );
     }
 
-    protected function bindLogs(): void
+    private function bindLogs(): void
     {
         $this->app->singleton(
             abstract: BuildRequestLogFileActionContract::class,
@@ -132,7 +161,7 @@ class LaravelServiceProvider extends ServiceProvider
         // if it would break some package usage... So lets be explicit.
         $this->app->bind(
             abstract: self::KeyFilesystemOperator,
-            concrete: static fn (Application $application) => static::getFileSystemOperator($application)
+            concrete: static fn (Container $container) => self::getFileSystemOperator($container)
         );
         $this->app
             ->when(FileLogger::class)
@@ -150,12 +179,14 @@ class LaravelServiceProvider extends ServiceProvider
             ->give(self::KeyFilesystemOperator);
     }
 
-    protected function getEventDispatcher(): Dispatcher
+    private function getEventDispatcher(): Dispatcher
     {
-        return $this->app->get('events');
+        $events = $this->app->get('events');
+        assert($events instanceof Dispatcher);
+        return $events;
     }
 
-    protected function passEventsToTelescopeHttpCatcher(ApiSdkConfig $config): void
+    private function passEventsToTelescopeHttpCatcher(ApiSdkConfig $config): void
     {
         if ($config->isTelescopeEnabled() === false) {
             return;
@@ -199,20 +230,5 @@ class LaravelServiceProvider extends ServiceProvider
                 $events->dispatch($newEvent);
             }
         );
-    }
-
-    protected static function getFileSystemOperator(Application $application): FilesystemOperator
-    {
-        $fileManager = $application->make(FilesystemManager::class);
-        assert($fileManager instanceof FilesystemManager);
-
-        $disk = $fileManager->disk();
-        if ($disk instanceof FilesystemAdapter === false) {
-            throw new LogicException(
-                'FilesystemManager::disk() must return an instance of FilesystemAdapter for FileLogger to work'
-            );
-        }
-
-        return $disk->getDriver();
     }
 }

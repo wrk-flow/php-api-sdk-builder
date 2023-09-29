@@ -10,6 +10,7 @@ use WrkFlow\ApiSdkBuilder\AbstractApi;
 use WrkFlow\ApiSdkBuilder\Contracts\SDKContainerFactoryContract;
 use WrkFlow\ApiSdkBuilder\Endpoints\AbstractEndpoint;
 use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
+use Wrkflow\GetValue\GetValue;
 
 class LaravelContainerFactory implements SDKContainerFactoryContract
 {
@@ -18,16 +19,34 @@ class LaravelContainerFactory implements SDKContainerFactoryContract
     ) {
     }
 
+    /**
+     * @template T of AbstractEndpoint
+     * @param class-string<T> $endpointClass
+     *
+     * @return T
+     */
     public function makeEndpoint(AbstractApi $api, string $endpointClass): AbstractEndpoint
     {
-        return $this->container->make($endpointClass, [
+        $endpoint = $this->container->make($endpointClass, [
             'api' => $api,
         ]);
+
+        assert($endpoint instanceof $endpointClass);
+
+        return $endpoint;
     }
 
-    public function make(string $class): mixed
+    /**
+     * @template T of object
+     * @param class-string<T> $class
+     *
+     * @return T
+     */
+    public function make(string $class): object
     {
-        return $this->container->make($class);
+        $object = $this->container->make($class);
+        assert($object instanceof $class);
+        return $object;
     }
 
     public function has(string $classOrKey): bool
@@ -35,12 +54,20 @@ class LaravelContainerFactory implements SDKContainerFactoryContract
         return $this->container->has($classOrKey);
     }
 
-    public function makeResponse(string $class, ResponseInterface $response, mixed $body): AbstractResponse
+    /**
+     * @template T of AbstractResponse
+     * @param class-string<T> $class
+     *
+     * @return T
+     */
+    public function makeResponse(string $class, ResponseInterface $response, ?GetValue $body): AbstractResponse
     {
-        return $this->container->make($class, [
+        $apiResponse = $this->container->make($class, [
             'response' => $response,
             'container' => $this,
             'body' => $body,
         ]);
+        assert($apiResponse instanceof $class);
+        return $apiResponse;
     }
 }

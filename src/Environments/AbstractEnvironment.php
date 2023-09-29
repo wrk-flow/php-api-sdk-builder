@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace WrkFlow\ApiSdkBuilder\Environments;
 
 use JustSteveKing\UriBuilder\Uri;
-use WrkFlow\ApiSdkBuilder\Contracts\HeadersContract;
+use WrkFlow\ApiSdkBuilder\Interfaces\HeadersInterface;
 
-abstract class AbstractEnvironment implements HeadersContract
+abstract class AbstractEnvironment implements HeadersInterface
 {
     /**
-     * @param array<string|int, string|HeadersContract|string[]> $headers
+     * @param array<string|int, string|HeadersInterface|string[]> $headers
      */
     public function __construct(
         protected array $headers = [],
@@ -24,7 +24,7 @@ abstract class AbstractEnvironment implements HeadersContract
         return $this->headers;
     }
 
-    public function addHeader(array|HeadersContract $header): self
+    public function addHeader(array|HeadersInterface $header): self
     {
         $this->headers[] = $header;
 

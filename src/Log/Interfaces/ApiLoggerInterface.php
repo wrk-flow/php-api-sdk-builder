@@ -2,16 +2,17 @@
 
 declare(strict_types=1);
 
-namespace WrkFlow\ApiSdkBuilder\Log\Contracts;
+namespace WrkFlow\ApiSdkBuilder\Log\Interfaces;
 
 use WrkFlow\ApiSdkBuilder\Events\RequestConnectionFailedEvent;
 use WrkFlow\ApiSdkBuilder\Events\RequestFailedEvent;
 use WrkFlow\ApiSdkBuilder\Events\ResponseReceivedEvent;
 use WrkFlow\ApiSdkBuilder\Log\Entities\LoggerConfigEntity;
+use WrkFlow\ApiSdkBuilder\Log\Entities\LoggerFailConfigEntity;
 
-interface LoggerContract
+interface ApiLoggerInterface
 {
-    public function requestFailed(RequestFailedEvent $event, LoggerConfigEntity $config): void;
+    public function requestFailed(RequestFailedEvent $event, LoggerFailConfigEntity $config): void;
 
     public function requestConnectionFailed(RequestConnectionFailedEvent $event, LoggerConfigEntity $config): void;
 

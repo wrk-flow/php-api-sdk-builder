@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Headers;
 
-use WrkFlow\ApiSdkBuilder\Contracts\HeadersContract;
+use WrkFlow\ApiSdkBuilder\Interfaces\HeadersInterface;
 
-class BearerTokenAuthorizationHeader implements HeadersContract
+class BearerTokenAuthorizationHeader implements HeadersInterface
 {
     public function __construct(
         public readonly string $token

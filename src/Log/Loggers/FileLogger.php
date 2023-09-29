@@ -17,6 +17,7 @@ use WrkFlow\ApiSdkBuilder\Log\Contracts\BuildRequestLogFileActionContract;
 use WrkFlow\ApiSdkBuilder\Log\Contracts\FileLoggerContract;
 use WrkFlow\ApiSdkBuilder\Log\Contracts\FileLogPathServiceContract;
 use WrkFlow\ApiSdkBuilder\Log\Entities\LoggerConfigEntity;
+use WrkFlow\ApiSdkBuilder\Log\Entities\LoggerFailConfigEntity;
 
 /**
  * Writes each request and response to a file:
@@ -34,10 +35,10 @@ class FileLogger implements FileLoggerContract
     ) {
     }
 
-    public function requestFailed(RequestFailedEvent $event, LoggerConfigEntity $config): void
+    public function requestFailed(RequestFailedEvent $event, LoggerFailConfigEntity $config): void
     {
         $this->log(
-            config: $config,
+            config: $config->config,
             id: $event->id,
             request: $event->request,
             type: 'failed',

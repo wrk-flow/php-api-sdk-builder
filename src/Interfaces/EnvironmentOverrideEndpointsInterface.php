@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace WrkFlow\ApiSdkBuilder\Contracts;
+namespace WrkFlow\ApiSdkBuilder\Interfaces;
 
 use WrkFlow\ApiSdkBuilder\Endpoints\AbstractEndpoint;
 
-interface EnvironmentOverrideEndpointsContract
+interface EnvironmentOverrideEndpointsInterface
 {
     /**
      * @return array<class-string, class-string<AbstractEndpoint>>

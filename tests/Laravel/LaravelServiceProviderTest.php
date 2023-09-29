@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace WrkFlow\ApiSdkBuilderTests\Laravel;
 
 use WrkFlow\ApiSdkBuilder\Log\Constants\LoggerConstants;
-use WrkFlow\ApiSdkBuilder\Log\Contracts\LoggerContract;
+use WrkFlow\ApiSdkBuilder\Log\Interfaces\ApiLoggerInterface;
 
 class LaravelServiceProviderTest extends TestCase
 {
@@ -13,7 +13,7 @@ class LaravelServiceProviderTest extends TestCase
     {
         foreach (LoggerConstants::DefaultLoggersMap as $loggers) {
             foreach ($loggers as $logger) {
-                $this->assertInstanceOf(expected: LoggerContract::class, actual: $this->app()->make($logger));
+                $this->assertInstanceOf(expected: ApiLoggerInterface::class, actual: $this->app()->make($logger));
             }
         }
     }

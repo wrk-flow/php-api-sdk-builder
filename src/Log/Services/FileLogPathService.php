@@ -14,7 +14,7 @@ use WrkFlow\ApiSdkBuilder\Log\Entities\LoggerConfigEntity;
 /**
  * Groups requests / responses:
  * - by day
- * - by host
+ * - by host.
  */
 class FileLogPathService implements FileLogPathServiceContract
 {
@@ -25,16 +25,17 @@ class FileLogPathService implements FileLogPathServiceContract
             ->getPath();
         $cleanPath = str_replace(search: ['/', DIRECTORY_SEPARATOR], replace: '-', subject: $uriPath);
 
-        return implode(
+        return str_replace([':'], '-', implode(
             separator: DIRECTORY_SEPARATOR,
             array: [
                 $baseDir,
                 $this->getRootDirectoryName($date),
                 $request->getUri()
                     ->getHost(),
+                $date->format('H'),
                 $date->format(DATE_ATOM) . $cleanPath . ($type === null ? '' : '-' . $type) . '-' . $id,
             ]
-        );
+        ));
     }
 
     public function getRootDirectoryName(DateTimeInterface $date): string
@@ -67,6 +68,7 @@ class FileLogPathService implements FileLogPathServiceContract
             $leaveDate = $this->getRootDirectoryName($newDate->modify('-' . $day . ' days'));
             $allowedMap[$leaveDate] = true;
         }
+
         return $allowedMap;
     }
 }

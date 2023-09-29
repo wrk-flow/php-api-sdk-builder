@@ -7,9 +7,9 @@ namespace WrkFlow\ApiSdkBuilder\Actions;
 use JsonException;
 use Psr\Http\Message\ResponseInterface;
 use SimpleXMLElement;
-use WrkFlow\ApiSdkBuilder\Contracts\BodyIsJsonContract;
-use WrkFlow\ApiSdkBuilder\Contracts\BodyIsXmlContract;
 use WrkFlow\ApiSdkBuilder\Exceptions\InvalidJsonResponseException;
+use WrkFlow\ApiSdkBuilder\Interfaces\BodyIsJsonInterface;
+use WrkFlow\ApiSdkBuilder\Interfaces\BodyIsXmlInterface;
 use Wrkflow\GetValue\DataHolders\ArrayData;
 use Wrkflow\GetValue\DataHolders\XMLData;
 use Wrkflow\GetValue\GetValue;
@@ -24,11 +24,11 @@ class MakeBodyFromResponseAction
             return null;
         }
 
-        if (array_key_exists(BodyIsJsonContract::class, $implements)) {
+        if (array_key_exists(BodyIsJsonInterface::class, $implements)) {
             return $this->convertToJson($response);
         }
 
-        if (array_key_exists(BodyIsXmlContract::class, $implements)) {
+        if (array_key_exists(BodyIsXmlInterface::class, $implements)) {
             return new GetValue(new XMLData(new SimpleXMLElement((string) $response->getBody())));
         }
 

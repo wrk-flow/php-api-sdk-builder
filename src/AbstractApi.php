@@ -4,30 +4,30 @@ declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder;
 
+use Closure;
 use JustSteveKing\UriBuilder\Uri;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use WrkFlow\ApiSdkBuilder\Actions\SendRequestAction;
-use WrkFlow\ApiSdkBuilder\Contracts\ApiContract;
 use WrkFlow\ApiSdkBuilder\Contracts\ApiFactoryContract;
-use WrkFlow\ApiSdkBuilder\Contracts\EnvironmentOverrideEndpointsContract;
-use WrkFlow\ApiSdkBuilder\Contracts\HeadersContract;
-use WrkFlow\ApiSdkBuilder\Contracts\OptionsContract;
 use WrkFlow\ApiSdkBuilder\Endpoints\AbstractEndpoint;
 use WrkFlow\ApiSdkBuilder\Environments\AbstractEnvironment;
 use WrkFlow\ApiSdkBuilder\Exceptions\BadRequestException;
 use WrkFlow\ApiSdkBuilder\Exceptions\ResponseException;
 use WrkFlow\ApiSdkBuilder\Exceptions\ServerFailedException;
+use WrkFlow\ApiSdkBuilder\Interfaces\ApiInterface;
+use WrkFlow\ApiSdkBuilder\Interfaces\EnvironmentOverrideEndpointsInterface;
+use WrkFlow\ApiSdkBuilder\Interfaces\OptionsInterface;
 use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
 
-abstract class AbstractApi implements ApiContract
+abstract class AbstractApi implements ApiInterface
 {
     /**
      * A cache map of created endpoints: class -> instance.
      *
      * @var array<string,AbstractEndpoint>
      */
-    protected array $cachedEndpoints = [];
+    private array $cachedEndpoints = [];
 
     private ?SendRequestAction $sendRequestAction = null;
 
@@ -46,40 +46,33 @@ abstract class AbstractApi implements ApiContract
     ) {
         $this->overrideEndpoints = array_merge(
             $overrideEndpoints,
-            $environment instanceof EnvironmentOverrideEndpointsContract ? $environment->endpoints() : []
+            $environment instanceof EnvironmentOverrideEndpointsInterface ? $environment->endpoints() : []
         );
     }
 
-    public function environment(): AbstractEnvironment
+    final public function environment(): AbstractEnvironment
     {
         // Makes the environment testable
         return $this->environment;
     }
 
-    public function factory(): ApiFactoryContract
+    final public function factory(): ApiFactoryContract
     {
         // Makes the factory testable
         return $this->factory;
     }
 
-    public function uri(): Uri
+    final public function uri(): Uri
     {
         return $this->environment->uri();
     }
 
-    /**
-     * @template TResponse of AbstractResponse
-     *
-     * @param class-string<TResponse>                           $responseClass
-     * @param array<int|string,HeadersContract|string|string[]> $headers
-     *
-     * @return TResponse
-     */
-    public function get(
+    final public function get(
         string $responseClass,
         Uri $uri,
         array $headers = [],
         ?int $expectedResponseStatusCode = null,
+        Closure $shouldIgnoreLoggersOnError = null,
     ): AbstractResponse {
         $request = $this->factory()
             ->request()
@@ -91,26 +84,18 @@ abstract class AbstractApi implements ApiContract
                 request: $request,
                 responseClass: $responseClass,
                 headers: $headers,
-                expectedResponseStatusCode: $expectedResponseStatusCode
+                expectedResponseStatusCode: $expectedResponseStatusCode,
+                shouldIgnoreLoggersOnError: $shouldIgnoreLoggersOnError,
             );
     }
 
-    /**
-     * @template TResponse of AbstractResponse
-     *
-     * @param class-string<TResponse>                           $responseClass
-     * @param array<int|string,HeadersContract|string|string[]> $headers
-     * @param int|null                                          $expectedResponseStatusCode Will raise and failed
-     *                                                                                      exception if response
-     *
-     * @return TResponse
-     */
-    public function post(
+    final public function post(
         string $responseClass,
         Uri $uri,
-        OptionsContract|StreamInterface|string $body = null,
+        OptionsInterface|StreamInterface|string $body = null,
         array $headers = [],
         ?int $expectedResponseStatusCode = null,
+        Closure $shouldIgnoreLoggersOnError = null,
     ): AbstractResponse {
         $request = $this->factory()
             ->request()
@@ -123,26 +108,18 @@ abstract class AbstractApi implements ApiContract
                 responseClass: $responseClass,
                 body: $body,
                 headers: $headers,
-                expectedResponseStatusCode: $expectedResponseStatusCode
+                expectedResponseStatusCode: $expectedResponseStatusCode,
+                shouldIgnoreLoggersOnError: $shouldIgnoreLoggersOnError,
             );
     }
 
-    /**
-     * @template TResponse of AbstractResponse
-     *
-     * @param class-string<TResponse>                           $responseClass
-     * @param array<int|string,HeadersContract|string|string[]> $headers
-     * @param int|null                                          $expectedResponseStatusCode Will raise and failed
-     *                                                                                      exception if response
-     *
-     * @return TResponse
-     */
-    public function put(
+    final public function put(
         string $responseClass,
         Uri $uri,
-        OptionsContract|StreamInterface|string $body = null,
+        OptionsInterface|StreamInterface|string $body = null,
         array $headers = [],
         ?int $expectedResponseStatusCode = null,
+        Closure $shouldIgnoreLoggersOnError = null,
     ): AbstractResponse {
         $request = $this->factory()
             ->request()
@@ -155,54 +132,43 @@ abstract class AbstractApi implements ApiContract
                 responseClass: $responseClass,
                 body: $body,
                 headers: $headers,
-                expectedResponseStatusCode: $expectedResponseStatusCode
+                expectedResponseStatusCode: $expectedResponseStatusCode,
+                shouldIgnoreLoggersOnError: $shouldIgnoreLoggersOnError,
             );
     }
 
-    /**
-     * @template TResponse of AbstractResponse
-     *
-     * @param class-string<TResponse>                           $responseClass
-     * @param array<int|string,HeadersContract|string|string[]> $headers
-     * @param int|null                                          $expectedResponseStatusCode Will raise and failed
-     *                                                                                      exception if response
-     *
-     * @return TResponse
-     */
-    public function delete(
+    final public function delete(
         string $responseClass,
         Uri $uri,
-        OptionsContract|StreamInterface|string $body = null,
+        OptionsInterface|StreamInterface|string $body = null,
         array $headers = [],
         ?int $expectedResponseStatusCode = null,
+        Closure $shouldIgnoreLoggersOnError = null,
     ): AbstractResponse {
         $request = $this->factory()
             ->request()
             ->createRequest('DELETE', $uri->toString());
 
         return $this->sendRequestAction()
-            ->execute($this, $request, $responseClass, $body, $headers, $expectedResponseStatusCode);
+            ->execute(
+                api: $this,
+                request: $request,
+                responseClass: $responseClass,
+                body: $body,
+                headers: $headers,
+                expectedResponseStatusCode: $expectedResponseStatusCode,
+                shouldIgnoreLoggersOnError: $shouldIgnoreLoggersOnError,
+            );
     }
 
-    /**
-     * Sends a fake request with fake response (will all events in place).
-     *
-     * @template TResponse of AbstractResponse
-     *
-     * @param class-string<TResponse>                           $responseClass
-     * @param array<int|string,HeadersContract|string|string[]> $headers
-     * @param int|null                                          $expectedResponseStatusCode Will raise and failed
-     * exception if response
-     *
-     * @return TResponse
-     */
     public function fake(
         ResponseInterface $response,
         string $responseClass,
         Uri $uri,
-        OptionsContract|StreamInterface|string $body = null,
+        OptionsInterface|StreamInterface|string $body = null,
         array $headers = [],
-        ?int $expectedResponseStatusCode = null
+        ?int $expectedResponseStatusCode = null,
+        Closure $shouldIgnoreLoggersOnError = null,
     ): AbstractResponse {
         return $this->sendRequestAction()
             ->execute(
@@ -214,7 +180,8 @@ abstract class AbstractApi implements ApiContract
                 body: $body,
                 headers: $headers,
                 expectedResponseStatusCode: $expectedResponseStatusCode,
-                fakedResponse: $response
+                fakedResponse: $response,
+                shouldIgnoreLoggersOnError: $shouldIgnoreLoggersOnError,
             );
     }
 
@@ -234,7 +201,7 @@ abstract class AbstractApi implements ApiContract
      *
      * @return T
      */
-    protected function makeEndpoint(string $endpoint): AbstractEndpoint
+    final protected function makeEndpoint(string $endpoint): AbstractEndpoint
     {
         if (array_key_exists($endpoint, $this->cachedEndpoints) === false) {
             $endpoint = $this->getOverrideEndpointClassIfCan($endpoint);

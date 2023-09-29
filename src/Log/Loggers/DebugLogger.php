@@ -12,8 +12,10 @@ use Throwable;
 use WrkFlow\ApiSdkBuilder\Events\RequestConnectionFailedEvent;
 use WrkFlow\ApiSdkBuilder\Events\RequestFailedEvent;
 use WrkFlow\ApiSdkBuilder\Events\ResponseReceivedEvent;
+use WrkFlow\ApiSdkBuilder\Log\Actions\GetTextForLogAction;
 use WrkFlow\ApiSdkBuilder\Log\Contracts\DebugLoggerContract;
 use WrkFlow\ApiSdkBuilder\Log\Entities\LoggerConfigEntity;
+use WrkFlow\ApiSdkBuilder\Log\Entities\LoggerFailConfigEntity;
 
 /**
  * Writes each request/response info to log as debug. Contains request / response body (limited to 10000 characters).
@@ -27,10 +29,11 @@ class DebugLogger implements DebugLoggerContract
 
     public function __construct(
         private readonly LoggerInterface $logger,
+        private readonly GetTextForLogAction $getTextForLogAction,
     ) {
     }
 
-    public function requestFailed(RequestFailedEvent $event, LoggerConfigEntity $config): void
+    public function requestFailed(RequestFailedEvent $event, LoggerFailConfigEntity $config): void
     {
         $this->debug(
             id: $event->id,
@@ -83,15 +86,13 @@ class DebugLogger implements DebugLoggerContract
     ): void {
         $uri = $request->getUri();
 
-        $statusCode = $response instanceof ResponseInterface === false
-            ? 'FAILED'
-            : (string) $response->getStatusCode();
-
-        // example.com GET 200 /api/v1/clients/1 {payload}
-        // example.com GET 500 /api/v1/clients/1 {payload}
-        // example.com GET FAILED /api/v1/clients/1 {payload}
         $this->logger->debug(
-            message: sprintf('%s %s %s %s', $request->getMethod(), $statusCode, $uri->getHost(), $uri->getPath()),
+            message: $this->getTextForLogAction->execute(
+                request: $request,
+                requestDurationInSeconds: $requestDurationInSeconds,
+                response: $response,
+                exception: $exception
+            ),
             context: array_filter([
                 'uri' => (string) $uri,
                 'id' => $id,

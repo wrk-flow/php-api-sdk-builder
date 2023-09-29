@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Testing\Endpoints;
 
-use WrkFlow\ApiSdkBuilder\Contracts\ApiContract;
 use WrkFlow\ApiSdkBuilder\Endpoints\AbstractEndpoint;
+use WrkFlow\ApiSdkBuilder\Interfaces\ApiInterface;
 
 class EndpointMock extends AbstractEndpoint
 {
     public function __construct(
-        ApiContract $api,
+        ApiInterface $api,
         public readonly string $endpointClass
     ) {
         parent::__construct($api);

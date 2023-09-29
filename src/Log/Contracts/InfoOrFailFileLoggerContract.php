@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Log\Contracts;
 
-interface InfoOrFailFileLoggerContract extends LoggerContract
+use WrkFlow\ApiSdkBuilder\Log\Interfaces\ApiLoggerInterface;
+
+interface InfoOrFailFileLoggerContract extends ApiLoggerInterface
 {
 }

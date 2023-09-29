@@ -19,7 +19,7 @@ final class GetExtensionFromContentTypeActionTest extends TestCase
     /**
      * @dataProvider contentTypeProvider
      */
-    public function testExecute(string $contentType, mixed $expectedExtension): void
+    public function testExecute(string $contentType, string $expectedExtension): void
     {
         $this->assertEquals(
             expected: $expectedExtension,

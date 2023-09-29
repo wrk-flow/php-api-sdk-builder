@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace WrkFlow\ApiSdkBuilder\Options;
 
 use SimpleXMLElement;
-use WrkFlow\ApiSdkBuilder\Contracts\OptionsContract;
 use WrkFlow\ApiSdkBuilder\Environments\AbstractEnvironment;
 use WrkFlow\ApiSdkBuilder\Exceptions\InvalidOptionsXMLException;
+use WrkFlow\ApiSdkBuilder\Interfaces\OptionsInterface;
 
-abstract class AbstractXMLOptions implements OptionsContract
+abstract class AbstractXMLOptions implements OptionsInterface
 {
     public function toBody(AbstractEnvironment $environment): string
     {

@@ -8,12 +8,12 @@ use WrkFlow\ApiSdkBuilder\Log\Contracts\DebugLoggerContract;
 use WrkFlow\ApiSdkBuilder\Log\Contracts\FileLoggerContract;
 use WrkFlow\ApiSdkBuilder\Log\Contracts\InfoLoggerContract;
 use WrkFlow\ApiSdkBuilder\Log\Contracts\InfoOrFailFileLoggerContract;
-use WrkFlow\ApiSdkBuilder\Log\Contracts\LoggerContract;
+use WrkFlow\ApiSdkBuilder\Log\Interfaces\ApiLoggerInterface;
 
 class LoggerConstants
 {
     /**
-     * @var array<string, array<class-string<LoggerContract>>>
+     * @var array<string, array<class-string<ApiLoggerInterface>>>
      */
     final public const DefaultLoggersMap = [
         self::NoLog => [],

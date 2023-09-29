@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace WrkFlow\ApiSdkBuilder\Endpoints;
 
 use JustSteveKing\UriBuilder\Uri;
-use WrkFlow\ApiSdkBuilder\Contracts\ApiContract;
+use WrkFlow\ApiSdkBuilder\Interfaces\ApiInterface;
 
 abstract class AbstractEndpoint
 {
     public function __construct(
-        protected ApiContract $api,
+        protected ApiInterface $api,
     ) {
     }
 

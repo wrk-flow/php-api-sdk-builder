@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace WrkFlow\ApiSdkBuilder\Actions;
 
 use WrkFlow\ApiSdkBuilder\Contracts\SDKContainerFactoryContract;
-use WrkFlow\ApiSdkBuilder\Log\Contracts\LoggerContract;
 use WrkFlow\ApiSdkBuilder\Log\Entities\LoggerConfigEntity;
+use WrkFlow\ApiSdkBuilder\Log\Interfaces\ApiLoggerInterface;
 use WrkFlow\ApiSdkBuilder\Log\Loggers\StackLogger;
 
 /**
@@ -24,7 +24,7 @@ class GetLoggerAction
     ) {
     }
 
-    public function execute(LoggerConfigEntity $config, string $host): ?LoggerContract
+    public function execute(LoggerConfigEntity $config, string $host): ?ApiLoggerInterface
     {
         $loggerKey = $config->loggerByHost[$host] ?? $config->logger;
 
@@ -43,7 +43,7 @@ class GetLoggerAction
         return $logger;
     }
 
-    protected function getLogger(LoggerConfigEntity $config, mixed $loggerKey): mixed
+    protected function getLogger(LoggerConfigEntity $config, mixed $loggerKey): ?ApiLoggerInterface
     {
         $loggers = $config->loggersMap->loggers[$loggerKey];
 
@@ -52,11 +52,24 @@ class GetLoggerAction
         }
 
         if (count($loggers) === 1) {
-            return $this->container->make($loggers[0]);
+            return $this->makeLogger($loggers[0]);
         }
 
         return new StackLogger(
-            loggers: array_map(callback: fn (string $logger) => $this->container->make($logger), array: $loggers)
+            loggers: array_map(
+                callback: fn (string $logger): ApiLoggerInterface => $this->makeLogger($logger),
+                array: $loggers
+            )
         );
+    }
+
+    /**
+     * @param class-string<ApiLoggerInterface> $class
+     */
+    protected function makeLogger(string $class): ApiLoggerInterface
+    {
+        $result = $this->container->make($class);
+        assert($result instanceof ApiLoggerInterface);
+        return $result;
     }
 }

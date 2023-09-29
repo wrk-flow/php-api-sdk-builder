@@ -4,22 +4,23 @@ declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Testing;
 
+use Closure;
 use JustSteveKing\UriBuilder\Uri;
 use Mockery;
 use PHPUnit\Framework\Assert;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
-use WrkFlow\ApiSdkBuilder\Contracts\ApiContract;
 use WrkFlow\ApiSdkBuilder\Contracts\ApiFactoryContract;
-use WrkFlow\ApiSdkBuilder\Contracts\OptionsContract;
 use WrkFlow\ApiSdkBuilder\Environments\AbstractEnvironment;
 use WrkFlow\ApiSdkBuilder\Exceptions\ResponseException;
+use WrkFlow\ApiSdkBuilder\Interfaces\ApiInterface;
+use WrkFlow\ApiSdkBuilder\Interfaces\OptionsInterface;
 use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
 use WrkFlow\ApiSdkBuilder\Testing\Endpoints\EndpointExpectation;
 use WrkFlow\ApiSdkBuilder\Testing\Environments\TestingEnvironmentMock;
 use WrkFlow\ApiSdkBuilder\Testing\Factories\ApiFactoryMock;
 
-class ApiMock implements ApiContract
+class ApiMock implements ApiInterface
 {
     public array $postExpectations = [];
 
@@ -59,6 +60,7 @@ class ApiMock implements ApiContract
         Uri $uri,
         array $headers = [],
         ?int $expectedResponseStatusCode = null,
+        Closure $shouldIgnoreLoggersOnError = null,
     ): AbstractResponse {
         $this->getExpectations = $this->assertRequest(
             $this->getExpectations,
@@ -75,9 +77,10 @@ class ApiMock implements ApiContract
     public function post(
         string $responseClass,
         Uri $uri,
-        StreamInterface|string|OptionsContract $body = null,
+        StreamInterface|string|OptionsInterface $body = null,
         array $headers = [],
         ?int $expectedResponseStatusCode = null,
+        Closure $shouldIgnoreLoggersOnError = null,
     ): AbstractResponse {
         $this->postExpectations = $this->assertRequest(
             $this->postExpectations,
@@ -95,9 +98,10 @@ class ApiMock implements ApiContract
         ResponseInterface $response,
         string $responseClass,
         Uri $uri,
-        StreamInterface|string|OptionsContract $body = null,
+        StreamInterface|string|OptionsInterface $body = null,
         array $headers = [],
-        ?int $expectedResponseStatusCode = null
+        ?int $expectedResponseStatusCode = null,
+        Closure $shouldIgnoreLoggersOnError = null,
     ): AbstractResponse {
         $this->fakeExpectations = $this->assertRequest(
             $this->fakeExpectations,
@@ -114,9 +118,10 @@ class ApiMock implements ApiContract
     public function put(
         string $responseClass,
         Uri $uri,
-        StreamInterface|string|OptionsContract $body = null,
+        StreamInterface|string|OptionsInterface $body = null,
         array $headers = [],
         ?int $expectedResponseStatusCode = null,
+        Closure $shouldIgnoreLoggersOnError = null,
     ): AbstractResponse {
         $this->putExpectations = $this->assertRequest(
             $this->putExpectations,
@@ -133,9 +138,10 @@ class ApiMock implements ApiContract
     public function delete(
         string $responseClass,
         Uri $uri,
-        StreamInterface|string|OptionsContract $body = null,
+        StreamInterface|string|OptionsInterface $body = null,
         array $headers = [],
         ?int $expectedResponseStatusCode = null,
+        Closure $shouldIgnoreLoggersOnError = null,
     ): AbstractResponse {
         $this->deleteExpectations = $this->assertRequest(
             $this->deleteExpectations,
@@ -167,7 +173,7 @@ class ApiMock implements ApiContract
         array $expectations,
         string $responseClass,
         Uri $uri,
-        StreamInterface|string|OptionsContract $body = null,
+        StreamInterface|string|OptionsInterface $body = null,
         array $headers = [],
         ?int $expectedResponseStatusCode = null,
     ): array {
@@ -189,8 +195,8 @@ class ApiMock implements ApiContract
 
         if ($expectation->assertBody === null) {
             Assert::assertNull($body, 'Request body should be null');
-        } elseif ($expectation->assertBody instanceof OptionsContract) {
-            Assert::assertInstanceOf(OptionsContract::class, $body, 'Request body should be OptionsContract');
+        } elseif ($expectation->assertBody instanceof OptionsInterface) {
+            Assert::assertInstanceOf(OptionsInterface::class, $body, 'Request body should be OptionsContract');
             Assert::assertEquals(
                 json_decode($expectation->assertBody->toBody($environment), true, 512, JSON_THROW_ON_ERROR),
                 json_decode($body->toBody($environment), true, 512, JSON_THROW_ON_ERROR),
@@ -207,7 +213,7 @@ class ApiMock implements ApiContract
                 'Request body is different'
             );
         } elseif (is_array($expectation->assertBody)) {
-            Assert::assertInstanceOf(OptionsContract::class, $body, 'Request body should be OptionsContract');
+            Assert::assertInstanceOf(OptionsInterface::class, $body, 'Request body should be OptionsContract');
             Assert::assertEquals(
                 $expectation->assertBody,
                 json_decode($body->toBody($environment), true, 512, JSON_THROW_ON_ERROR),

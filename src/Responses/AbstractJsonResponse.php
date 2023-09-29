@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace WrkFlow\ApiSdkBuilder\Responses;
 
 use Psr\Http\Message\ResponseInterface;
-use WrkFlow\ApiSdkBuilder\Contracts\BodyIsJsonContract;
+use WrkFlow\ApiSdkBuilder\Interfaces\BodyIsJsonInterface;
 use Wrkflow\GetValue\GetValue;
 
-abstract class AbstractJsonResponse extends AbstractResponse implements BodyIsJsonContract
+abstract class AbstractJsonResponse extends AbstractResponse implements BodyIsJsonInterface
 {
     public function __construct(
         ResponseInterface $response,

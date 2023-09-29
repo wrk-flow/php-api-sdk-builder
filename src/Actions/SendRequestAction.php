@@ -4,23 +4,26 @@ declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Actions;
 
+use Closure;
 use Exception;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
+use Throwable;
 use WrkFlow\ApiSdkBuilder\AbstractApi;
-use WrkFlow\ApiSdkBuilder\Contracts\EnvironmentFakeResponseContract;
-use WrkFlow\ApiSdkBuilder\Contracts\HeadersContract;
-use WrkFlow\ApiSdkBuilder\Contracts\OptionsContract;
 use WrkFlow\ApiSdkBuilder\Environments\AbstractEnvironment;
 use WrkFlow\ApiSdkBuilder\Events\RequestConnectionFailedEvent;
 use WrkFlow\ApiSdkBuilder\Events\RequestFailedEvent;
 use WrkFlow\ApiSdkBuilder\Events\ResponseReceivedEvent;
 use WrkFlow\ApiSdkBuilder\Events\SendingRequestEvent;
 use WrkFlow\ApiSdkBuilder\Exceptions\ResponseException;
-use WrkFlow\ApiSdkBuilder\Log\Contracts\LoggerContract;
+use WrkFlow\ApiSdkBuilder\Interfaces\EnvironmentFakeResponseInterface;
+use WrkFlow\ApiSdkBuilder\Interfaces\HeadersInterface;
+use WrkFlow\ApiSdkBuilder\Interfaces\OptionsInterface;
 use WrkFlow\ApiSdkBuilder\Log\Entities\LoggerConfigEntity;
+use WrkFlow\ApiSdkBuilder\Log\Entities\LoggerFailConfigEntity;
+use WrkFlow\ApiSdkBuilder\Log\Interfaces\ApiLoggerInterface;
 use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
 
 final class SendRequestAction
@@ -35,11 +38,12 @@ final class SendRequestAction
     /**
      * @template TResponse of AbstractResponse
      *
-     * @param array<int|string,HeadersContract|string|string[]> $headers
-     * @param class-string<TResponse>                           $responseClass
-     * @param int|null                                          $expectedResponseStatusCode Will raise and failed
+     * @param array<int|string,HeadersInterface|string|string[]> $headers
+     * @param class-string<TResponse>                            $responseClass
+     * @param int|null                                           $expectedResponseStatusCode Will raise and failed
      *                                                                                      exception if response
      *                                                                                      status code is different
+     * @param Closure(Throwable):array<ApiLoggerInterface>|null $shouldIgnoreLoggersOnError
      *
      * @return TResponse
      */
@@ -47,10 +51,11 @@ final class SendRequestAction
         AbstractApi $api,
         RequestInterface $request,
         string $responseClass,
-        OptionsContract|StreamInterface|string|null $body = null,
+        OptionsInterface|StreamInterface|string|null $body = null,
         array $headers = [],
         ?int $expectedResponseStatusCode = null,
-        ?ResponseInterface $fakedResponse = null
+        ?ResponseInterface $fakedResponse = null,
+        Closure $shouldIgnoreLoggersOnError = null,
     ): AbstractResponse {
         $timeStart = (float) microtime(true);
 
@@ -63,7 +68,7 @@ final class SendRequestAction
         $loggerConfig = $api->factory()
             ->loggerConfig();
 
-        $logger = $this->getLoggerAction->execute(config: $loggerConfig, host: $request->getUri()->getHost());
+        $logger = $this->getLoggerAction->execute(config: $loggerConfig, host: $request->getUri() ->getHost());
 
         $environment = $api->environment();
 
@@ -79,7 +84,7 @@ final class SendRequestAction
             responseClass: $responseClass,
             requestId: $id,
             timeStart: $timeStart,
-            fakedResponse: $fakedResponse
+            fakedResponse: $fakedResponse,
         );
 
         return $this->handleResponse(
@@ -92,7 +97,8 @@ final class SendRequestAction
             loggerConfig: $loggerConfig,
             id: $id,
             request: $request,
-            timeStart: $timeStart
+            timeStart: $timeStart,
+            shouldIgnoreLoggersOnError: $shouldIgnoreLoggersOnError,
         );
     }
 
@@ -103,20 +109,20 @@ final class SendRequestAction
         AbstractEnvironment $environment,
         AbstractApi $api,
         ?EventDispatcherInterface $dispatcher,
-        ?LoggerContract $logger,
+        ?ApiLoggerInterface $logger,
         LoggerConfigEntity $loggerConfig,
         RequestInterface $request,
         string $responseClass,
         string $requestId,
         float $timeStart,
-        ?ResponseInterface $fakedResponse = null
+        ?ResponseInterface $fakedResponse = null,
     ): ResponseInterface {
         try {
             $dispatcher?->dispatch(new SendingRequestEvent($requestId, $request, $timeStart));
 
             if ($fakedResponse instanceof ResponseInterface) {
                 return $fakedResponse;
-            } elseif ($environment instanceof EnvironmentFakeResponseContract) {
+            } elseif ($environment instanceof EnvironmentFakeResponseInterface) {
                 $response = $environment->getResponse($request, $responseClass, $api->factory());
                 if ($response instanceof ResponseInterface) {
                     return $response;
@@ -144,12 +150,12 @@ final class SendRequestAction
 
     private function withBody(
         AbstractApi $api,
-        OptionsContract|StreamInterface|string|null $body,
+        OptionsInterface|StreamInterface|string|null $body,
         RequestInterface $request
     ): RequestInterface {
         if ($body instanceof StreamInterface) {
             return $request->withBody($body);
-        } elseif ($body instanceof OptionsContract) {
+        } elseif ($body instanceof OptionsInterface) {
             $body = $body->toBody($api->environment());
         }
 
@@ -172,6 +178,7 @@ final class SendRequestAction
      * @param int|null                $expectedResponseStatusCode Will raise and failed
      *                                                                                      exception if response
      *                                                                                      status code is different
+     * @param Closure(Throwable):array<ApiLoggerInterface>|null $shouldIgnoreLoggersOnError
      *
      * @return TResponse
      */
@@ -181,11 +188,12 @@ final class SendRequestAction
         ?int $expectedResponseStatusCode,
         string $responseClass,
         ?EventDispatcherInterface $dispatcher,
-        ?LoggerContract $logger,
+        ?ApiLoggerInterface $logger,
         LoggerConfigEntity $loggerConfig,
         string $id,
         RequestInterface $request,
-        float $timeStart
+        float $timeStart,
+        Closure $shouldIgnoreLoggersOnError = null,
     ): mixed {
         try {
             $container = $api->factory()
@@ -220,6 +228,10 @@ final class SendRequestAction
                 $exception = new ResponseException($response, $exception->getMessage(), $exception);
             }
 
+            if ($shouldIgnoreLoggersOnError instanceof Closure) {
+                $ignoreLoggers = $shouldIgnoreLoggersOnError($exception);
+            }
+
             $event = new RequestFailedEvent(
                 id: $id,
                 request: $request,
@@ -227,7 +239,14 @@ final class SendRequestAction
                 requestDurationInSeconds: $this->getRequestDuration($timeStart)
             );
             $dispatcher?->dispatch($event);
-            $logger?->requestFailed(event: $event, config: $loggerConfig);
+            $failLogConfig = new LoggerFailConfigEntity(
+                config: $loggerConfig,
+                ignoreLoggersOnFail: $ignoreLoggers ?? []
+            );
+
+            if ($logger instanceof ApiLoggerInterface && $failLogConfig->shouldIgnoreLogger($logger) === false) {
+                $logger->requestFailed(event: $event, config: $failLogConfig);
+            }
 
             throw $exception;
         }
@@ -238,7 +257,7 @@ final class SendRequestAction
         AbstractApi $api,
         array $headers,
         RequestInterface $request,
-        StreamInterface|string|OptionsContract|null $body
+        StreamInterface|string|OptionsInterface|null $body
     ): RequestInterface {
         $mergedHeaders = array_merge($environment->headers(), $api->headers(), $headers);
 
