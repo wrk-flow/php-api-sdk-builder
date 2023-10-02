@@ -23,7 +23,7 @@ class ApiSdkConfig extends AbstractConfig
 
     public function getLogging(): string
     {
-        return $this->config->getRequiredString([self::KeyLogging, self::KeyLoggingType]);
+        return $this->config->getString([self::KeyLogging, self::KeyLoggingType]) ?? '';
     }
 
     public function isTelescopeEnabled(): bool
