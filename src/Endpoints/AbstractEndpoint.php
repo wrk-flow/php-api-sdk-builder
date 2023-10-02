@@ -45,6 +45,20 @@ abstract class AbstractEndpoint implements EndpointInterface
         return $cloned;
     }
 
+    final public function dontReportExceptionsToFile(array $exceptions): static
+    {
+        return $this->setShouldIgnoreLoggersForExceptions(static function (Throwable $throwable) use (
+            $exceptions
+        ): array {
+            foreach ($exceptions as $exception) {
+                if ($throwable instanceof $exception) {
+                    return [FileLoggerContract::class];
+                }
+            }
+            return [];
+        });
+    }
+
     final protected function shouldIgnoreLoggersOnException(): ?Closure
     {
         return function (Throwable $throwable): array {
@@ -64,6 +78,7 @@ abstract class AbstractEndpoint implements EndpointInterface
             return $return;
         };
     }
+
 
     /**
      * Appends to base path in uri. Must start with /.

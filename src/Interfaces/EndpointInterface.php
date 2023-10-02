@@ -24,7 +24,7 @@ interface EndpointInterface
     /**
      * Returns a copy of endpoint that will not log to file when the request fails with given exception.
      *
-     * @param array<class-string<Throwable>> $exceptions
+     * @param non-empty-array<class-string<Throwable>> $exceptions
      */
     public function dontReportExceptionsToFile(array $exceptions): static;
 }
