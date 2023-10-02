@@ -64,7 +64,7 @@ abstract class AbstractApi implements ApiInterface
         return new ServerFailedException($response);
     }
 
-    final public function shouldIgnoreLoggersOnException(): ?Closure
+    public function shouldIgnoreLoggersOnException(): ?Closure
     {
         return null;
     }
