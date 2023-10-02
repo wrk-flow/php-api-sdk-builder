@@ -8,18 +8,18 @@ use Closure;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Psr\Http\Message\ResponseInterface;
 use WrkFlow\ApiSdkBuilder\Contracts\SDKContainerFactoryContract;
-use WrkFlow\ApiSdkBuilder\Endpoints\AbstractEndpoint;
 use WrkFlow\ApiSdkBuilder\Entities\EndpointDIEntity;
 use WrkFlow\ApiSdkBuilder\Interfaces\ApiInterface;
+use WrkFlow\ApiSdkBuilder\Interfaces\EndpointInterface;
 use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
 use Wrkflow\GetValue\GetValue;
 
 final class TestSDKContainerFactory implements SDKContainerFactoryContract
 {
     /**
-     * @param array<class-string<object>, object|Closure():(object|null)>                                                           $makeBindings
+     * @param array<class-string<object>, object|Closure():(object|null)>                                          $makeBindings
      *     A map of closures mapped to a class that should create the instance.
-     * @param array<class-string<AbstractEndpoint>, Closure(EndpointDIEntity):(AbstractEndpoint|null)>                 $makeEndpointBindings
+     * @param array<class-string<EndpointInterface>, Closure(EndpointDIEntity):(EndpointInterface|null)>           $makeEndpointBindings
      *     A map of closures mapped to a class that should create the instance.
      * @param array<class-string<AbstractResponse>, Closure(ResponseInterface, ?GetValue):(AbstractResponse|null)> $makeResponseBindings A map of closures mapped to a class that should create the instance.
      */
@@ -30,14 +30,14 @@ final class TestSDKContainerFactory implements SDKContainerFactoryContract
     ) {
     }
 
-    public function makeEndpoint(ApiInterface $api, string $endpointClass): AbstractEndpoint
+    public function makeEndpoint(ApiInterface $api, string $endpointClass): EndpointInterface
     {
         $result = $this->makeFrom(
             abstract: $endpointClass,
             bindings: $this->makeEndpointBindings,
             makeGiven: static fn (Closure $make) => $make(EndpointDIEntityFactory::make(api: $api)),
         );
-        assert($result instanceof $endpointClass, 'Binding must be instance of ' . AbstractEndpoint::class);
+        assert($result instanceof $endpointClass, 'Binding must be instance of ' . EndpointInterface::class);
         return $result;
     }
 

@@ -8,12 +8,12 @@ use Closure;
 use JustSteveKing\UriBuilder\Uri;
 use Psr\Http\Message\ResponseInterface;
 use WrkFlow\ApiSdkBuilder\Contracts\ApiFactoryContract;
-use WrkFlow\ApiSdkBuilder\Endpoints\AbstractEndpoint;
 use WrkFlow\ApiSdkBuilder\Environments\AbstractEnvironment;
 use WrkFlow\ApiSdkBuilder\Exceptions\BadRequestException;
 use WrkFlow\ApiSdkBuilder\Exceptions\ResponseException;
 use WrkFlow\ApiSdkBuilder\Exceptions\ServerFailedException;
 use WrkFlow\ApiSdkBuilder\Interfaces\ApiInterface;
+use WrkFlow\ApiSdkBuilder\Interfaces\EndpointInterface;
 use WrkFlow\ApiSdkBuilder\Interfaces\EnvironmentOverrideEndpointsInterface;
 
 abstract class AbstractApi implements ApiInterface
@@ -21,12 +21,12 @@ abstract class AbstractApi implements ApiInterface
     /**
      * A cache map of created endpoints: class -> instance.
      *
-     * @var array<string,AbstractEndpoint>
+     * @var array<string,EndpointInterface>
      */
     private array $cachedEndpoints = [];
 
     /**
-     * @var array<class-string, class-string<AbstractEndpoint>>
+     * @var array<class-string<EndpointInterface>, class-string<EndpointInterface>>
      */
     private readonly array $overrideEndpoints;
 
@@ -70,56 +70,55 @@ abstract class AbstractApi implements ApiInterface
     }
 
     /**
-     * @template T of AbstractEndpoint
+     * @template T of EndpointInterface
      *
      * @param class-string<T> $endpoint
+     * @param class-string<T>|null $implementation
      *
      * @return T
      */
-    final protected function makeEndpoint(string $endpoint): AbstractEndpoint
+    final protected function makeEndpoint(string $endpoint, string $implementation = null): EndpointInterface
     {
         if (array_key_exists($endpoint, $this->cachedEndpoints) === false) {
-            $endpoint = $this->getOverrideEndpointClassIfCan($endpoint);
+            $endpoint = $this->getOverrideEndpointClassIfCan($endpoint, $implementation ?? $endpoint);
 
-            $instance = $this->factory()
+            $instance = $this
+                ->factory()
                 ->container()
                 ->makeEndpoint($this, $endpoint);
 
+            $endpointInstance = $instance;
             $this->cachedEndpoints[$endpoint] = $instance;
+        } else {
+            $endpointInstance = $this->cachedEndpoints[$endpoint];
         }
 
-        return $this->cachedEndpoints[$endpoint];
+        assert(assertion: $endpointInstance instanceof $endpoint, description: 'Invalid cached endpoints state.');
+
+        return $endpointInstance;
     }
 
     /**
-     * @template T of AbstractEndpoint
+     * Allow swapping implementation for original endpoint using interface. If the endpoint is in the overrideEndpoints
+     * then we will return the override class, otherwise we will return the original $implementation.
      *
-     * Allow swapping implementation for original endpoint using interface We will receive the "real" endpoint
-     * implementation we will check if the endpoint implements any interface check the interface agains override
-     * endpoints map
+     * @template T of EndpointInterface
      *
      * @param class-string<T> $endpoint
+     * @param class-string<T> $implementation
      *
      * @return class-string<T>
      */
-    private function getOverrideEndpointClassIfCan(string $endpoint): string
+    private function getOverrideEndpointClassIfCan(string $endpoint, string $implementation): string
     {
         if ($this->overrideEndpoints === []) {
-            return $endpoint;
+            return $implementation;
         }
 
-        $implements = class_implements($endpoint);
-
-        if (is_array($implements) === false) {
-            return $endpoint;
+        if (array_key_exists($endpoint, $this->overrideEndpoints)) {
+            return $this->overrideEndpoints[$endpoint];
         }
 
-        foreach ($implements as $interface) {
-            if (array_key_exists($interface, $this->overrideEndpoints)) {
-                return $this->overrideEndpoints[$interface];
-            }
-        }
-
-        return $endpoint;
+        return $implementation;
     }
 }

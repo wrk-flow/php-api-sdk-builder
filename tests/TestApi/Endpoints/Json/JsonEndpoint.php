@@ -8,10 +8,11 @@ use Exception;
 use const true;
 use WrkFlow\ApiSdkBuilder\Headers\JsonHeaders;
 use WrkFlow\ApiSdkBuilder\Interfaces\OptionsInterface;
+use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
 use WrkFlow\ApiSdkBuilder\Testing\Responses\JsonResponseMock;
 use WrkFlow\ApiSdkBuilderTests\TestApi\Endpoints\AbstractTestEndpoint;
 
-class JsonEndpoint extends AbstractTestEndpoint
+class JsonEndpoint extends AbstractTestEndpoint implements JsonEndpointInterface
 {
     public function success(): JsonResponse
     {
@@ -19,7 +20,6 @@ class JsonEndpoint extends AbstractTestEndpoint
 
         return $this->sendGet(responseClass: JsonResponse::class, uri: $this->uri(), headers: $this->headers());
     }
-
 
     public function store(OptionsInterface $body = null): JsonResponse
     {

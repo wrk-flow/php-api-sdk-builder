@@ -11,7 +11,8 @@ class TestApiTest extends ApiTestCase
 {
     public function testSuccessPrintsOnlyToLogger(): void
     {
-        $response = $this->api->json()
+        $response = $this->api
+            ->json()
             ->success();
 
         $this->assertEquals(true, $response->success);
@@ -40,6 +41,16 @@ class TestApiTest extends ApiTestCase
         $this->api->json()
             ->failOnStatusCode(statusCode: 500);
     }
+
+    public function testJsonViaInterfaceUsesRealImplementation(): void
+    {
+        $response = $this->api
+            ->jsonViaInterface()
+            ->success();
+
+        $this->assertEquals(true, $response->success);
+    }
+
     protected function mockBeforeApiFactory(): void
     {
         parent::mockBeforeApiFactory();

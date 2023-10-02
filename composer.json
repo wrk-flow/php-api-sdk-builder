@@ -49,6 +49,7 @@
         "lint:check": "./vendor/bin/ecs",
         "lint:fix": "./vendor/bin/ecs --fix",
         "lint:stan": "./vendor/bin/phpstan",
+        "lint:stan:baseline": "./vendor/bin/phpstan -b",
         "lint:upgrade:check": "vendor/bin/rector process --dry-run",
         "lint:upgrade": "vendor/bin/rector process",
         "lint": "composer lint:upgrade && composer lint:fix && composer lint:stan",

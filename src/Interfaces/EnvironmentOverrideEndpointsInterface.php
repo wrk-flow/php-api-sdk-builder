@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Interfaces;
 
-use WrkFlow\ApiSdkBuilder\Endpoints\AbstractEndpoint;
-
 interface EnvironmentOverrideEndpointsInterface
 {
     /**
-     * @return array<class-string, class-string<AbstractEndpoint>>
+     * @return array<class-string<EndpointInterface>, class-string<EndpointInterface>>
      */
     public function endpoints(): array;
 }

@@ -12,8 +12,10 @@ use Throwable;
 use WrkFlow\ApiSdkBuilder\Contracts\ApiFactoryContract;
 use WrkFlow\ApiSdkBuilder\Entities\EndpointDIEntity;
 use WrkFlow\ApiSdkBuilder\Interfaces\ApiInterface;
+use WrkFlow\ApiSdkBuilder\Interfaces\EndpointInterface;
 use WrkFlow\ApiSdkBuilder\Interfaces\HeadersInterface;
 use WrkFlow\ApiSdkBuilder\Interfaces\OptionsInterface;
+use WrkFlow\ApiSdkBuilder\Log\Contracts\FileLoggerContract;
 use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
 
 /**
@@ -22,7 +24,7 @@ use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
  *
  * @phpstan-import-type IgnoreLoggersOnExceptionClosure from ApiInterface
  */
-abstract class AbstractEndpoint
+abstract class AbstractEndpoint implements EndpointInterface
 {
     /**
      * @var IgnoreLoggersOnExceptionClosure
@@ -34,10 +36,6 @@ abstract class AbstractEndpoint
     ) {
     }
 
-    /**
-     * Returns a copy of endpoint with ability to prevent loggers from logging failed responses for given
-     * exception.
-     */
     final public function setShouldIgnoreLoggersForExceptions(Closure $closure): static
     {
         $cloned = clone $this;

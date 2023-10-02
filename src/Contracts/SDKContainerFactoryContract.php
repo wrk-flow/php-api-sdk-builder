@@ -5,21 +5,21 @@ declare(strict_types=1);
 namespace WrkFlow\ApiSdkBuilder\Contracts;
 
 use Psr\Http\Message\ResponseInterface;
-use WrkFlow\ApiSdkBuilder\Endpoints\AbstractEndpoint;
 use WrkFlow\ApiSdkBuilder\Interfaces\ApiInterface;
+use WrkFlow\ApiSdkBuilder\Interfaces\EndpointInterface;
 use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
 use Wrkflow\GetValue\GetValue;
 
 interface SDKContainerFactoryContract
 {
     /**
-     * @template T of AbstractEndpoint
+     * @template T of EndpointInterface
      *
      * @param class-string<T> $endpointClass
      *
      * @return T
      */
-    public function makeEndpoint(ApiInterface $api, string $endpointClass): AbstractEndpoint;
+    public function makeEndpoint(ApiInterface $api, string $endpointClass): EndpointInterface;
 
     /**
      * Dynamically creates an instance of the given class.

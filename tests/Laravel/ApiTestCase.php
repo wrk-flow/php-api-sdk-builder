@@ -7,6 +7,7 @@ namespace WrkFlow\ApiSdkBuilderTests\Laravel;
 use Http\Mock\Client;
 use Psr\Http\Client\ClientInterface;
 use WrkFlow\ApiSdkBuilder\Contracts\ApiFactoryContract;
+use WrkFlow\ApiSdkBuilder\Environments\AbstractEnvironment;
 use WrkFlow\ApiSdkBuilder\Testing\Environments\TestingEnvironment;
 use WrkFlow\ApiSdkBuilderTests\TestApi\TestApi;
 
@@ -21,7 +22,7 @@ abstract class ApiTestCase extends TestCase
         $this->mockBeforeApiFactory();
 
         $this->api = new TestApi(
-            environment: new TestingEnvironment(),
+            environment: $this->createApiEnvironment(),
             factory: $this->make(ApiFactoryContract::class),
         );
     }
@@ -29,6 +30,11 @@ abstract class ApiTestCase extends TestCase
     protected function mockBeforeApiFactory(): void
     {
         $this->useMockApiClient();
+    }
+
+    protected function createApiEnvironment(): AbstractEnvironment
+    {
+        return new TestingEnvironment();
     }
 
     private function useMockApiClient(): void
