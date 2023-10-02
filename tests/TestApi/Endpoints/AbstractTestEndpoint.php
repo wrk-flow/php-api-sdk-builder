@@ -6,17 +6,19 @@ namespace WrkFlow\ApiSdkBuilderTests\TestApi\Endpoints;
 
 use Http\Mock\Client;
 use WrkFlow\ApiSdkBuilder\Endpoints\AbstractEndpoint;
-use WrkFlow\ApiSdkBuilder\Interfaces\ApiInterface;
+use WrkFlow\ApiSdkBuilder\Entities\EndpointDIEntity;
 
 abstract class AbstractTestEndpoint extends AbstractEndpoint
 {
     protected Client $client;
 
-    public function __construct(ApiInterface $api)
+    public function __construct(EndpointDIEntity $di)
     {
-        parent::__construct($api);
+        parent::__construct($di);
 
-        $client = $this->api->factory()
+        $client = $di
+            ->api()
+            ->factory()
             ->client();
 
         assert($client instanceof Client);

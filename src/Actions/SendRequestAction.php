@@ -10,23 +10,25 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
-use Throwable;
-use WrkFlow\ApiSdkBuilder\AbstractApi;
+use WrkFlow\ApiSdkBuilder\Contracts\SendRequestActionContract;
 use WrkFlow\ApiSdkBuilder\Environments\AbstractEnvironment;
 use WrkFlow\ApiSdkBuilder\Events\RequestConnectionFailedEvent;
 use WrkFlow\ApiSdkBuilder\Events\RequestFailedEvent;
 use WrkFlow\ApiSdkBuilder\Events\ResponseReceivedEvent;
 use WrkFlow\ApiSdkBuilder\Events\SendingRequestEvent;
 use WrkFlow\ApiSdkBuilder\Exceptions\ResponseException;
+use WrkFlow\ApiSdkBuilder\Interfaces\ApiInterface;
 use WrkFlow\ApiSdkBuilder\Interfaces\EnvironmentFakeResponseInterface;
-use WrkFlow\ApiSdkBuilder\Interfaces\HeadersInterface;
 use WrkFlow\ApiSdkBuilder\Interfaces\OptionsInterface;
 use WrkFlow\ApiSdkBuilder\Log\Entities\LoggerConfigEntity;
 use WrkFlow\ApiSdkBuilder\Log\Entities\LoggerFailConfigEntity;
 use WrkFlow\ApiSdkBuilder\Log\Interfaces\ApiLoggerInterface;
 use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
 
-final class SendRequestAction
+/**
+ * @phpstan-import-type IgnoreLoggersOnExceptionClosure from ApiInterface
+ */
+final class SendRequestAction implements SendRequestActionContract
 {
     public function __construct(
         private readonly BuildHeadersAction $buildHeadersAction,
@@ -35,20 +37,8 @@ final class SendRequestAction
     ) {
     }
 
-    /**
-     * @template TResponse of AbstractResponse
-     *
-     * @param array<int|string,HeadersInterface|string|string[]> $headers
-     * @param class-string<TResponse>                            $responseClass
-     * @param int|null                                           $expectedResponseStatusCode Will raise and failed
-     *                                                                                      exception if response
-     *                                                                                      status code is different
-     * @param Closure(Throwable):array<ApiLoggerInterface>|null $shouldIgnoreLoggersOnError
-     *
-     * @return TResponse
-     */
     public function execute(
-        AbstractApi $api,
+        ApiInterface $api,
         RequestInterface $request,
         string $responseClass,
         OptionsInterface|StreamInterface|string|null $body = null,
@@ -68,7 +58,7 @@ final class SendRequestAction
         $loggerConfig = $api->factory()
             ->loggerConfig();
 
-        $logger = $this->getLoggerAction->execute(config: $loggerConfig, host: $request->getUri() ->getHost());
+        $logger = $this->getLoggerAction->execute(config: $loggerConfig, host: $request->getUri()->getHost());
 
         $environment = $api->environment();
 
@@ -107,7 +97,7 @@ final class SendRequestAction
      */
     private function sendRequest(
         AbstractEnvironment $environment,
-        AbstractApi $api,
+        ApiInterface $api,
         ?EventDispatcherInterface $dispatcher,
         ?ApiLoggerInterface $logger,
         LoggerConfigEntity $loggerConfig,
@@ -149,7 +139,7 @@ final class SendRequestAction
     }
 
     private function withBody(
-        AbstractApi $api,
+        ApiInterface $api,
         OptionsInterface|StreamInterface|string|null $body,
         RequestInterface $request
     ): RequestInterface {
@@ -174,16 +164,16 @@ final class SendRequestAction
     /**
      * @template TResponse of AbstractResponse
      *
-     * @param class-string<TResponse> $responseClass
-     * @param int|null                $expectedResponseStatusCode Will raise and failed
+     * @param class-string<TResponse>         $responseClass
+     * @param int|null                        $expectedResponseStatusCode Will raise and failed
      *                                                                                      exception if response
      *                                                                                      status code is different
-     * @param Closure(Throwable):array<ApiLoggerInterface>|null $shouldIgnoreLoggersOnError
+     * @param IgnoreLoggersOnExceptionClosure $shouldIgnoreLoggersOnError
      *
      * @return TResponse
      */
     private function handleResponse(
-        AbstractApi $api,
+        ApiInterface $api,
         ResponseInterface $response,
         ?int $expectedResponseStatusCode,
         string $responseClass,
@@ -254,7 +244,7 @@ final class SendRequestAction
 
     private function buildRequest(
         AbstractEnvironment $environment,
-        AbstractApi $api,
+        ApiInterface $api,
         array $headers,
         RequestInterface $request,
         StreamInterface|string|OptionsInterface|null $body

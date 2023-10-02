@@ -7,9 +7,9 @@ namespace WrkFlow\ApiSdkBuilder\Endpoints;
 use Psr\Http\Message\StreamInterface;
 use SimpleXMLElement;
 use WrkFlow\ApiSdkBuilder\Actions\BuildHeadersAction;
+use WrkFlow\ApiSdkBuilder\Entities\EndpointDIEntity;
 use WrkFlow\ApiSdkBuilder\Headers\JsonHeaders;
 use WrkFlow\ApiSdkBuilder\Headers\XMLHeaders;
-use WrkFlow\ApiSdkBuilder\Interfaces\ApiInterface;
 use WrkFlow\ApiSdkBuilder\Interfaces\OptionsInterface;
 use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
 use Wrkflow\GetValue\GetValue;
@@ -18,11 +18,11 @@ use Wrkflow\GetValue\GetValueFactory;
 abstract class AbstractFakeEndpoint extends AbstractEndpoint
 {
     public function __construct(
-        ApiInterface $api,
+        EndpointDIEntity $di,
         protected readonly GetValueFactory $getValueFactory,
         protected readonly BuildHeadersAction $buildHeadersAction
     ) {
-        parent::__construct($api);
+        parent::__construct($di);
     }
 
     protected function basePath(): string
@@ -37,7 +37,7 @@ abstract class AbstractFakeEndpoint extends AbstractEndpoint
      *
      * @return TResponse
      */
-    protected function makeResponse(
+    final protected function makeResponse(
         string $responseClass,
         GetValue|StreamInterface|null $responseBody = null,
         OptionsInterface|StreamInterface|string $requestBody = null,
@@ -45,7 +45,7 @@ abstract class AbstractFakeEndpoint extends AbstractEndpoint
         ?int $expectedResponseStatusCode = null
     ): AbstractResponse {
         $responseHeaders = [];
-        $response = $this->api->factory()
+        $response = $this->factory()
             ->response()
             ->createResponse();
 
@@ -59,13 +59,15 @@ abstract class AbstractFakeEndpoint extends AbstractEndpoint
             if ($rawBody instanceof SimpleXMLElement) {
                 $responseHeaders[] = new XMLHeaders();
 
-                $stream = $this->api->factory()
+                $stream = $this
+                    ->factory()
                     ->stream()
                     ->createStream((string) $rawBody->asXML());
             } elseif (is_array($rawBody)) {
                 $responseHeaders[] = new JsonHeaders();
 
-                $stream = $this->api->factory()
+                $stream = $this
+                    ->factory()
                     ->stream()
                     ->createStream((string) json_encode($rawBody, JSON_THROW_ON_ERROR));
             }
@@ -79,13 +81,13 @@ abstract class AbstractFakeEndpoint extends AbstractEndpoint
             }
         }
 
-        return $this->api->fake(
-            $response,
-            $responseClass,
-            $this->uri(),
-            $requestBody,
-            array_merge($headers, $responseHeaders),
-            $expectedResponseStatusCode
+        return $this->sendFake(
+            response: $response,
+            responseClass: $responseClass,
+            uri: $this->uri(),
+            body: $requestBody,
+            headers: array_merge($headers, $responseHeaders),
+            expectedResponseStatusCode: $expectedResponseStatusCode
         );
     }
 }

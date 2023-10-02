@@ -6,9 +6,10 @@ namespace WrkFlow\ApiSdkBuilder\Laravel;
 
 use Illuminate\Contracts\Container\Container;
 use Psr\Http\Message\ResponseInterface;
-use WrkFlow\ApiSdkBuilder\AbstractApi;
 use WrkFlow\ApiSdkBuilder\Contracts\SDKContainerFactoryContract;
 use WrkFlow\ApiSdkBuilder\Endpoints\AbstractEndpoint;
+use WrkFlow\ApiSdkBuilder\Entities\EndpointDIEntity;
+use WrkFlow\ApiSdkBuilder\Interfaces\ApiInterface;
 use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
 use Wrkflow\GetValue\GetValue;
 
@@ -25,10 +26,12 @@ class LaravelContainerFactory implements SDKContainerFactoryContract
      *
      * @return T
      */
-    public function makeEndpoint(AbstractApi $api, string $endpointClass): AbstractEndpoint
+    public function makeEndpoint(ApiInterface $api, string $endpointClass): AbstractEndpoint
     {
         $endpoint = $this->container->make($endpointClass, [
-            'api' => $api,
+            'di' => $this->container->make(EndpointDIEntity::class, [
+                'api' => $api,
+            ]),
         ]);
 
         assert($endpoint instanceof $endpointClass);

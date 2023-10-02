@@ -7,7 +7,7 @@ namespace WrkFlow\ApiSdkBuilder\Testing\Environments;
 use JustSteveKing\UriBuilder\Uri;
 use WrkFlow\ApiSdkBuilder\Environments\AbstractEnvironment;
 
-class TestingEnvironmentMock extends AbstractEnvironment
+class TestingEnvironment extends AbstractEnvironment
 {
     public function uri(): Uri
     {

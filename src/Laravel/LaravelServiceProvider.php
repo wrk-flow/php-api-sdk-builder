@@ -19,8 +19,10 @@ use League\Flysystem\FilesystemOperator;
 use LogicException;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use WrkFlow\ApiSdkBuilder\Actions\MakeApiFactory;
+use WrkFlow\ApiSdkBuilder\Actions\SendRequestAction;
 use WrkFlow\ApiSdkBuilder\Contracts\ApiFactoryContract;
 use WrkFlow\ApiSdkBuilder\Contracts\SDKContainerFactoryContract;
+use WrkFlow\ApiSdkBuilder\Contracts\SendRequestActionContract;
 use WrkFlow\ApiSdkBuilder\Events\RequestConnectionFailedEvent;
 use WrkFlow\ApiSdkBuilder\Events\RequestFailedEvent;
 use WrkFlow\ApiSdkBuilder\Events\ResponseReceivedEvent;
@@ -106,7 +108,7 @@ final class LaravelServiceProvider extends ServiceProvider
         return $disk->getDriver();
     }
 
-    private function getConfig(Container $container): ApiSdkConfig
+    protected static function getConfig(Container $container): ApiSdkConfig
     {
         $config = self::make(container: $container, class: ApiSdkConfig::class);
         assert($config instanceof ApiSdkConfig);
@@ -156,6 +158,7 @@ final class LaravelServiceProvider extends ServiceProvider
         $this->app->singleton(abstract: FileLoggerContract::class, concrete: FileLogger::class);
         $this->app->singleton(abstract: InfoLoggerContract::class, concrete: InfoLogger::class);
         $this->app->singleton(abstract: InfoOrFailFileLoggerContract::class, concrete: InfoOrFailFileLogger::class);
+        $this->app->singleton(abstract: SendRequestActionContract::class, concrete: SendRequestAction::class);
 
         // Not sure if we provided FilesystemOperator to whole Laravel application
         // if it would break some package usage... So lets be explicit.

@@ -61,7 +61,7 @@ class MakeApiFactory
     }
 
     /**
-     * @template T
+     * @template T of object
      *
      * @param class-string<T> $interface
      * @param Closure():T     $create
