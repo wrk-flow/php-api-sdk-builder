@@ -10,3 +10,8 @@ parameters:
 			count: 1
 			path: src/AbstractApi.php
 
+		-
+			message: "#^Method WrkFlow\\\\ApiSdkBuilderTests\\\\TestApi\\\\Endpoints\\\\Json\\\\JsonEndpoint\\:\\:phpStanShouldReportThis\\(\\) should return WrkFlow\\\\ApiSdkBuilderTests\\\\TestApi\\\\Endpoints\\\\Json\\\\JsonResponse but returns WrkFlow\\\\ApiSdkBuilder\\\\Responses\\\\AbstractResponse\\.$#"
+			count: 1
+			path: tests/TestApi/Endpoints/Json/JsonEndpoint.php
+

@@ -52,7 +52,7 @@ class JsonEndpoint extends AbstractTestEndpoint
      */
     public function phpStanShouldReportThis(): JsonResponse
     {
-        return $this->sendGet(responseClass: JsonResponse::class, uri: $this->uri(), headers: $this->headers());
+        return $this->sendGet(responseClass: AbstractResponse::class, uri: $this->uri(), headers: $this->headers());
     }
 
     protected function basePath(): string
