@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Actions;
 
+use GuzzleHttp\Psr7\InflateStream;
 use JsonException;
 use Psr\Http\Message\ResponseInterface;
 use SimpleXMLElement;
@@ -22,6 +23,11 @@ class MakeBodyFromResponseAction
 
         if (is_array($implements) === false) {
             return null;
+        }
+
+        $encoding = strtolower($response->getHeaderLine('Content-Encoding'));
+        if ($encoding === 'gzip' || $encoding === 'deflate') {
+            $response = $response->withBody(new InflateStream($response->getBody()));
         }
 
         if (array_key_exists(BodyIsJsonInterface::class, $implements)) {
