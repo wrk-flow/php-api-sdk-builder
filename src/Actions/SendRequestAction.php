@@ -49,7 +49,7 @@ final class SendRequestAction implements SendRequestActionContract
     ): AbstractResponse {
         $timeStart = (float) microtime(true);
 
-        $id = md5($request->getUri() . microtime(true));
+        $id = md5($request->getUri() . $timeStart);
 
         $dispatcher = $api
             ->factory()

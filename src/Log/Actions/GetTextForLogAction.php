@@ -7,6 +7,7 @@ namespace WrkFlow\ApiSdkBuilder\Log\Actions;
 use Exception;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Throwable;
 
 class GetTextForLogAction
 {
@@ -20,7 +21,7 @@ class GetTextForLogAction
         RequestInterface $request,
         float $requestDurationInSeconds,
         ?ResponseInterface $response = null,
-        ?Exception $exception = null
+        ?Throwable $exception = null,
     ): string {
         $uri = $request->getUri();
 
@@ -35,7 +36,7 @@ class GetTextForLogAction
             $statusCode,
             $uri->getHost(),
             $uri->getPath(),
-            $requestDurationInSeconds
+            $requestDurationInSeconds,
         );
     }
 }
