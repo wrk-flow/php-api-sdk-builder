@@ -8,6 +8,7 @@ use Exception;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use Throwable;
 use WrkFlow\ApiSdkBuilder\Events\RequestConnectionFailedEvent;
 use WrkFlow\ApiSdkBuilder\Events\RequestFailedEvent;
 use WrkFlow\ApiSdkBuilder\Events\ResponseReceivedEvent;
@@ -33,7 +34,7 @@ class InfoLogger implements InfoLoggerContract
             request: $event->request,
             requestDurationInSeconds: $event->requestDurationInSeconds,
             response: $event->exception->getResponse(),
-            exception: $event->exception
+            exception: $event->exception,
         );
     }
 
@@ -42,7 +43,7 @@ class InfoLogger implements InfoLoggerContract
         $this->debug(
             request: $event->request,
             requestDurationInSeconds: $event->requestDurationInSeconds,
-            exception: $event->exception
+            exception: $event->exception,
         );
     }
 
@@ -51,7 +52,7 @@ class InfoLogger implements InfoLoggerContract
         $this->debug(
             request: $event->request,
             requestDurationInSeconds: $event->requestDurationInSeconds,
-            response: $event->response->getResponse()
+            response: $event->response->getResponse(),
         );
     }
 
@@ -59,18 +60,18 @@ class InfoLogger implements InfoLoggerContract
         RequestInterface $request,
         float $requestDurationInSeconds,
         ?ResponseInterface $response = null,
-        ?Exception $exception = null
+        ?Throwable $exception = null,
     ): void {
         $this->logger->info(
             message: $this->getTextForLogAction->execute(
                 request: $request,
                 requestDurationInSeconds: $requestDurationInSeconds,
                 response: $response,
-                exception: $exception
+                exception: $exception,
             ),
             context: $exception instanceof Exception === false ? [] : [
                 'exception' => $exception->getMessage(),
-            ]
+            ],
         );
     }
 }

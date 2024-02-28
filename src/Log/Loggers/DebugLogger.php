@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Log\Loggers;
 
-use Exception;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -82,7 +81,7 @@ class DebugLogger implements DebugLoggerContract
         RequestInterface $request,
         float $requestDurationInSeconds,
         ?ResponseInterface $response = null,
-        ?Exception $exception = null
+        ?Throwable $exception = null
     ): void {
         $uri = $request->getUri();
 
