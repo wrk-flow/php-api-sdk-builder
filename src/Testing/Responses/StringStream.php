@@ -27,7 +27,7 @@ class StringStream implements StreamInterface, Stringable
         throw new Exception('Not seekable');
     }
 
-    public function getContents()
+    public function getContents(): string
     {
         return $this->__toString();
     }
@@ -41,32 +41,32 @@ class StringStream implements StreamInterface, Stringable
         return null;
     }
 
-    public function getSize()
+    public function getSize(): ?int
     {
         return null;
     }
 
-    public function isReadable()
+    public function isReadable(): bool
     {
         return true;
     }
 
-    public function isWritable()
+    public function isWritable(): bool
     {
         return true;
     }
 
-    public function isSeekable()
+    public function isSeekable(): bool
     {
         return true;
     }
 
-    public function eof()
+    public function eof(): bool
     {
         return false;
     }
 
-    public function tell()
+    public function tell(): int
     {
         return $this->offset;
     }
@@ -76,12 +76,12 @@ class StringStream implements StreamInterface, Stringable
         $this->offset = $offset;
     }
 
-    public function read($length)
+    public function read($length): string
     {
         return substr($this->string, $this->offset, $length);
     }
 
-    public function write($string)
+    public function write($string): int
     {
         $this->string .= $string;
 
