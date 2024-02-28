@@ -16,7 +16,7 @@
         "juststeveking/uri-builder": "^2.0",
         "php-http/discovery": "^1.14",
         "psr/http-client": "^1.0.1",
-        "psr/http-message": "^1.0.1",
+        "psr/http-message": "^1.0.1 || ^2.0",
         "wrkflow/php-get-typed-value": "^0.8.2"
     },
     "require-dev": {
