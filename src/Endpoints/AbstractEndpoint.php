@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace WrkFlow\ApiSdkBuilder\Endpoints;
 
 use Closure;
-use JustSteveKing\UriBuilder\Uri;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\UriInterface;
 use Throwable;
 use WrkFlow\ApiSdkBuilder\Contracts\ApiFactoryContract;
 use WrkFlow\ApiSdkBuilder\Entities\EndpointDIEntity;
@@ -85,14 +85,14 @@ abstract class AbstractEndpoint implements EndpointInterface
      */
     abstract protected function basePath(): string;
 
-    final protected function uri(string $appendPath = ''): Uri
+    final protected function uri(string $appendPath = ''): UriInterface
     {
         $uri = $this->di->api()
             ->uri();
         $basePath = $this->appendSlashIfNeeded($this->basePath());
         $appendPath = $this->appendSlashIfNeeded($appendPath);
 
-        return $uri->addPath($uri->path() . $basePath . $appendPath);
+        return $uri->withPath($uri->getPath() . $basePath . $appendPath);
     }
 
 
@@ -106,13 +106,13 @@ abstract class AbstractEndpoint implements EndpointInterface
      */
     final protected function sendGet(
         string $responseClass,
-        Uri $uri,
+        UriInterface $uri,
         array $headers = [],
         ?int $expectedResponseStatusCode = null,
     ): AbstractResponse {
         $request = $this->factory()
             ->request()
-            ->createRequest('GET', $uri->toString());
+            ->createRequest('GET', (string) $uri);
 
         return $this
             ->di
@@ -141,14 +141,14 @@ abstract class AbstractEndpoint implements EndpointInterface
      */
     final protected function sendPost(
         string $responseClass,
-        Uri $uri,
+        UriInterface $uri,
         OptionsInterface|StreamInterface|string $body = null,
         array $headers = [],
         ?int $expectedResponseStatusCode = null,
     ): AbstractResponse {
         $request = $this->factory()
             ->request()
-            ->createRequest('POST', $uri->toString());
+            ->createRequest('POST', (string) $uri);
 
         return $this->di->sendRequestAction()
             ->execute(
@@ -176,7 +176,7 @@ abstract class AbstractEndpoint implements EndpointInterface
      */
     final protected function sendPut(
         string $responseClass,
-        Uri $uri,
+        UriInterface $uri,
         OptionsInterface|StreamInterface|string $body = null,
         array $headers = [],
         ?int $expectedResponseStatusCode = null,
@@ -184,7 +184,7 @@ abstract class AbstractEndpoint implements EndpointInterface
     ): AbstractResponse {
         $request = $this->factory()
             ->request()
-            ->createRequest('PUT', $uri->toString());
+            ->createRequest('PUT', (string) $uri);
 
         return $this
             ->di
@@ -214,14 +214,14 @@ abstract class AbstractEndpoint implements EndpointInterface
      */
     final protected function sendDelete(
         string $responseClass,
-        Uri $uri,
+        UriInterface $uri,
         OptionsInterface|StreamInterface|string $body = null,
         array $headers = [],
         ?int $expectedResponseStatusCode = null,
     ): AbstractResponse {
         $request = $this->factory()
             ->request()
-            ->createRequest('DELETE', $uri->toString());
+            ->createRequest('DELETE', (string) $uri);
 
         return $this
             ->di
@@ -254,7 +254,7 @@ abstract class AbstractEndpoint implements EndpointInterface
     final protected function sendFake(
         ResponseInterface $response,
         string $responseClass,
-        Uri $uri,
+        UriInterface $uri,
         OptionsInterface|StreamInterface|string $body = null,
         array $headers = [],
         ?int $expectedResponseStatusCode = null,
@@ -269,7 +269,7 @@ abstract class AbstractEndpoint implements EndpointInterface
                 request: $this
                     ->factory()
                     ->request()
-                    ->createRequest('FAKE', $uri->toString()),
+                    ->createRequest('FAKE', (string) $uri),
                 responseClass: $responseClass,
                 body: $body,
                 headers: $headers,

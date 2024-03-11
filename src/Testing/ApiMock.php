@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace WrkFlow\ApiSdkBuilder\Testing;
 
 use Closure;
-use JustSteveKing\UriBuilder\Uri;
+use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
 use WrkFlow\ApiSdkBuilder\Contracts\ApiFactoryContract;
 use WrkFlow\ApiSdkBuilder\Environments\AbstractEnvironment;
 use WrkFlow\ApiSdkBuilder\Exceptions\ResponseException;
@@ -31,9 +32,9 @@ final class ApiMock implements ApiInterface
         return new ApiFactoryMock();
     }
 
-    public function uri(): Uri
+    public function uri(): UriInterface
     {
-        return Uri::fromString('https://test.localhost');
+        return new Uri('https://test.localhost');
     }
 
     public function createFailedResponseException(int $statusCode, ResponseInterface $response): ResponseException

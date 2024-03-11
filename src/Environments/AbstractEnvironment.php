@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Environments;
 
-use JustSteveKing\UriBuilder\Uri;
+use Psr\Http\Message\UriInterface;
 use WrkFlow\ApiSdkBuilder\Interfaces\HeadersInterface;
 
 abstract class AbstractEnvironment implements HeadersInterface
@@ -17,7 +17,7 @@ abstract class AbstractEnvironment implements HeadersInterface
     ) {
     }
 
-    abstract public function uri(): Uri;
+    abstract public function uri(): UriInterface;
 
     public function headers(): array
     {

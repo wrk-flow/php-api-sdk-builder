@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace WrkFlow\ApiSdkBuilder\Interfaces;
 
 use Closure;
-use JustSteveKing\UriBuilder\Uri;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
 use Throwable;
 use WrkFlow\ApiSdkBuilder\Contracts\ApiFactoryContract;
 use WrkFlow\ApiSdkBuilder\Environments\AbstractEnvironment;
@@ -27,7 +27,7 @@ interface ApiInterface extends HeadersInterface
 
     public function factory(): ApiFactoryContract;
 
-    public function uri(): Uri;
+    public function uri(): UriInterface;
 
     public function createFailedResponseException(int $statusCode, ResponseInterface $response): ResponseException;
 }
