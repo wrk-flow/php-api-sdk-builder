@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace WrkFlow\ApiSdkBuilder;
 
 use Closure;
-use JustSteveKing\UriBuilder\Uri;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
 use WrkFlow\ApiSdkBuilder\Contracts\ApiFactoryContract;
 use WrkFlow\ApiSdkBuilder\Environments\AbstractEnvironment;
 use WrkFlow\ApiSdkBuilder\Exceptions\BadRequestException;
@@ -50,7 +50,7 @@ abstract class AbstractApi implements ApiInterface
         return $this->factory;
     }
 
-    final public function uri(): Uri
+    final public function uri(): UriInterface
     {
         return $this->environment->uri();
     }
