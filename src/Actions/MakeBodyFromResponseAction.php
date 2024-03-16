@@ -27,7 +27,9 @@ class MakeBodyFromResponseAction
 
         $encoding = strtolower($response->getHeaderLine('Content-Encoding'));
         if ($encoding === 'gzip' || $encoding === 'deflate') {
-            $response = $response->withBody(new InflateStream($response->getBody()));
+            $response = $response
+                ->withBody(new InflateStream($response->getBody()))
+                ->withoutHeader('Content-Encoding');
         }
 
         if (array_key_exists(BodyIsJsonInterface::class, $implements)) {
