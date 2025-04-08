@@ -39,6 +39,6 @@ trait PaginatedResponse
 
     public function onLastPage(): bool
     {
-        return $this->currentPage === $this->totalPages;
+        return $this->totalItems === 0 || $this->currentPage === $this->totalPages;
     }
 }
