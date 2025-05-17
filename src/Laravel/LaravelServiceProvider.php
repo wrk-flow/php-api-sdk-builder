@@ -9,6 +9,7 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Filesystem\FilesystemManager;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Events\ConnectionFailed;
 use Illuminate\Http\Client\Events\ResponseReceived;
 use Illuminate\Http\Client\Request;
@@ -206,7 +207,12 @@ final class LaravelServiceProvider extends ServiceProvider
             listener: function (RequestConnectionFailedEvent $event): void {
                 $events = $this->getEventDispatcher();
 
-                $events->dispatch(new ConnectionFailed(new Request($event->request)));
+                $innerException = new ConnectionException(
+                    $event->exception->getMessage(),
+                    $event->exception->getCode(),
+                    $event->exception
+                );
+                $events->dispatch(new ConnectionFailed(new Request($event->request), $innerException));
             }
         );
 

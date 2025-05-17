@@ -22,7 +22,7 @@
         "ext-simplexml": "*",
         "guzzlehttp/guzzle": "^7.4",
         "http-interop/http-factory-guzzle": "^1.2",
-        "laravel/framework": "^9.25",
+        "laravel/framework": "^9.25 || ^10 || ^12",
         "laravel/telescope": "v4.14.2",
         "league/flysystem": "^3.14",
         "mockery/mockery": "^1.5.1",

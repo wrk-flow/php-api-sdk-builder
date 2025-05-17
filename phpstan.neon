@@ -17,5 +17,11 @@ parameters:
     # The level 8 is the highest level
     level: 9
 
-    # it is impossible to map toArray()
-    checkMissingIterableValueType: false
+    ignoreErrors:
+        - identifier: missingType.iterableValue
+        # Laravel 9 vs 10/11/12 compability
+        -
+            message: "#^Class Illuminate\\\\Http\\\\Client\\\\Events\\\\ConnectionFailed constructor invoked with 2 parameters, 1 required\\.$#"
+            count: 1
+            path: src/Laravel/LaravelServiceProvider.php
+            reportUnmatched: false
