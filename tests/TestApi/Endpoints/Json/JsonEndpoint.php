@@ -21,7 +21,7 @@ class JsonEndpoint extends AbstractTestEndpoint implements JsonEndpointInterface
         return $this->sendGet(responseClass: JsonResponse::class, uri: $this->uri(), headers: $this->headers());
     }
 
-    public function store(OptionsInterface $body = null): JsonResponse
+    public function store(?OptionsInterface $body = null): JsonResponse
     {
         $this->expectResponse();
 

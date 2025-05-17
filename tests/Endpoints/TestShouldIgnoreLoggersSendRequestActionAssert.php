@@ -36,7 +36,7 @@ final class TestShouldIgnoreLoggersSendRequestActionAssert implements SendReques
         array $headers = [],
         ?int $expectedResponseStatusCode = null,
         ?ResponseInterface $fakedResponse = null,
-        Closure $shouldIgnoreLoggersOnError = null
+        ?Closure $shouldIgnoreLoggersOnError = null
     ): AbstractResponse {
         Assert::assertNotNull($shouldIgnoreLoggersOnError, 'AbstractEndpoint always builds closure');
         Assert::assertEquals($this->expectedIgnoreLoggers, $shouldIgnoreLoggersOnError($this->testException));

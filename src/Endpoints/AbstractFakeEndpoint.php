@@ -40,7 +40,7 @@ abstract class AbstractFakeEndpoint extends AbstractEndpoint
     final protected function makeResponse(
         string $responseClass,
         GetValue|StreamInterface|null $responseBody = null,
-        OptionsInterface|StreamInterface|string $requestBody = null,
+        OptionsInterface|StreamInterface|string|null $requestBody = null,
         array $headers = [],
         ?int $expectedResponseStatusCode = null
     ): AbstractResponse {

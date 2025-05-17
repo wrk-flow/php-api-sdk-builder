@@ -27,7 +27,7 @@ class MakeApiFactory
     /**
      * Builds API factory using http discovery package
      */
-    public function execute(LoggerConfigEntity $loggerConfig = null): ApiFactoryContract
+    public function execute(?LoggerConfigEntity $loggerConfig = null): ApiFactoryContract
     {
         $request = $this->containerOr(
             interface: RequestFactoryInterface::class,

@@ -22,8 +22,8 @@ class ApiFactoryMock implements ApiFactoryContract
 
     public function __construct(
         public readonly Client $mockClient = new Client(),
-        ResponseFactoryInterface $responseFactory = null,
-        RequestFactoryInterface $requestFactory = null,
+        ?ResponseFactoryInterface $responseFactory = null,
+        ?RequestFactoryInterface $requestFactory = null,
         public readonly ?EventDispatcherInterface $eventDispatcher = null,
         public readonly TestSDKContainerFactory $testSDKContainerFactory = new TestSDKContainerFactory(),
     ) {

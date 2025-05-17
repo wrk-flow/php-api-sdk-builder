@@ -15,8 +15,6 @@ use WrkFlow\ApiSdkBuilder\Log\Entities\LoggerConfigEntity;
 
 class ApiFactory implements ApiFactoryContract
 {
-    private readonly LoggerConfigEntity $loggerConfig;
-
     public function __construct(
         private readonly RequestFactoryInterface $request,
         private readonly ClientInterface $client,
@@ -24,10 +22,8 @@ class ApiFactory implements ApiFactoryContract
         private readonly SDKContainerFactoryContract $container,
         private readonly ResponseFactoryInterface $response,
         private readonly ?EventDispatcherInterface $eventDispatcher = null,
-        LoggerConfigEntity $loggerConfig = null,
+        private ?LoggerConfigEntity $loggerConfig = null
     ) {
-        // By, default no logging is used
-        $this->loggerConfig = $loggerConfig ?? new LoggerConfigEntity();
     }
 
     public function response(): ResponseFactoryInterface
@@ -62,6 +58,10 @@ class ApiFactory implements ApiFactoryContract
 
     public function loggerConfig(): LoggerConfigEntity
     {
+        if (! $this->loggerConfig instanceof LoggerConfigEntity) {
+            $this->loggerConfig = new LoggerConfigEntity();
+        }
+
         return $this->loggerConfig;
     }
 }

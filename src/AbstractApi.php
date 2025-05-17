@@ -77,7 +77,7 @@ abstract class AbstractApi implements ApiInterface
      *
      * @return T
      */
-    final protected function makeEndpoint(string $endpoint, string $implementation = null): EndpointInterface
+    final protected function makeEndpoint(string $endpoint, ?string $implementation = null): EndpointInterface
     {
         if (array_key_exists($endpoint, $this->cachedEndpoints) === false) {
             $endpoint = $this->getOverrideEndpointClassIfCan($endpoint, $implementation ?? $endpoint);

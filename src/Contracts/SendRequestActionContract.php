@@ -26,7 +26,7 @@ interface SendRequestActionContract
      * @param int|null                                           $expectedResponseStatusCode Will raise and failed
      *                                                                                      exception if response
      *                                                                                      status code is different
-     * @param IgnoreLoggersOnExceptionClosure                    $shouldIgnoreLoggersOnError
+     * @param IgnoreLoggersOnExceptionClosure|null                    $shouldIgnoreLoggersOnError
      * @return TResponse
      */
     public function execute(
@@ -37,6 +37,6 @@ interface SendRequestActionContract
         array $headers = [],
         ?int $expectedResponseStatusCode = null,
         ?ResponseInterface $fakedResponse = null,
-        Closure $shouldIgnoreLoggersOnError = null
+        ?Closure $shouldIgnoreLoggersOnError = null
     ): AbstractResponse;
 }

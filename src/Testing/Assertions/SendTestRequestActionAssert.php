@@ -42,7 +42,7 @@ final class SendTestRequestActionAssert implements SendRequestActionContract
         array $headers = [],
         ?int $expectedResponseStatusCode = null,
         ?ResponseInterface $fakedResponse = null,
-        Closure $shouldIgnoreLoggersOnError = null,
+        ?Closure $shouldIgnoreLoggersOnError = null,
     ): TResponse {
         Assert::assertEquals(
             expected: 'https://test.localhost' . $this->expectedUri,

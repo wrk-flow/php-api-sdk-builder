@@ -27,7 +27,7 @@ use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
 abstract class AbstractEndpoint implements EndpointInterface
 {
     /**
-     * @var IgnoreLoggersOnExceptionClosure
+     * @var IgnoreLoggersOnExceptionClosure|null
      */
     private Closure|null $shouldIgnoreLoggersOnException = null;
 
@@ -142,7 +142,7 @@ abstract class AbstractEndpoint implements EndpointInterface
     final protected function sendPost(
         string $responseClass,
         UriInterface $uri,
-        OptionsInterface|StreamInterface|string $body = null,
+        OptionsInterface|StreamInterface|string|null $body = null,
         array $headers = [],
         ?int $expectedResponseStatusCode = null,
     ): AbstractResponse {
@@ -177,10 +177,10 @@ abstract class AbstractEndpoint implements EndpointInterface
     final protected function sendPut(
         string $responseClass,
         UriInterface $uri,
-        OptionsInterface|StreamInterface|string $body = null,
+        OptionsInterface|StreamInterface|string|null $body = null,
         array $headers = [],
         ?int $expectedResponseStatusCode = null,
-        Closure $shouldIgnoreLoggersOnError = null,
+        ?Closure $shouldIgnoreLoggersOnError = null,
     ): AbstractResponse {
         $request = $this->factory()
             ->request()
@@ -215,7 +215,7 @@ abstract class AbstractEndpoint implements EndpointInterface
     final protected function sendDelete(
         string $responseClass,
         UriInterface $uri,
-        OptionsInterface|StreamInterface|string $body = null,
+        OptionsInterface|StreamInterface|string|null $body = null,
         array $headers = [],
         ?int $expectedResponseStatusCode = null,
     ): AbstractResponse {
@@ -255,7 +255,7 @@ abstract class AbstractEndpoint implements EndpointInterface
         ResponseInterface $response,
         string $responseClass,
         UriInterface $uri,
-        OptionsInterface|StreamInterface|string $body = null,
+        OptionsInterface|StreamInterface|string|null $body = null,
         array $headers = [],
         ?int $expectedResponseStatusCode = null,
     ): AbstractResponse {

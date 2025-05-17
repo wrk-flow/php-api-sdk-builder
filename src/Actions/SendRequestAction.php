@@ -45,7 +45,7 @@ final class SendRequestAction implements SendRequestActionContract
         array $headers = [],
         ?int $expectedResponseStatusCode = null,
         ?ResponseInterface $fakedResponse = null,
-        Closure $shouldIgnoreLoggersOnError = null,
+        ?Closure $shouldIgnoreLoggersOnError = null,
     ): AbstractResponse {
         $timeStart = (float) microtime(true);
 
@@ -168,7 +168,7 @@ final class SendRequestAction implements SendRequestActionContract
      * @param int|null                        $expectedResponseStatusCode Will raise and failed
      *                                                                                      exception if response
      *                                                                                      status code is different
-     * @param IgnoreLoggersOnExceptionClosure $shouldIgnoreLoggersOnError
+     * @param IgnoreLoggersOnExceptionClosure|null $shouldIgnoreLoggersOnError
      *
      * @return TResponse
      */
@@ -183,7 +183,7 @@ final class SendRequestAction implements SendRequestActionContract
         string $id,
         RequestInterface $request,
         float $timeStart,
-        Closure $shouldIgnoreLoggersOnError = null,
+        ?Closure $shouldIgnoreLoggersOnError = null,
     ): mixed {
         try {
             $container = $api->factory()
