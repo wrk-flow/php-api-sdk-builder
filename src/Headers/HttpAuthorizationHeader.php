@@ -9,8 +9,8 @@ use WrkFlow\ApiSdkBuilder\Interfaces\HeadersInterface;
 class HttpAuthorizationHeader implements HeadersInterface
 {
     public function __construct(
-        public readonly string $username,
-        public readonly string $password,
+        #[\SensitiveParameter] public readonly string $username,
+        #[\SensitiveParameter] public readonly string $password,
     ) {
     }
 
