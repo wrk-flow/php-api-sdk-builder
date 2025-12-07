@@ -101,6 +101,8 @@ abstract class AbstractEndpoint implements EndpointInterface
      *
      * @param class-string<TResponse>                            $responseClass
      * @param array<int|string,HeadersInterface|string|string[]> $headers
+     * @param int|array<int>|null                                $expectedResponseStatusCode Will raise and failed
+     *     exception if the response status code is different
      *
      * @return TResponse
      */
@@ -108,7 +110,7 @@ abstract class AbstractEndpoint implements EndpointInterface
         string $responseClass,
         UriInterface $uri,
         array $headers = [],
-        ?int $expectedResponseStatusCode = null,
+        array|int|null $expectedResponseStatusCode = null,
     ): AbstractResponse {
         $request = $this->factory()
             ->request()
@@ -134,8 +136,8 @@ abstract class AbstractEndpoint implements EndpointInterface
      *
      * @param class-string<TResponse>                            $responseClass
      * @param array<int|string,HeadersInterface|string|string[]> $headers
-     * @param int|null                                           $expectedResponseStatusCode Will raise and failed
-     *                                                                                      exception if response
+     * @param int|array<int>|null                                $expectedResponseStatusCode Will raise and failed
+     *      exception if the response status code is different
      *
      * @return TResponse
      */
@@ -144,7 +146,7 @@ abstract class AbstractEndpoint implements EndpointInterface
         UriInterface $uri,
         OptionsInterface|StreamInterface|string|null $body = null,
         array $headers = [],
-        ?int $expectedResponseStatusCode = null,
+        array|int|null $expectedResponseStatusCode = null,
     ): AbstractResponse {
         $request = $this->factory()
             ->request()
@@ -169,8 +171,8 @@ abstract class AbstractEndpoint implements EndpointInterface
      *
      * @param class-string<TResponse>                            $responseClass
      * @param array<int|string,HeadersInterface|string|string[]> $headers
-     * @param int|null                                           $expectedResponseStatusCode Will raise and failed
-     *                                                                                      exception if response
+     * @param int|array<int>|null                                $expectedResponseStatusCode Will raise and failed
+     *      exception if the response status code is different
      *
      * @return TResponse
      */
@@ -179,8 +181,7 @@ abstract class AbstractEndpoint implements EndpointInterface
         UriInterface $uri,
         OptionsInterface|StreamInterface|string|null $body = null,
         array $headers = [],
-        ?int $expectedResponseStatusCode = null,
-        ?Closure $shouldIgnoreLoggersOnError = null,
+        array|int|null $expectedResponseStatusCode = null,
     ): AbstractResponse {
         $request = $this->factory()
             ->request()
@@ -207,8 +208,8 @@ abstract class AbstractEndpoint implements EndpointInterface
      *
      * @param class-string<TResponse>                            $responseClass
      * @param array<int|string,HeadersInterface|string|string[]> $headers
-     * @param int|null                                           $expectedResponseStatusCode Will raise and failed
-     *                                                                                      exception if response
+     * @param int|array<int>|null                                $expectedResponseStatusCode Will raise and failed
+     *      exception if the response status code is different
      *
      * @return TResponse
      */
@@ -217,7 +218,7 @@ abstract class AbstractEndpoint implements EndpointInterface
         UriInterface $uri,
         OptionsInterface|StreamInterface|string|null $body = null,
         array $headers = [],
-        ?int $expectedResponseStatusCode = null,
+        array|int|null $expectedResponseStatusCode = null,
     ): AbstractResponse {
         $request = $this->factory()
             ->request()
@@ -246,7 +247,8 @@ abstract class AbstractEndpoint implements EndpointInterface
      *
      * @param class-string<TResponse>                            $responseClass
      * @param array<int|string,HeadersInterface|string|string[]> $headers
-     * @param int|null                                           $expectedResponseStatusCode Will raise and failed
+     * @param int|array<int>|null                                $expectedResponseStatusCode Will raise and failed
+     *      exception if the response status code is different
      * exception if response
      *
      * @return TResponse
@@ -257,7 +259,7 @@ abstract class AbstractEndpoint implements EndpointInterface
         UriInterface $uri,
         OptionsInterface|StreamInterface|string|null $body = null,
         array $headers = [],
-        ?int $expectedResponseStatusCode = null,
+        array|int|null $expectedResponseStatusCode = null,
     ): AbstractResponse {
         return $this
             ->di
