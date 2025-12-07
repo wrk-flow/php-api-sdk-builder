@@ -34,7 +34,7 @@ final class TestShouldIgnoreLoggersSendRequestActionAssert implements SendReques
         string $responseClass,
         StreamInterface|string|OptionsInterface|null $body = null,
         array $headers = [],
-        ?int $expectedResponseStatusCode = null,
+        int|array|null $expectedResponseStatusCode = null,
         ?ResponseInterface $fakedResponse = null,
         ?Closure $shouldIgnoreLoggersOnError = null
     ): AbstractResponse {

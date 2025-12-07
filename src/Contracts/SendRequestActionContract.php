@@ -23,10 +23,10 @@ interface SendRequestActionContract
      *
      * @param array<int|string,HeadersInterface|string|string[]> $headers
      * @param class-string<TResponse>                            $responseClass
-     * @param int|null                                           $expectedResponseStatusCode Will raise and failed
-     *                                                                                      exception if response
-     *                                                                                      status code is different
-     * @param IgnoreLoggersOnExceptionClosure|null                    $shouldIgnoreLoggersOnError
+     * @param int|array<int>|null                                $expectedResponseStatusCode Will raise and failed
+     *     exception if response status code is different
+     * @param IgnoreLoggersOnExceptionClosure|null               $shouldIgnoreLoggersOnError
+     *
      * @return TResponse
      */
     public function execute(
@@ -35,7 +35,7 @@ interface SendRequestActionContract
         string $responseClass,
         OptionsInterface|StreamInterface|string|null $body = null,
         array $headers = [],
-        ?int $expectedResponseStatusCode = null,
+        int|array|null $expectedResponseStatusCode = null,
         ?ResponseInterface $fakedResponse = null,
         ?Closure $shouldIgnoreLoggersOnError = null
     ): AbstractResponse;

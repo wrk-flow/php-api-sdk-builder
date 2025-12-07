@@ -43,7 +43,7 @@ final class SendRequestAction implements SendRequestActionContract
         string $responseClass,
         OptionsInterface|StreamInterface|string|null $body = null,
         array $headers = [],
-        ?int $expectedResponseStatusCode = null,
+        int|array|null $expectedResponseStatusCode = null,
         ?ResponseInterface $fakedResponse = null,
         ?Closure $shouldIgnoreLoggersOnError = null,
     ): AbstractResponse {
@@ -175,7 +175,7 @@ final class SendRequestAction implements SendRequestActionContract
     private function handleResponse(
         ApiInterface $api,
         ResponseInterface $response,
-        ?int $expectedResponseStatusCode,
+        int|array|null $expectedResponseStatusCode,
         string $responseClass,
         ?EventDispatcherInterface $dispatcher,
         ?ApiLoggerInterface $logger,
@@ -189,10 +189,15 @@ final class SendRequestAction implements SendRequestActionContract
             $container = $api->factory()
                 ->container();
 
+            if (is_array($expectedResponseStatusCode) === false) {
+                $expectedResponseStatusCode = $expectedResponseStatusCode === null ? [200, 201] : [
+                    $expectedResponseStatusCode,
+                ];
+            }
+
             $statusCode = $response->getStatusCode();
 
-            if ($expectedResponseStatusCode === $statusCode ||
-                ($expectedResponseStatusCode === null && ($statusCode === 200 || $statusCode === 201))) {
+            if (in_array($statusCode, $expectedResponseStatusCode, true)) {
                 $body = $this->makeBodyFromResponseAction->execute($responseClass, $response);
 
                 $finalResponse = $container->makeResponse($responseClass, $response, $body);

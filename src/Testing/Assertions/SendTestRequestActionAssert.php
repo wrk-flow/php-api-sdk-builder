@@ -29,7 +29,7 @@ final class SendTestRequestActionAssert implements SendRequestActionContract
         private readonly string $expectedMethod = 'GET',
         private readonly Closure|StreamInterface|string|OptionsInterface|array|null $expectedBody = null,
         private readonly array $expectedHeaders = [],
-        private readonly ?int $expectedResponseStatusCode = null,
+        private readonly int|array|null $expectedResponseStatusCode = null,
     ) {
         $this->buildHeadersAction = new BuildHeadersAction();
     }
@@ -40,7 +40,7 @@ final class SendTestRequestActionAssert implements SendRequestActionContract
         string $responseClass,
         StreamInterface|string|OptionsInterface|null $body = null,
         array $headers = [],
-        ?int $expectedResponseStatusCode = null,
+        int|array|null $expectedResponseStatusCode = null,
         ?ResponseInterface $fakedResponse = null,
         ?Closure $shouldIgnoreLoggersOnError = null,
     ): TResponse {
