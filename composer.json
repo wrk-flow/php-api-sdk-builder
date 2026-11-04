@@ -53,11 +53,13 @@
         "lint:upgrade:check": "vendor/bin/rector process --dry-run",
         "lint:upgrade": "vendor/bin/rector process",
         "lint": "composer lint:upgrade && composer lint:fix && composer lint:stan",
-        "test": "./vendor/bin/phpunit"
+        "test": "./vendor/bin/phpunit",
+        "test:larastrict": "./vendor/bin/phpunit phpstan/tests"
     },
     "autoload": {
         "psr-4": {
-            "WrkFlow\\ApiSdkBuilder\\": "src/"
+            "WrkFlow\\ApiSdkBuilder\\": "src/",
+            "WrkFlow\\ApiSdkBuilder\\PHPStan\\": "phpstan/src/"
         }
     },
     "autoload-dev": {

@@ -1,0 +1,4 @@
+services:
+    -
+        class: WrkFlow\ApiSdkBuilder\PHPStan\SdkClassPlacementExtension
+        tags: [larastrict.classPlacementExtension]

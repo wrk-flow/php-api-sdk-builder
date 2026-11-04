@@ -292,6 +292,13 @@ Endpoints/UsersEndpoint/
     - JsonToUserEntity.php (transformer)
 ```
 
+### LaraStrict class placement
+
+When using LaraStrict conventions, enable the SDK placement extension as shown in
+[the repository README](https://github.com/wrk-flow/php-api-sdk-builder#larastrict-class-placement).
+It allows Entity classes in `Endpoints/{endpoint}` and nested endpoint folders.
+The extension requires LaraStrict's `ClassPlacementExtension` interface.
+
 #### Example
 
 - from `/repos/{owner}/{repo}/actions/artifacts`
