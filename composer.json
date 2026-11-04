@@ -59,7 +59,7 @@
     "autoload": {
         "psr-4": {
             "WrkFlow\\ApiSdkBuilder\\": "src/",
-            "WrkFlow\\ApiSdkBuilder\\PHPStan\\": "phpstan/src/"
+            "WrkFlow\\PHPstan\\ApiSdkBuilder\\": "phpstan/src/"
         }
     },
     "autoload-dev": {
@@ -68,6 +68,9 @@
         }
     },
     "extra": {
+        "phpstan": {
+            "includes": ["phpstan/extension.php"]
+        },
         "laravel": {
             "providers": [
                 "WrkFlow\\ApiSdkBuilder\\Laravel\\LaravelServiceProvider"

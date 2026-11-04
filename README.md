@@ -37,21 +37,24 @@ This package helps you build PHP clients for external APIs with dependency injec
 
 ## LaraStrict class placement
 
-Install a `larastrict/conventions` version that provides `ClassPlacementExtension`.
-Add this opt-in extension after LaraStrict in your application's `phpstan.neon`:
+With `phpstan/extension-installer`, the SDK placement extension loads
+automatically when the LaraStrict `ClassPlacementExtension` interface is available.
+Without that interface, the configuration returns no services. Runtime SDK use
+does not require LaraStrict.
+
+Without the extension installer, add this file after LaraStrict in your
+application's `phpstan.neon`:
 
 ```neon
 includes:
     - vendor/larastrict/conventions/extension.neon
-    - vendor/wrkflow/php-api-sdk-builder/phpstan/extension.neon
+    - vendor/wrkflow/php-api-sdk-builder/phpstan/extension.php
 ```
 
 Entities may then stay beside their endpoint in `Endpoints/{endpoint}`, including
 `App/Confirme/Sdk/Endpoints/Verifiers/DeviceEntity.php`. Shared Entities keep their
 `Entities` folder. The extension also supports SDK roots named `Api` or another
 name. It requires an endpoint folder and preserves the other placement rules.
-
-The extension is optional. Runtime SDK use does not require LaraStrict.
 
 For extension development, install a compatible `larastrict/conventions` version
 as a development dependency, then run `composer test:larastrict`. These tests

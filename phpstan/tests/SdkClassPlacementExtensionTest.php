@@ -7,13 +7,20 @@ namespace WrkFlow\ApiSdkBuilderTests\PHPStan;
 use LaraStrict\Conventions\PHPStan\ClassPlacementRule;
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
-use WrkFlow\ApiSdkBuilder\PHPStan\SdkClassPlacementExtension;
+use WrkFlow\PHPstan\ApiSdkBuilder\SdkClassPlacementExtension;
 
 /**
  * @extends RuleTestCase<ClassPlacementRule>
  */
 final class SdkClassPlacementExtensionTest extends RuleTestCase
 {
+    public function testConfigurationRegistersExtensionWhenInterfaceExists(): void
+    {
+        self::assertSame([
+            'includes' => [dirname(__DIR__) . '/extension.neon'],
+        ], require dirname(__DIR__) . '/extension.php');
+    }
+
     public function testEndpointEntitiesAndSharedEntitiesAreAllowed(): void
     {
         $this->analyse([

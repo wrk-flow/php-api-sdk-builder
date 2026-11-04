@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WrkFlow\ApiSdkBuilder\PHPStan;
+namespace WrkFlow\PHPstan\ApiSdkBuilder;
 
 use LaraStrict\Conventions\PHPStan\ClassPlacementExtension;
 
