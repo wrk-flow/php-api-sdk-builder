@@ -56,6 +56,20 @@ Entities may then stay beside their endpoint in `Endpoints/{endpoint}`, includin
 `Entities` folder. The extension also supports SDK roots named `Api` or another
 name. It requires an endpoint folder and preserves the other placement rules.
 
+The adapter checks SDK constructor arguments by type and requires their factory
+names: endpoint `$di`, and response `$response`, `$body`, or `$container` when
+those arguments are accepted. `GetValue` in a response constructor is named
+`$body`; unrelated inputs and methods keep their names. Constructors may accept
+additional injected collaborators. With a current conventions version, those
+collaborators receive naming and container-lookup checks. Endpoints and Responses
+are constructed through the SDK factory, so the adapter does not add them to the
+plain container-resolvability rule.
+
+The package registers `larastrict-conventions-api-sdk-builder` through
+`extra.larastrict-conventions.skills`. Run the application's Larastrict sync hook
+to install the skill and its agent instruction link. Older sync versions do not
+discover package skills.
+
 For extension development, install a compatible `larastrict/conventions` version
 as a development dependency, then run `composer test:larastrict`. These tests
 check the SDK allowance against the actual LaraStrict placement rule.

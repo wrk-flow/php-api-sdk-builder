@@ -64,10 +64,16 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "WrkFlow\\ApiSdkBuilderTests\\": "tests/"
+            "WrkFlow\\ApiSdkBuilderTests\\": "tests/",
+            "WrkFlow\\ApiSdkBuilderTests\\PHPStan\\": "phpstan/tests/"
         }
     },
     "extra": {
+        "larastrict-conventions": {
+            "skills": {
+                "larastrict-conventions-api-sdk-builder": "resources/ai/larastrict-conventions-api-sdk-builder"
+            }
+        },
         "phpstan": {
             "includes": ["phpstan/extension.php"]
         },

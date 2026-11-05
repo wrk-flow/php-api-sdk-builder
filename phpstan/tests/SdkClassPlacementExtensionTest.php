@@ -17,7 +17,7 @@ final class SdkClassPlacementExtensionTest extends RuleTestCase
     public function testConfigurationRegistersExtensionWhenInterfaceExists(): void
     {
         self::assertSame([
-            'includes' => [dirname(__DIR__) . '/extension.neon'],
+            'includes' => [dirname(__DIR__) . '/extension.neon', dirname(__DIR__) . '/injection.neon'],
         ], require dirname(__DIR__) . '/extension.php');
     }
 

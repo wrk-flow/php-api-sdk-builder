@@ -1,0 +1,11 @@
+services:
+    larastrict.injectionPoints:
+        arguments:
+            additionalConstructorBaseClasses:
+                - WrkFlow\ApiSdkBuilder\Endpoints\AbstractEndpoint
+                - WrkFlow\ApiSdkBuilder\Responses\AbstractResponse
+
+    larastrict.parameterName:
+        arguments:
+            additionalComponentNamespaces:
+                - WrkFlow\ApiSdkBuilder\

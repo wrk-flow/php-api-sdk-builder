@@ -2,3 +2,6 @@ services:
     -
         class: WrkFlow\PHPstan\ApiSdkBuilder\SdkClassPlacementExtension
         tags: [larastrict.classPlacementExtension]
+    -
+        class: WrkFlow\PHPstan\ApiSdkBuilder\SdkConstructorParameterRule
+        tags: [phpstan.rules.rule]
