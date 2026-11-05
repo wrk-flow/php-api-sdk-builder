@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Testing\Factories;
 
@@ -30,7 +28,6 @@ class ApiFactoryMock implements ApiFactoryContract
         $this->responseFactory = $responseFactory ?? Psr17FactoryDiscovery::findResponseFactory();
         $this->requestFactory = $requestFactory ?? Psr17FactoryDiscovery::findRequestFactory();
     }
-
 
     public function response(): ResponseFactoryInterface
     {

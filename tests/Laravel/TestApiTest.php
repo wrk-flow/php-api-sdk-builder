@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilderTests\Laravel;
 
@@ -58,7 +56,7 @@ class TestApiTest extends ApiTestCase
         $this->app()
             ->bind(
                 LoggerConfigEntity::class,
-                static fn () => new LoggerConfigEntity(logger: '*:' . LoggerConstants::NoLog)
+                static fn () => new LoggerConfigEntity(logger: '*:' . LoggerConstants::NoLog),
             );
     }
 }

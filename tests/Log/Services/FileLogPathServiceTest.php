@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilderTests\Log\Services;
 
@@ -21,7 +19,7 @@ class FileLogPathServiceTest extends TestCase
         $this->fileLogPathService = new FileLogPathService();
     }
 
-    public function dataIsRootDirectory(): array
+    public static function dataIsRootDirectory(): array
     {
         return [
             ['2023-03-20', true],
@@ -38,16 +36,15 @@ class FileLogPathServiceTest extends TestCase
         ];
     }
 
-
     /**
      * @dataProvider dataIsRootDirectory
      */
     public function testIsRootDirectory(string $directory, bool $expected): void
     {
-        $this->assertEquals(expected: $expected, actual: $this->fileLogPathService->isRootDirectory($directory));
+        $this->assertEquals($expected, $this->fileLogPathService->isRootDirectory($directory));
     }
 
-    public function dataGetRootDirectoryName(): array
+    public static function dataGetRootDirectoryName(): array
     {
         return [
             ['2022-12-10T00:30:00-03:00', '2022-12-10'],
@@ -64,7 +61,6 @@ class FileLogPathServiceTest extends TestCase
         ];
     }
 
-
     /**
      * @dataProvider dataGetRootDirectoryName
      */
@@ -73,15 +69,15 @@ class FileLogPathServiceTest extends TestCase
         date_default_timezone_set('Europe/Prague');
 
         $this->assertEquals(
-            expected: $expected,
-            actual: $this->fileLogPathService->getRootDirectoryName(new DateTimeImmutable($date))
+            $expected,
+            $this->fileLogPathService->getRootDirectoryName(new DateTimeImmutable($date)),
         );
     }
 
     /**
      * @return array<string|int, array{0: Closure(static):void}>
      */
-    public function dataGetRootDirectoriesMapToNotDeleteDataProvider(): array
+    public static function dataGetRootDirectoriesMapToNotDeleteDataProvider(): array
     {
         return [
             'keepLogFilesForDays 0 - leave today' => [
@@ -149,7 +145,7 @@ class FileLogPathServiceTest extends TestCase
     public function assertGetRootDirectoriesMapToNotDeleteDataProvider(
         LoggerConfigEntity $config,
         DateTimeInterface $date,
-        array $expected
+        array $expected,
     ): void {
         $actual = $this->fileLogPathService->getRootDirectoriesMapToNotDelete($config, $date);
         $this->assertEquals($expected, $actual);

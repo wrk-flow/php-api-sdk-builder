@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Testing\Factories;
 
@@ -14,7 +12,7 @@ final class EndpointDIEntityFactory
 {
     public static function make(
         ApiInterface $api = new ApiMock(),
-        SendRequestActionContract $sendAssert = new SendTestRequestActionAssert()
+        SendRequestActionContract $sendAssert = new SendTestRequestActionAssert(),
     ): EndpointDIEntity {
         return new EndpointDIEntity(api: $api, sendRequestAction: $sendAssert);
     }

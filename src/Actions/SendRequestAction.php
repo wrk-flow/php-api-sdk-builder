@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Actions;
 
@@ -112,8 +110,11 @@ final class SendRequestAction implements SendRequestActionContract
 
             if ($fakedResponse instanceof ResponseInterface) {
                 return $fakedResponse;
-            } elseif ($environment instanceof EnvironmentFakeResponseInterface) {
+            }
+
+            if ($environment instanceof EnvironmentFakeResponseInterface) {
                 $response = $environment->getResponse($request, $responseClass, $api->factory());
+
                 if ($response instanceof ResponseInterface) {
                     return $response;
                 }
@@ -129,7 +130,7 @@ final class SendRequestAction implements SendRequestActionContract
                 id: $requestId,
                 request: $request,
                 exception: $exception,
-                requestDurationInSeconds: $this->getRequestDuration($timeStart)
+                requestDurationInSeconds: $this->getRequestDuration($timeStart),
             );
             $dispatcher?->dispatch($event);
             $logger?->requestConnectionFailed(event: $event, config: $loggerConfig);
@@ -141,11 +142,13 @@ final class SendRequestAction implements SendRequestActionContract
     private function withBody(
         ApiInterface $api,
         OptionsInterface|StreamInterface|string|null $body,
-        RequestInterface $request
+        RequestInterface $request,
     ): RequestInterface {
         if ($body instanceof StreamInterface) {
             return $request->withBody($body);
-        } elseif ($body instanceof OptionsInterface) {
+        }
+
+        if ($body instanceof OptionsInterface) {
             $body = $body->toBody($api->environment());
         }
 
@@ -206,7 +209,7 @@ final class SendRequestAction implements SendRequestActionContract
                     id: $id,
                     request: $request,
                     response: $finalResponse,
-                    requestDurationInSeconds: $this->getRequestDuration($timeStart)
+                    requestDurationInSeconds: $this->getRequestDuration($timeStart),
                 );
                 $dispatcher?->dispatch($event);
                 $logger?->responseReceivedEvent(event: $event, config: $loggerConfig);
@@ -231,12 +234,12 @@ final class SendRequestAction implements SendRequestActionContract
                 id: $id,
                 request: $request,
                 exception: $exception,
-                requestDurationInSeconds: $this->getRequestDuration($timeStart)
+                requestDurationInSeconds: $this->getRequestDuration($timeStart),
             );
             $dispatcher?->dispatch($event);
             $failLogConfig = new LoggerFailConfigEntity(
                 config: $loggerConfig,
-                ignoreLoggersOnFail: $ignoreLoggers ?? []
+                ignoreLoggersOnFail: $ignoreLoggers ?? [],
             );
 
             if ($logger instanceof ApiLoggerInterface && $failLogConfig->shouldIgnoreLogger($logger) === false) {
@@ -252,11 +255,12 @@ final class SendRequestAction implements SendRequestActionContract
         ApiInterface $api,
         array $headers,
         RequestInterface $request,
-        StreamInterface|string|OptionsInterface|null $body
+        StreamInterface|string|OptionsInterface|null $body,
     ): RequestInterface {
         $mergedHeaders = array_merge($environment->headers(), $api->headers(), $headers);
 
         $request = $this->buildHeadersAction->execute($mergedHeaders, $request);
+
         return $this->withBody($api, $body, $request);
     }
 
@@ -268,6 +272,7 @@ final class SendRequestAction implements SendRequestActionContract
     {
         // PHPUnit can be missing.
         $class = '\\' . \PHPUnit\Exception::class;
+
         if ($exception instanceof $class) {
             throw $exception;
         }

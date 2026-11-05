@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilderTests\PHPStan;
 
@@ -17,8 +15,8 @@ final class SdkClassPlacementExtensionTest extends RuleTestCase
     public function testConfigurationRegistersExtensionWhenInterfaceExists(): void
     {
         self::assertSame([
-            'includes' => [dirname(__DIR__) . '/extension.neon', dirname(__DIR__) . '/injection.neon'],
-        ], require dirname(__DIR__) . '/extension.php');
+            'includes' => [__DIR__ . '/../extension.neon', __DIR__ . '/../injection.neon'],
+        ], require __DIR__ . '/../extension.php');
     }
 
     public function testEndpointEntitiesAndSharedEntitiesAreAllowed(): void
@@ -43,6 +41,7 @@ final class SdkClassPlacementExtensionTest extends RuleTestCase
             ['Class DeviceService must be placed in Services because its name ends with "Service".', 7],
         ]);
     }
+
     protected function getRule(): Rule
     {
         return new ClassPlacementRule(extensions: [new SdkClassPlacementExtension()]);

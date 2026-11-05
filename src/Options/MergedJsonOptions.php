@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Options;
 
@@ -12,7 +10,7 @@ class MergedJsonOptions extends AbstractJsonOptions
      * @param array<AbstractJsonOptions|null> $options
      */
     public function __construct(
-        protected array $options
+        protected array $options,
     ) {
     }
 

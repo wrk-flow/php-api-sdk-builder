@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Responses;
 
@@ -17,7 +15,7 @@ abstract class AbstractJsonItemsResponse extends AbstractJsonResponse
         ResponseInterface $response,
         GetValue $body,
         // It is important that "container" name is used for dependency injection.
-        protected readonly SDKContainerFactoryContract $container
+        protected readonly SDKContainerFactoryContract $container,
     ) {
         parent::__construct($response, $body);
 

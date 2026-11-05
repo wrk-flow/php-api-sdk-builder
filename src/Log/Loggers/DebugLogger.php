@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Log\Loggers;
 
@@ -39,7 +37,7 @@ class DebugLogger implements DebugLoggerContract
             request: $event->request,
             requestDurationInSeconds: $event->requestDurationInSeconds,
             response: $event->exception->getResponse(),
-            exception: $event->exception
+            exception: $event->exception,
         );
     }
 
@@ -49,7 +47,7 @@ class DebugLogger implements DebugLoggerContract
             id: $event->id,
             request: $event->request,
             requestDurationInSeconds: $event->requestDurationInSeconds,
-            exception: $event->exception
+            exception: $event->exception,
         );
     }
 
@@ -59,7 +57,7 @@ class DebugLogger implements DebugLoggerContract
             id: $event->id,
             request: $event->request,
             requestDurationInSeconds: $event->requestDurationInSeconds,
-            response: $event->response->getResponse()
+            response: $event->response->getResponse(),
         );
     }
 
@@ -69,7 +67,7 @@ class DebugLogger implements DebugLoggerContract
             return $response instanceof ResponseInterface ? substr(
                 string: (string) $response->getBody(),
                 offset: 0,
-                length: self::MaxContentSize
+                length: self::MaxContentSize,
             ) : null;
         } catch (Throwable) {
             return null;
@@ -81,7 +79,7 @@ class DebugLogger implements DebugLoggerContract
         RequestInterface $request,
         float $requestDurationInSeconds,
         ?ResponseInterface $response = null,
-        ?Throwable $exception = null
+        ?Throwable $exception = null,
     ): void {
         $uri = $request->getUri();
 
@@ -90,7 +88,7 @@ class DebugLogger implements DebugLoggerContract
                 request: $request,
                 requestDurationInSeconds: $requestDurationInSeconds,
                 response: $response,
-                exception: $exception
+                exception: $exception,
             ),
             context: array_filter([
                 'uri' => (string) $uri,
@@ -101,7 +99,7 @@ class DebugLogger implements DebugLoggerContract
                 'response_headers' => $response?->getHeaders(),
                 'response_body' => $this->getBody($response),
                 'exception' => $exception?->getMessage(),
-            ])
+            ]),
         );
     }
 }

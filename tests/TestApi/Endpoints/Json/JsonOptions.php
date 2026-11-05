@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilderTests\TestApi\Endpoints\Json;
 
@@ -14,7 +12,7 @@ final class JsonOptions extends AbstractJsonOptions
      */
     public function __construct(
         public readonly string $input,
-        public readonly array $keys
+        public readonly array $keys,
     ) {
     }
 

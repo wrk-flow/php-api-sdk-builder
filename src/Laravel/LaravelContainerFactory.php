@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Laravel;
 
@@ -16,7 +14,7 @@ use Wrkflow\GetValue\GetValue;
 class LaravelContainerFactory implements SDKContainerFactoryContract
 {
     public function __construct(
-        private readonly Container $container
+        private readonly Container $container,
     ) {
     }
 
@@ -49,6 +47,7 @@ class LaravelContainerFactory implements SDKContainerFactoryContract
     {
         $object = $this->container->make($class);
         assert($object instanceof $class);
+
         return $object;
     }
 
@@ -71,6 +70,7 @@ class LaravelContainerFactory implements SDKContainerFactoryContract
             'body' => $body,
         ]);
         assert($apiResponse instanceof $class);
+
         return $apiResponse;
     }
 }

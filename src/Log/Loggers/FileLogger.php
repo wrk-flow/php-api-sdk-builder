@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Log\Loggers;
 
@@ -42,7 +40,7 @@ class FileLogger implements FileLoggerContract
             id: $event->id,
             request: $event->request,
             type: 'failed',
-            response: $event->exception->getResponse()
+            response: $event->exception->getResponse(),
         );
     }
 
@@ -57,7 +55,7 @@ class FileLogger implements FileLoggerContract
             config: $config,
             id: $event->id,
             request: $event->request,
-            response: $event->response->getResponse()
+            response: $event->response->getResponse(),
         );
     }
 
@@ -66,14 +64,14 @@ class FileLogger implements FileLoggerContract
         string $id,
         RequestInterface $request,
         ?string $type = null,
-        ?ResponseInterface $response = null
+        ?ResponseInterface $response = null,
     ): void {
         try {
             $basePath = $this->fileLogPathService->getFilePath(
                 baseDir: $config->fileBaseDir,
                 request: $request,
                 id: $id,
-                type: $type
+                type: $type,
             );
 
             $requestFile = $this->buildRequestLogFileAction->execute(request: $request, basePath: $basePath);
@@ -84,7 +82,7 @@ class FileLogger implements FileLoggerContract
             }
 
             $extension = $this->getExtensionFromContentTypeAction->execute(
-                contentType: $response->getHeaderLine('Content-Type')
+                contentType: $response->getHeaderLine('Content-Type'),
             );
 
             $responseFilePath = $basePath . '.' . $extension;

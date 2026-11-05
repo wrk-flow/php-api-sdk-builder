@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilderTests\Testing\Options;
 
@@ -16,7 +14,7 @@ class OptionsTestCaseTest extends OptionsTestCase
     /**
      * @return array<string|int, array{0: Closure(static):void}>
      */
-    public function data(): array
+    public static function data(): array
     {
         return [
             'all values' => [
@@ -25,7 +23,7 @@ class OptionsTestCaseTest extends OptionsTestCase
                     expected: [
                         self::KeyInput => 'test',
                         self::KeyKeys => [1, 2, 3],
-                    ]
+                    ],
                 ),
             ],
             'empty keys' => [
@@ -33,18 +31,17 @@ class OptionsTestCaseTest extends OptionsTestCase
                     input: new JsonOptions(input: 'test 22', keys: []),
                     expected: [
                         self::KeyInput => 'test 22',
-                    ]
+                    ],
                 ),
             ],
             'empty values' => [
                 static fn (self $self) => $self->assertOptions(
                     input: new JsonOptions(input: '', keys: []),
-                    expected: []
+                    expected: [],
                 ),
             ],
         ];
     }
-
 
     /**
      * @param Closure(static):void $assert

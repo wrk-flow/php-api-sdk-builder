@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Actions;
 
@@ -43,7 +41,7 @@ class GetLoggerAction
         return $logger;
     }
 
-    protected function getLogger(LoggerConfigEntity $config, mixed $loggerKey): ?ApiLoggerInterface
+    protected function getLogger(LoggerConfigEntity $config, string $loggerKey): ?ApiLoggerInterface
     {
         $loggers = $config->loggersMap->loggers[$loggerKey];
 
@@ -57,9 +55,9 @@ class GetLoggerAction
 
         return new StackLogger(
             loggers: array_map(
-                callback: fn (string $logger): ApiLoggerInterface => $this->makeLogger($logger),
-                array: $loggers
-            )
+                callback: $this->makeLogger(...),
+                array: $loggers,
+            ),
         );
     }
 
@@ -69,7 +67,7 @@ class GetLoggerAction
     protected function makeLogger(string $class): ApiLoggerInterface
     {
         $result = $this->container->make($class);
-        assert($result instanceof ApiLoggerInterface);
+
         return $result;
     }
 }

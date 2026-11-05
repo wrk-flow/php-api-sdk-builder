@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Log\Entities;
 
@@ -10,6 +8,7 @@ use WrkFlow\ApiSdkBuilder\Log\Constants\LoggerConstants;
 class LoggerConfigEntity
 {
     public readonly string $logger;
+
     /**
      * @var array<string, string>
      */
@@ -32,6 +31,7 @@ class LoggerConfigEntity
             $settings = explode(':', $item);
 
             $count = count($settings);
+
             if ($count === 1) {
                 $host = '*';
                 $logger = $settings[0];
@@ -39,12 +39,13 @@ class LoggerConfigEntity
                 [$host, $logger] = $settings;
             } else {
                 throw new LogicException(
-                    'Invalid logging settings. Expected format: "host:logger" or "logger". Got ' . $item
+                    'Invalid logging settings. Expected format: "host:logger" or "logger". Got ' . $item,
                 );
             }
 
             if ($host === '*') {
                 $defaultLogger = $logger;
+
                 continue;
             }
 

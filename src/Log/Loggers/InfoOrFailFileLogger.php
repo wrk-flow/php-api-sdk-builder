@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Log\Loggers;
 
@@ -17,7 +15,7 @@ class InfoOrFailFileLogger implements InfoOrFailFileLoggerContract
 {
     public function __construct(
         private readonly InfoLoggerContract $logger,
-        private readonly FileLoggerContract $fileLogger
+        private readonly FileLoggerContract $fileLogger,
     ) {
     }
 

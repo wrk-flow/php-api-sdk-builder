@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Log\Contracts;
 
@@ -22,7 +20,6 @@ interface FileLogPathServiceContract
      * Checks if given directory is considered as root folder or not (matches the generated format).
      */
     public function isRootDirectory(string $directory): bool;
-
 
     /**
      * Build a list of folder names that should not be deleted (based on $config->keepLogFilesForDays).

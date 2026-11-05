@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilderTests\Laravel\Configs;
 
@@ -15,7 +13,7 @@ class ApiSdkConfigLoggingTest extends TestCase
     /**
      * @return array<string|int, array{0: Closure(static):void}>
      */
-    public function data(): array
+    public static function data(): array
     {
         return [
             'non empty string' => [
@@ -29,7 +27,6 @@ class ApiSdkConfigLoggingTest extends TestCase
             ],
         ];
     }
-
 
     /**
      * @param Closure(static):void $assert
@@ -51,7 +48,7 @@ class ApiSdkConfigLoggingTest extends TestCase
                     ],
                 ],
             ]),
-            getValueFactory: new GetValueFactory()
+            getValueFactory: new GetValueFactory(),
         );
         $this->assertEquals($config->getLogging(), $expected);
     }

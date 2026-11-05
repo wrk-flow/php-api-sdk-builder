@@ -17,7 +17,7 @@ This package helps you build PHP clients for external APIs with dependency injec
 
 ## Features
 
-![img](https://img.shields.io/badge/PHPStan-8-blue)
+![img](https://img.shields.io/badge/PHPStan-9-blue)
 ![php](https://img.shields.io/badge/PHP-8.1-B0B3D6)
 ![coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/pionl/bdae700e21749c3532d7961f1d8b252b/raw/coverage.json)
 
@@ -65,15 +65,25 @@ collaborators receive naming and container-lookup checks. Endpoints and Response
 are constructed through the SDK factory, so the adapter does not add them to the
 plain container-resolvability rule.
 
-The package registers `larastrict-conventions-api-sdk-builder` through
-`extra.larastrict-conventions.skills`. Run the application's Larastrict sync hook
-to install the skill and its agent instruction link. Older sync versions do not
-discover package skills.
+The package registers the general `api-sdk-builder` skill through
+`extra.strictphp/conventions.skills`. The `strictphp-sync-ai` command discovers it
+with the shared PHP skill. Read the skill for SDK conventions; LaraStrict-specific
+integration applies only when LaraStrict is installed.
 
 For extension development, install a compatible `larastrict/conventions` version
 as a development dependency, then run `composer test:larastrict`. These tests
 check the SDK allowance against the actual LaraStrict placement rule.
 
 ## Development
+
+Development uses `strictphp/conventions:^2.1` for Rector, ECS, and PHPStan.
+Install development dependencies with PHP 8.3 or later. Runtime consumers can
+continue to use PHP 8.1 or later without the development tools.
+
+Run `composer qa` to apply Rector, then ECS, then run PHPStan and tests.
+Use `composer lint:upgrade:check`, `composer lint:check`, `composer analyse`,
+and `composer test` for validation without code transformations.
+Laravel dependencies support the adapter tests; the SDK does not require
+`larastrict/conventions` for its normal development workflow.
 
 For development read [CONTRIBUTIONS](https://php-sdk-builder.wrk-flow.com/contributions)

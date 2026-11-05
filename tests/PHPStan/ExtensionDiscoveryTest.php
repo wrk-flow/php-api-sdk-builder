@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilderTests\PHPStan;
 
@@ -23,6 +21,7 @@ final class ExtensionDiscoveryTest extends TestCase
         self::assertSame(0, $process->getExitCode(), $process->getErrorOutput());
         self::assertSame('[]', $process->getOutput());
     }
+
     public function testOlderConventionsKeepPlacementWithoutUnsupportedInjectionSettings(): void
     {
         $script = <<<'PHP_WRAP'

@@ -1,16 +1,14 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilderTests\TestApi\Endpoints\Json;
 
 use Exception;
-use const true;
 use WrkFlow\ApiSdkBuilder\Headers\JsonHeaders;
 use WrkFlow\ApiSdkBuilder\Interfaces\OptionsInterface;
 use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
 use WrkFlow\ApiSdkBuilder\Testing\Responses\JsonResponseMock;
 use WrkFlow\ApiSdkBuilderTests\TestApi\Endpoints\AbstractTestEndpoint;
+use const true;
 
 class JsonEndpoint extends AbstractTestEndpoint implements JsonEndpointInterface
 {
@@ -29,7 +27,7 @@ class JsonEndpoint extends AbstractTestEndpoint implements JsonEndpointInterface
             responseClass: JsonResponse::class,
             uri: $this->uri(),
             body: $body,
-            headers: $this->headers()
+            headers: $this->headers(),
         );
     }
 

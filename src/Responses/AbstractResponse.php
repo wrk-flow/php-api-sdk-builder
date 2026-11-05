@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Responses;
 
@@ -10,7 +8,7 @@ use WrkFlow\ApiSdkBuilder\Interfaces\ApiResponseInterface;
 abstract class AbstractResponse implements ApiResponseInterface
 {
     public function __construct(
-        protected readonly ResponseInterface $response
+        protected readonly ResponseInterface $response,
     ) {
     }
 

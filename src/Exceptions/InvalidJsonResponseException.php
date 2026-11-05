@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Exceptions;
 
@@ -16,7 +14,7 @@ class InvalidJsonResponseException extends ResponseException
         ResponseInterface $response,
         string $message = '',
         private readonly ?array $json = null,
-        ?Throwable $previous = null
+        ?Throwable $previous = null,
     ) {
         parent::__construct($response, $message, $previous);
     }

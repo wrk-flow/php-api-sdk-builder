@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder;
 
@@ -30,10 +28,9 @@ abstract class AbstractApi implements ApiInterface
      */
     private readonly array $overrideEndpoints;
 
-
     public function __construct(
         private readonly AbstractEnvironment $environment,
-        private readonly ApiFactoryContract $factory
+        private readonly ApiFactoryContract $factory,
     ) {
         $this->overrideEndpoints = $environment instanceof EnvironmentOverrideEndpointsInterface ? $environment->endpoints() : [];
     }

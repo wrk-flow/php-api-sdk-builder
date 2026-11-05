@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Factories;
 
@@ -22,7 +20,7 @@ class ApiFactory implements ApiFactoryContract
         private readonly SDKContainerFactoryContract $container,
         private readonly ResponseFactoryInterface $response,
         private readonly ?EventDispatcherInterface $eventDispatcher = null,
-        private ?LoggerConfigEntity $loggerConfig = null
+        private ?LoggerConfigEntity $loggerConfig = null,
     ) {
     }
 

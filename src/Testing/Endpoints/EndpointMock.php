@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Testing\Endpoints;
 
@@ -11,7 +9,7 @@ class EndpointMock extends AbstractEndpoint
 {
     public function __construct(
         EndpointDIEntity $di,
-        public readonly string $endpointClass
+        public readonly string $endpointClass,
     ) {
         parent::__construct($di);
     }

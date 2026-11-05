@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Responses\Concerns;
 
@@ -64,6 +62,7 @@ trait ItemsTransform
                 $result = $this->transformer()
                     ->transform($getValue, $key);
                 $onItem($result);
+
                 return true;
             }),
         ]);
@@ -73,10 +72,8 @@ trait ItemsTransform
 
     private function transformer(): GetValueTransformerContract
     {
-        if ($this->transformer === null) {
-            $this->transformer = $this->container()
-                ->make($this->getTransformerClass());
-        }
+        $this->transformer ??= $this->container()
+            ->make($this->getTransformerClass());
 
         return $this->transformer;
     }

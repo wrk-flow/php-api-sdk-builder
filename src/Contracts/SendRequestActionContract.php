@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Contracts;
 
@@ -37,6 +35,6 @@ interface SendRequestActionContract
         array $headers = [],
         int|array|null $expectedResponseStatusCode = null,
         ?ResponseInterface $fakedResponse = null,
-        ?Closure $shouldIgnoreLoggersOnError = null
+        ?Closure $shouldIgnoreLoggersOnError = null,
     ): AbstractResponse;
 }

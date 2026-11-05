@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilderTests\Endpoints;
 
@@ -17,7 +15,7 @@ final class AbstractEndpointTest extends TestCase
     /**
      * @return array<string|int, array{0: Closure(static):void}>
      */
-    public function dataDontReportToExceptionsToFile(): array
+    public static function dataDontReportToExceptionsToFile(): array
     {
         return [
             'returns empty array if not set' => [
@@ -51,7 +49,6 @@ final class AbstractEndpointTest extends TestCase
             ],
         ];
     }
-
 
     /**
      * @param Closure(static):void $assert

@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilderTests\Log\Actions;
 
@@ -20,25 +18,25 @@ class GetTextForLogActionTest extends TestCase
     /**
      * @return array<string|int, array{0: ClosureAlias}>
      */
-    public function data(): array
+    public static function data(): array
     {
         return [
             'no response, no exception, no duration' => [
                 static fn (self $self, GetTextForLogAction $action, RequestInterface $request) => $self->assertEquals(
-                    expected: 'GET [OK] 000 example.com /api/v1/clients [0s]',
-                    actual: $action->execute(request: $request, requestDurationInSeconds: 0),
+                    'GET [OK] 000 example.com /api/v1/clients [0s]',
+                    $action->execute(request: $request, requestDurationInSeconds: 0),
                 ),
             ],
             'no response, no exception, has duration' => [
                 static fn (self $self, GetTextForLogAction $action, RequestInterface $request) => $self->assertEquals(
-                    expected: 'GET [OK] 000 example.com /api/v1/clients [30s]',
-                    actual: $action->execute(request: $request, requestDurationInSeconds: 30),
+                    'GET [OK] 000 example.com /api/v1/clients [30s]',
+                    $action->execute(request: $request, requestDurationInSeconds: 30),
                 ),
             ],
             'no response, has exception, no duration' => [
                 static fn (self $self, GetTextForLogAction $action, RequestInterface $request) => $self->assertEquals(
-                    expected: 'GET [FAILED] 000 example.com /api/v1/clients [0s]',
-                    actual: $action->execute(
+                    'GET [FAILED] 000 example.com /api/v1/clients [0s]',
+                    $action->execute(
                         request: $request,
                         requestDurationInSeconds: 0,
                         exception: new Exception(),
@@ -47,8 +45,8 @@ class GetTextForLogActionTest extends TestCase
             ],
             'no response, has exception, has duration' => [
                 static fn (self $self, GetTextForLogAction $action, RequestInterface $request) => $self->assertEquals(
-                    expected: 'GET [FAILED] 000 example.com /api/v1/clients [30s]',
-                    actual: $action->execute(
+                    'GET [FAILED] 000 example.com /api/v1/clients [30s]',
+                    $action->execute(
                         request: $request,
                         requestDurationInSeconds: 30,
                         exception: new Exception(),
@@ -57,8 +55,8 @@ class GetTextForLogActionTest extends TestCase
             ],
             'has response 200, no exception, no duration' => [
                 static fn (self $self, GetTextForLogAction $action, RequestInterface $request) => $self->assertEquals(
-                    expected: 'GET [OK] 200 example.com /api/v1/clients [0s]',
-                    actual: $action->execute(
+                    'GET [OK] 200 example.com /api/v1/clients [0s]',
+                    $action->execute(
                         request: $request,
                         requestDurationInSeconds: 0,
                         response: new Response(),
@@ -67,8 +65,8 @@ class GetTextForLogActionTest extends TestCase
             ],
             'has response 200, no exception, has duration' => [
                 static fn (self $self, GetTextForLogAction $action, RequestInterface $request) => $self->assertEquals(
-                    expected: 'GET [OK] 200 example.com /api/v1/clients [30s]',
-                    actual: $action->execute(
+                    'GET [OK] 200 example.com /api/v1/clients [30s]',
+                    $action->execute(
                         request: $request,
                         requestDurationInSeconds: 30,
                         response: new Response(),
@@ -77,8 +75,8 @@ class GetTextForLogActionTest extends TestCase
             ],
             'has response 200, has exception, no duration' => [
                 static fn (self $self, GetTextForLogAction $action, RequestInterface $request) => $self->assertEquals(
-                    expected: 'GET [FAILED] 200 example.com /api/v1/clients [0s]',
-                    actual: $action->execute(
+                    'GET [FAILED] 200 example.com /api/v1/clients [0s]',
+                    $action->execute(
                         request: $request,
                         requestDurationInSeconds: 0,
                         response: new Response(),
@@ -88,8 +86,8 @@ class GetTextForLogActionTest extends TestCase
             ],
             'has response 200, has exception, has duration' => [
                 static fn (self $self, GetTextForLogAction $action, RequestInterface $request) => $self->assertEquals(
-                    expected: 'GET [FAILED] 200 example.com /api/v1/clients [30s]',
-                    actual: $action->execute(
+                    'GET [FAILED] 200 example.com /api/v1/clients [30s]',
+                    $action->execute(
                         request: $request,
                         requestDurationInSeconds: 30,
                         response: new Response(),
@@ -99,8 +97,8 @@ class GetTextForLogActionTest extends TestCase
             ],
             'has response 300, no exception, no duration' => [
                 static fn (self $self, GetTextForLogAction $action, RequestInterface $request) => $self->assertEquals(
-                    expected: 'GET [OK] 300 example.com /api/v1/clients [0s]',
-                    actual: $action->execute(
+                    'GET [OK] 300 example.com /api/v1/clients [0s]',
+                    $action->execute(
                         request: $request,
                         requestDurationInSeconds: 0,
                         response: new Response(300),
@@ -109,8 +107,8 @@ class GetTextForLogActionTest extends TestCase
             ],
             'has response 300, no exception, has duration' => [
                 static fn (self $self, GetTextForLogAction $action, RequestInterface $request) => $self->assertEquals(
-                    expected: 'GET [OK] 300 example.com /api/v1/clients [30s]',
-                    actual: $action->execute(
+                    'GET [OK] 300 example.com /api/v1/clients [30s]',
+                    $action->execute(
                         request: $request,
                         requestDurationInSeconds: 30,
                         response: new Response(300),
@@ -119,8 +117,8 @@ class GetTextForLogActionTest extends TestCase
             ],
             'has response 300, has exception, no duration' => [
                 static fn (self $self, GetTextForLogAction $action, RequestInterface $request) => $self->assertEquals(
-                    expected: 'GET [FAILED] 300 example.com /api/v1/clients [0s]',
-                    actual: $action->execute(
+                    'GET [FAILED] 300 example.com /api/v1/clients [0s]',
+                    $action->execute(
                         request: $request,
                         requestDurationInSeconds: 0,
                         response: new Response(300),
@@ -130,8 +128,8 @@ class GetTextForLogActionTest extends TestCase
             ],
             'has response 300, has exception, has duration' => [
                 static fn (self $self, GetTextForLogAction $action, RequestInterface $request) => $self->assertEquals(
-                    expected: 'GET [FAILED] 300 example.com /api/v1/clients [30s]',
-                    actual: $action->execute(
+                    'GET [FAILED] 300 example.com /api/v1/clients [30s]',
+                    $action->execute(
                         request: $request,
                         requestDurationInSeconds: 30,
                         response: new Response(300),
@@ -141,7 +139,6 @@ class GetTextForLogActionTest extends TestCase
             ],
         ];
     }
-
 
     /**
      * @param ClosureAlias $assert
