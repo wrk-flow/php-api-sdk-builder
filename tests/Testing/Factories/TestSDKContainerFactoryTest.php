@@ -1,11 +1,10 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilderTests\Testing\Factories;
 
 use Closure;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use LogicException;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use WrkFlow\ApiSdkBuilder\Contracts\SendRequestActionContract;
@@ -17,6 +16,7 @@ use WrkFlow\ApiSdkBuilder\Testing\Factories\EndpointDIEntityFactory;
 use WrkFlow\ApiSdkBuilder\Testing\Factories\TestSDKContainerFactory;
 use WrkFlow\ApiSdkBuilder\Testing\Responses\JsonResponseMock;
 use WrkFlow\ApiSdkBuilderTests\TestApi\Endpoints\Json\JsonEndpoint;
+use WrkFlow\ApiSdkBuilderTests\TestApi\Endpoints\Json\JsonEndpointInterface;
 use WrkFlow\ApiSdkBuilderTests\TestApi\Endpoints\Json\JsonResponse;
 use Wrkflow\GetValue\DataHolders\ArrayData;
 use Wrkflow\GetValue\GetValue;
@@ -34,27 +34,28 @@ class TestSDKContainerFactoryTest extends TestCase
     /**
      * @return array<string|int, array{0: MakeClosure}>
      */
-    public function dataMake(): array
+    public static function dataMake(): array
     {
         $data = [
             JsonResponse::KeySuccess => true,
         ];
+
         return [
             'makeEndpoint' => [
                 static fn (self $self, TestSDKContainerFactory $container, EndpointDIEntity $di) => $self->assertInstanceOf(
-                    expected: JsonEndpoint::class,
-                    actual: $container->makeEndpoint($di->api(), JsonEndpoint::class),
+                    JsonEndpoint::class,
+                    $container->makeEndpoint($di->api(), JsonEndpointInterface::class),
                 ),
             ],
             'make' => [
                 static fn (self $self, TestSDKContainerFactory $container, EndpointDIEntity $di) => $self->assertInstanceOf(
-                    expected: SendTestRequestActionAssert::class,
-                    actual: $container->make(SendRequestActionContract::class),
+                    SendTestRequestActionAssert::class,
+                    $container->make(SendRequestActionContract::class),
                 ),
             ],
             'makeResponse' => [
                 static fn (self $self, TestSDKContainerFactory $container, EndpointDIEntity $di) => $self->assertTrue(
-                    condition: $container
+                    $container
                         ->makeResponse(
                             class: JsonResponse::class,
                             response: new JsonResponseMock($data),
@@ -89,27 +90,27 @@ class TestSDKContainerFactoryTest extends TestCase
     /**
      * @return array<string|int, array{0: ContainerClosure}>
      */
-    public function dataHas(): array
+    public static function dataHas(): array
     {
         return [
             'SendRequestActionContract' => [
                 static fn (self $self, TestSDKContainerFactory $container) => $self->assertTrue(
-                    $container->has(SendRequestActionContract::class)
+                    $container->has(SendRequestActionContract::class),
                 ),
             ],
             'JsonEndpoint' => [
                 static fn (self $self, TestSDKContainerFactory $container) => $self->assertTrue(
-                    $container->has(JsonEndpoint::class)
+                    $container->has(JsonEndpoint::class),
                 ),
             ],
             'JsonResponse' => [
                 static fn (self $self, TestSDKContainerFactory $container) => $self->assertTrue(
-                    $container->has(JsonResponse::class)
+                    $container->has(JsonResponse::class),
                 ),
             ],
             'no found' => [
                 static fn (self $self, TestSDKContainerFactory $container) => $self->assertFalse(
-                    $container->has(AbstractResponse::class)
+                    $container->has(AbstractResponse::class),
                 ),
             ],
         ];
@@ -138,7 +139,7 @@ class TestSDKContainerFactoryTest extends TestCase
     /**
      * @return array<string|int, array{0: MakeClosure}>
      */
-    public function dataMakeFail(): array
+    public static function dataMakeFail(): array
     {
         return [
             'makeEndpoint' => [
@@ -194,13 +195,14 @@ class TestSDKContainerFactoryTest extends TestCase
             ],
             makeEndpointBindings: [
                 JsonEndpoint::class => static fn (EndpointDIEntity $di) => new JsonEndpoint($di),
+                JsonEndpointInterface::class => static fn (EndpointDIEntity $di) => new JsonEndpoint($di),
             ],
             makeResponseBindings: [
                 JsonResponse::class => static fn (ResponseInterface $response, $body) => new JsonResponse(
                     response: $response,
-                    body: $body,
+                    body: $body ?? throw new LogicException('JSON response requires a body.'),
                 ),
-            ]
+            ],
         );
     }
 
@@ -213,13 +215,14 @@ class TestSDKContainerFactoryTest extends TestCase
             ],
             makeEndpointBindings: [
                 JsonEndpoint::class => static fn (EndpointDIEntity $di) => new JsonEndpoint($di),
+                JsonEndpointInterface::class => static fn (EndpointDIEntity $di) => new JsonEndpoint($di),
             ],
             makeResponseBindings: [
                 JsonResponse::class => static fn (ResponseInterface $response, $body) => new JsonResponse(
                     response: $response,
-                    body: $body,
+                    body: $body ?? throw new LogicException('JSON response requires a body.'),
                 ),
-            ]
+            ],
         );
     }
 }

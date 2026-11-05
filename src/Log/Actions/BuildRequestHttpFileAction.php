@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Log\Actions;
 
@@ -11,7 +9,7 @@ use WrkFlow\ApiSdkBuilder\Log\Entities\FileEntity;
 /**
  * Generates a file containing the request information in PHPStorm HTTP format.
  *
- * @link https://www.jetbrains.com/help/phpstorm/2023.1/http-client-in-product-code-editor.html
+ * @see https://www.jetbrains.com/help/phpstorm/2023.1/http-client-in-product-code-editor.html
  */
 class BuildRequestHttpFileAction implements BuildRequestLogFileActionContract
 {

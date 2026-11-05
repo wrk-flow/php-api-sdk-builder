@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 use WrkFlow\ApiSdkBuilder\Laravel\Configs\ApiSdkConfig;
 use WrkFlow\ApiSdkBuilder\Log\Constants\LoggerConstants;
@@ -28,7 +26,7 @@ return [
          * - You can customize logger implementation by changing concrete class to corresponding interface using
          * container.
          *
-         * @link https://larastrict.com/TODO
+         * @see https://larastrict.com/TODO
          */
         ApiSdkConfig::KeyLoggers => LoggerConstants::DefaultLoggersMap,
 

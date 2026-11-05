@@ -1,38 +1,32 @@
-name: "Code check"
+name: Code check
 
 on:
   push:
-    branches:
-      - main
-
-  workflow_call:
-
+    branches: [main]
   pull_request:
-    paths:
-      - "src/**"
-      - "tests/**"
-      - "composer.json"
-      - "ecs.php"
-      - "rector.php"
-      - "phpstan.neon"
-      - "phpstan-baseline.neon"
-      - "phpunit.xml"
+  workflow_call:
 
 concurrency:
   group: php-sdk-builder-check-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  code:
-    name: "Code check"
-    uses: wrk-flow/reusable-workflows/.github/workflows/php-check.yml@b0886c7fa81dab2fb2615c06eb66e94711652056
-    secrets: inherit
-
-  tests:
-    name: "Run tests"
+  qa:
+    name: PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-version: [ "8.1", "8.2" ]
-    uses: wrk-flow/reusable-workflows/.github/workflows/php-tests.yml@7b6e90f753beb05d979bf4ad39a009b353a7c6cc
-    secrets: inherit
-
+        php: ['8.3', '8.4', '8.5']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: simplexml
+          tools: composer:v2
+          coverage: none
+      - run: composer install --no-interaction --prefer-dist
+      - run: composer lint:upgrade:check
+      - run: composer lint:check
+      - run: composer analyse
+      - run: composer test

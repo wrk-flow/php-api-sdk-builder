@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Testing\Factories;
 
@@ -38,6 +36,7 @@ final class TestSDKContainerFactory implements SDKContainerFactoryContract
             makeGiven: static fn (Closure $make) => $make(EndpointDIEntityFactory::make(api: $api)),
         );
         assert($result instanceof $endpointClass, 'Binding must be instance of ' . EndpointInterface::class);
+
         return $result;
     }
 
@@ -95,6 +94,7 @@ final class TestSDKContainerFactory implements SDKContainerFactoryContract
 
         if ($make instanceof Closure === false) {
             assert($make instanceof $abstract, 'Binding must be instance of ' . $abstract);
+
             return $make;
         }
 

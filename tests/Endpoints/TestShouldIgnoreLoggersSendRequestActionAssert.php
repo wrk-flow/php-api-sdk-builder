@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilderTests\Endpoints;
 
@@ -36,7 +34,7 @@ final class TestShouldIgnoreLoggersSendRequestActionAssert implements SendReques
         array $headers = [],
         int|array|null $expectedResponseStatusCode = null,
         ?ResponseInterface $fakedResponse = null,
-        ?Closure $shouldIgnoreLoggersOnError = null
+        ?Closure $shouldIgnoreLoggersOnError = null,
     ): AbstractResponse {
         Assert::assertNotNull($shouldIgnoreLoggersOnError, 'AbstractEndpoint always builds closure');
         Assert::assertEquals($this->expectedIgnoreLoggers, $shouldIgnoreLoggersOnError($this->testException));

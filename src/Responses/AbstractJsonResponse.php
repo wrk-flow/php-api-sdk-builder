@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Responses;
 
@@ -12,7 +10,7 @@ abstract class AbstractJsonResponse extends AbstractResponse implements BodyIsJs
 {
     public function __construct(
         ResponseInterface $response,
-        protected readonly GetValue $body
+        protected readonly GetValue $body,
     ) {
         parent::__construct($response);
     }

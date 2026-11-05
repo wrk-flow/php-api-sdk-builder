@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Laravel;
 
@@ -72,9 +70,11 @@ final class LaravelServiceProvider extends ServiceProvider
 
         $this->callAfterResolving(Schedule::class, static function (Schedule $schedule) use ($config): void {
             $clearAt = $config->getTimeForClearSchedule();
+
             if ($clearAt === null) {
                 return;
             }
+
             $schedule
                 ->command(ClearFileLogsCommand::class)
                 ->dailyAt($clearAt);
@@ -91,6 +91,7 @@ final class LaravelServiceProvider extends ServiceProvider
     {
         $object = $container->make($class);
         assert($object instanceof $class);
+
         return $object;
     }
 
@@ -100,9 +101,10 @@ final class LaravelServiceProvider extends ServiceProvider
         assert($fileManager instanceof FilesystemManager);
 
         $disk = $fileManager->disk();
+
         if ($disk instanceof FilesystemAdapter === false) {
             throw new LogicException(
-                'FilesystemManager::disk() must return an instance of FilesystemAdapter for FileLogger to work'
+                'FilesystemManager::disk() must return an instance of FilesystemAdapter for FileLogger to work',
             );
         }
 
@@ -112,7 +114,7 @@ final class LaravelServiceProvider extends ServiceProvider
     protected static function getConfig(Container $container): ApiSdkConfig
     {
         $config = self::make(container: $container, class: ApiSdkConfig::class);
-        assert($config instanceof ApiSdkConfig);
+
         return $config;
     }
 
@@ -143,7 +145,7 @@ final class LaravelServiceProvider extends ServiceProvider
                 $loggerConfig = self::make(container: $container, class: LoggerConfigEntity::class);
 
                 return $makeApiFactory->execute(loggerConfig: $loggerConfig);
-            }
+            },
         );
     }
 
@@ -151,7 +153,7 @@ final class LaravelServiceProvider extends ServiceProvider
     {
         $this->app->singleton(
             abstract: BuildRequestLogFileActionContract::class,
-            concrete: BuildRequestHttpFileAction::class
+            concrete: BuildRequestHttpFileAction::class,
         );
         $this->app->singleton(abstract: ClearFileLogsAction::class, concrete: ClearFileLogsAction::class);
         $this->app->singleton(abstract: FileLogPathServiceContract::class, concrete: FileLogPathService::class);
@@ -165,7 +167,7 @@ final class LaravelServiceProvider extends ServiceProvider
         // if it would break some package usage... So lets be explicit.
         $this->app->bind(
             abstract: self::KeyFilesystemOperator,
-            concrete: static fn (Container $container) => self::getFileSystemOperator($container)
+            concrete: static fn (Container $container) => self::getFileSystemOperator($container),
         );
         $this->app
             ->when(FileLogger::class)
@@ -187,6 +189,7 @@ final class LaravelServiceProvider extends ServiceProvider
     {
         $events = $this->app->get('events');
         assert($events instanceof Dispatcher);
+
         return $events;
     }
 
@@ -210,10 +213,10 @@ final class LaravelServiceProvider extends ServiceProvider
                 $innerException = new ConnectionException(
                     $event->exception->getMessage(),
                     $event->exception->getCode(),
-                    $event->exception
+                    $event->exception,
                 );
                 $events->dispatch(new ConnectionFailed(new Request($event->request), $innerException));
-            }
+            },
         );
 
         $events->listen(
@@ -222,10 +225,10 @@ final class LaravelServiceProvider extends ServiceProvider
                 $events = $this->getEventDispatcher();
 
                 $newEvent = new ResponseReceived(new Request($event->request), new Response(
-                    $event->exception->getResponse()
+                    $event->exception->getResponse(),
                 ));
                 $events->dispatch($newEvent);
-            }
+            },
         );
 
         $events->listen(
@@ -234,10 +237,10 @@ final class LaravelServiceProvider extends ServiceProvider
                 $events = $this->getEventDispatcher();
 
                 $newEvent = new ResponseReceived(new Request($event->request), new Response(
-                    $event->response->getResponse()
+                    $event->response->getResponse(),
                 ));
                 $events->dispatch($newEvent);
-            }
+            },
         );
     }
 }

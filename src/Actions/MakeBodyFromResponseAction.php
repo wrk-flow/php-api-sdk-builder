@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Actions;
 
@@ -27,8 +25,10 @@ class MakeBodyFromResponseAction
         }
 
         $encoding = strtolower($response->getHeaderLine('Content-Encoding'));
+
         if ($encoding === 'gzip' || $encoding === 'deflate') {
             $stream = $response->getBody();
+
             // Nyholm auto implements the stream with gzip/deflate
             if (! ($stream instanceof Stream)) {
                 $response = $response
@@ -51,6 +51,7 @@ class MakeBodyFromResponseAction
     protected function convertToJson(ResponseInterface $response): GetValue
     {
         $json = null;
+
         try {
             $content = (string) $response->getBody();
             $json = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
@@ -65,7 +66,7 @@ class MakeBodyFromResponseAction
                 $response,
                 'Failed to build json: ' . $jsonException->getMessage(),
                 $json,
-                $jsonException
+                $jsonException,
             );
         }
     }

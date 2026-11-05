@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Endpoints;
 
@@ -20,7 +18,7 @@ abstract class AbstractFakeEndpoint extends AbstractEndpoint
     public function __construct(
         EndpointDIEntity $di,
         protected readonly GetValueFactory $getValueFactory,
-        protected readonly BuildHeadersAction $buildHeadersAction
+        protected readonly BuildHeadersAction $buildHeadersAction,
     ) {
         parent::__construct($di);
     }
@@ -42,7 +40,7 @@ abstract class AbstractFakeEndpoint extends AbstractEndpoint
         GetValue|StreamInterface|null $responseBody = null,
         OptionsInterface|StreamInterface|string|null $requestBody = null,
         array $headers = [],
-        ?int $expectedResponseStatusCode = null
+        ?int $expectedResponseStatusCode = null,
     ): AbstractResponse {
         $responseHeaders = [];
         $response = $this->factory()
@@ -56,6 +54,7 @@ abstract class AbstractFakeEndpoint extends AbstractEndpoint
 
             $responseHeaders = [];
             $rawBody = $responseBody->data->get();
+
             if ($rawBody instanceof SimpleXMLElement) {
                 $responseHeaders[] = new XMLHeaders();
 
@@ -87,7 +86,7 @@ abstract class AbstractFakeEndpoint extends AbstractEndpoint
             uri: $this->uri(),
             body: $requestBody,
             headers: array_merge($headers, $responseHeaders),
-            expectedResponseStatusCode: $expectedResponseStatusCode
+            expectedResponseStatusCode: $expectedResponseStatusCode,
         );
     }
 }

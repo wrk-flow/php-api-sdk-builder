@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Responses;
 
@@ -12,7 +10,7 @@ abstract class AbstractXMLResponse extends AbstractResponse implements BodyIsXml
 {
     public function __construct(
         ResponseInterface $response,
-        protected GetValue $body
+        protected GetValue $body,
     ) {
         parent::__construct($response);
     }

@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Endpoints;
 
@@ -55,30 +53,31 @@ abstract class AbstractEndpoint implements EndpointInterface
                     return [FileLoggerContract::class];
                 }
             }
+
             return [];
         });
     }
 
-    final protected function shouldIgnoreLoggersOnException(): ?Closure
+    final protected function shouldIgnoreLoggersOnException(): Closure
     {
         return function (Throwable $throwable): array {
             $return = [];
             $globalClosure = $this->di->api()
                 ->shouldIgnoreLoggersOnException();
 
-            if ($globalClosure !== null) {
+            if ($globalClosure instanceof Closure) {
                 $return += $globalClosure($throwable);
             }
 
             $localClosure = $this->shouldIgnoreLoggersOnException;
-            if ($localClosure !== null) {
+
+            if ($localClosure instanceof Closure) {
                 $return += $localClosure($throwable);
             }
 
             return $return;
         };
     }
-
 
     /**
      * Appends to base path in uri. Must start with /.
@@ -94,7 +93,6 @@ abstract class AbstractEndpoint implements EndpointInterface
 
         return $uri->withPath($uri->getPath() . $basePath . $appendPath);
     }
-
 
     /**
      * @template TResponse of AbstractResponse

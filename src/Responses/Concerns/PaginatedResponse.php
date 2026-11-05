@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Responses\Concerns;
 
@@ -10,11 +8,8 @@ namespace WrkFlow\ApiSdkBuilder\Responses\Concerns;
 trait PaginatedResponse
 {
     protected int $itemsPerPage;
-
     protected int $totalItems;
-
     protected int $currentPage;
-
     protected int $totalPages;
 
     public function getItemsPerPage(): int

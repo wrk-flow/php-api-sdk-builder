@@ -4,7 +4,7 @@ subtitle: 'This package helps you build PHP clients for external APIs with depen
 position: 1
 ---
 
-<img src="https://img.shields.io/badge/PHPStan-8-blue" class="inline-flex" style="margin: 0;" /> 
+<img src="https://img.shields.io/badge/PHPStan-9-blue" class="inline-flex" style="margin: 0;" />
 <img src="https://img.shields.io/badge/PHP-8.1-B0B3D6"  class="inline-flex" style="margin: 0;" />
 <img src="https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/pionl/bdae700e21749c3532d7961f1d8b252b/raw/coverage.json"  class="inline-flex" style="margin: 0;" />
 
@@ -28,11 +28,3 @@ position: 1
 ```bash
 composer require wrkflow/php-api-sdk-builder
 ```
-
-## APIs packages
-
-> List of APIs made with this package
-
-- Maggelano Channel manager - _TODO_
-
-

@@ -1,10 +1,10 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Laravel\Configs;
 
+use InvalidArgumentException;
 use WrkFlow\ApiSdkBuilder\Log\Entities\LoggersMapEntity;
+use WrkFlow\ApiSdkBuilder\Log\Interfaces\ApiLoggerInterface;
 
 class ApiSdkConfig extends AbstractConfig
 {
@@ -18,7 +18,23 @@ class ApiSdkConfig extends AbstractConfig
 
     public function getLoggers(): LoggersMapEntity
     {
-        return new LoggersMapEntity($this->config->getArray([self::KeyLogging, self::KeyLoggers]));
+        $loggers = [];
+        foreach ($this->config->getArray([self::KeyLogging, self::KeyLoggers]) as $name => $classes) {
+            if (! is_string($name) || ! is_array($classes)) {
+                throw new InvalidArgumentException('Logger configuration must map string names to arrays of logger classes.');
+            }
+
+            $loggers[$name] = [];
+            foreach ($classes as $class) {
+                if (! is_string($class) || ! is_a($class, ApiLoggerInterface::class, true)) {
+                    throw new InvalidArgumentException('Configured logger must implement ' . ApiLoggerInterface::class);
+                }
+
+                $loggers[$name][] = $class;
+            }
+        }
+
+        return new LoggersMapEntity($loggers);
     }
 
     public function getLogging(): string

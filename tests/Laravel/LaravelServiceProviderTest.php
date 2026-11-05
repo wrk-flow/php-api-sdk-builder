@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilderTests\Laravel;
 
@@ -18,7 +16,7 @@ class LaravelServiceProviderTest extends TestCase
     {
         foreach (LoggerConstants::DefaultLoggersMap as $loggers) {
             foreach ($loggers as $logger) {
-                $this->assertInstanceOf(expected: ApiLoggerInterface::class, actual: $this->app()->make($logger));
+                $this->assertInstanceOf(ApiLoggerInterface::class, $this->app()->make($logger));
             }
         }
     }
@@ -55,22 +53,22 @@ class LaravelServiceProviderTest extends TestCase
         $logger = $this->make(LoggerConfigEntity::class);
 
         $this->assertEquals(
-            expected: new LoggerConfigEntity(
+            new LoggerConfigEntity(
                 logger: '*:info_file',
                 loggersMap: new LoggersMapEntity(LoggerConstants::DefaultLoggersMap),
                 fileBaseDir: 'requests',
                 keepLogFilesForDays: 14,
             ),
-            actual: $logger,
+            $logger,
         );
     }
 
     public function testFilesystemOperatorIsInjectable(): void
     {
-        $this->assertInstanceOf(expected: FileLogger::class, actual: $this->app() ->make(FileLogger::class));
+        $this->assertInstanceOf(FileLogger::class, $this->app()->make(FileLogger::class));
         $this->assertInstanceOf(
-            expected: ClearFileLogsAction::class,
-            actual: $this->app()
+            ClearFileLogsAction::class,
+            $this->app()
                 ->make(ClearFileLogsAction::class),
         );
     }

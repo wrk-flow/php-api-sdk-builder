@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilderTests\Testing\Endpoints;
 
@@ -29,8 +27,8 @@ class EndpointTestCaseTest extends EndpointTestCase
     {
         $this->assertEndpoint(
             call: static fn (EndpointDIEntity $di) => (new JsonEndpoint($di))->store(),
-            expectedMethod: 'POST',
             expectedUri: '/json',
+            expectedMethod: 'POST',
             expectedHeaders: self::ExpectedHeaders,
         );
     }

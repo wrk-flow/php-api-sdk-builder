@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Laravel;
 
@@ -10,7 +8,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 class LaravelPsrEventDispatcher implements EventDispatcherInterface
 {
     public function __construct(
-        private readonly Dispatcher $dispatcher
+        private readonly Dispatcher $dispatcher,
     ) {
     }
 

@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Testing\Responses;
 
@@ -13,7 +11,7 @@ class StringStream implements StreamInterface, Stringable
     protected int $offset = 0;
 
     public function __construct(
-        public string $string
+        public string $string,
     ) {
     }
 

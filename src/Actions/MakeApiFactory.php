@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Actions;
 
@@ -31,18 +29,18 @@ class MakeApiFactory
     {
         $request = $this->containerOr(
             interface: RequestFactoryInterface::class,
-            create: static fn () => Psr17FactoryDiscovery::findRequestFactory()
+            create: static fn () => Psr17FactoryDiscovery::findRequestFactory(),
         );
 
         $client = $this->containerOr(ClientInterface::class, static fn () => Psr18ClientDiscovery::find());
         $response = $this->containerOr(
             interface: ResponseFactoryInterface::class,
-            create: static fn () => Psr17FactoryDiscovery::findResponseFactory()
+            create: static fn () => Psr17FactoryDiscovery::findResponseFactory(),
         );
 
         $stream = $this->containerOr(
             interface: StreamFactoryInterface::class,
-            create: static fn () => Psr17FactoryDiscovery::findStreamFactory()
+            create: static fn () => Psr17FactoryDiscovery::findStreamFactory(),
         );
 
         $eventDispatcher = $this->container->has(EventDispatcherInterface::class)
@@ -56,7 +54,7 @@ class MakeApiFactory
             container: $this->container,
             response: $response,
             eventDispatcher: $eventDispatcher,
-            loggerConfig: $loggerConfig
+            loggerConfig: $loggerConfig,
         );
     }
 

@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilderTests\Laravel;
 
@@ -26,6 +24,7 @@ class TestFakeApiTest extends ApiTestCase
 
         $this->assertEquals(false, $response->success);
     }
+
     protected function createApiEnvironment(): AbstractEnvironment
     {
         return new FakeEnvironment();

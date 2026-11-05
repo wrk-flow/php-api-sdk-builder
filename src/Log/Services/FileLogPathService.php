@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilder\Log\Services;
 
@@ -34,7 +32,7 @@ class FileLogPathService implements FileLogPathServiceContract
                     ->getHost(),
                 $date->format('H'),
                 $date->format(DATE_ATOM) . $cleanPath . ($type === null ? '' : '-' . $type) . '-' . $id,
-            ]
+            ],
         ));
     }
 

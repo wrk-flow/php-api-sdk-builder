@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilderTests\Log\Actions;
 
@@ -22,13 +20,13 @@ final class GetExtensionFromContentTypeActionTest extends TestCase
     public function testExecute(string $contentType, string $expectedExtension): void
     {
         $this->assertEquals(
-            expected: $expectedExtension,
-            actual: $this->getExtensionFromContentTypeAction->execute($contentType),
-            message: sprintf('Content type %s should return %s extension', $contentType, $expectedExtension),
+            $expectedExtension,
+            $this->getExtensionFromContentTypeAction->execute($contentType),
+            sprintf('Content type %s should return %s extension', $contentType, $expectedExtension),
         );
     }
 
-    public function contentTypeProvider(): array
+    public static function contentTypeProvider(): array
     {
         return [
             ['application/json', 'json'],

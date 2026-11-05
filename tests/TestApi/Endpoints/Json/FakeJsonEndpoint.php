@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace WrkFlow\ApiSdkBuilderTests\TestApi\Endpoints\Json;
 
@@ -16,7 +14,7 @@ final class FakeJsonEndpoint extends AbstractFakeEndpoint implements JsonEndpoin
             responseClass: JsonResponse::class,
             responseBody: new GetValue(new ArrayData([
                 JsonResponse::KeySuccess => false,
-            ]))
+            ])),
         );
     }
 }
