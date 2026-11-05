@@ -13,8 +13,11 @@
 ### 🤖 Package AI integration
 
 - Register the general `$api-sdk-builder` skill and short package rules through `extra["strictphp/conventions"]`.
-- Replace the old Larastrict-specific skill name and metadata key. Migrate old generated files manually.
 - Keep Larastrict placement and injection integration optional. Normal SDK development uses StrictPHP.
+
+### 📦 Release archives
+
+- Exclude vendor dependencies, local lock files, test caches, and development files from Composer archives.
 
 ### 🐛 Configuration validation
 

@@ -5,33 +5,14 @@ subTitle: Tools for testing.
 position: 17
 ---
 
-## Concerns
+## Typed response data
 
-Traits that helps you de-duplicate code.
+JSON and XML responses expose a `Wrkflow\GetValue\GetValue` through `body()`.
+Use its typed getters to read data, such as `getRequiredString()`,
+`getRequiredInt()`, and `getRequiredBool()`. Use nullable getters when the API
+allows a missing value.
 
-### WorksWithJson
-
-Trait that allows you to access values from an array with type safe manner.
-
-```php
-/**
- * @param array<string, mixed> $data
- */
-public function getInt(array $data, string $key): ?int;
-
-/**
- * @param array<string, mixed> $data
- */
-public function getFloat(array $data, string $key): ?float;
-
-/**
- * @param array<string, mixed> $data
- */
-public function getBool(array $data, string $key): ?bool;
-
-public function floatVal(mixed $value): ?float;
-
-public function intVal(mixed $value): ?int;
-
-public function boolVal(mixed $value): ?bool;
-```
+For nested records, use `getRequiredArrayGetter()` and map the record to a typed
+Entity. Item responses can apply a `GetValueTransformerContract` to each record.
+Inspect the installed `wrkflow/php-get-typed-value` version for available getters
+and transformer signatures. See [Responses](/architecture/responses).

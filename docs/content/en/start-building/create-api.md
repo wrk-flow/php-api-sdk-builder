@@ -4,113 +4,34 @@ category: Start building
 position: 21
 ---
 
-This tutorial will guide you to create your OWN as open source. If you need private usage, just add it to your namespace
-domain.
+Create an environment for the API's URL and credentials. See
+[Environments](/architecture/environments) for a complete `LiveEnvironment` example.
 
-Using namespace `MaggelanoApi` in `src` directory.
-
-## 1. Create you environment
-
-First you want set up the base url and get some additional data from the consumer. For this we will create environment.
-
-Create file at `src/Environments/LiveEnvironment.php` and implement uri. This is not the place to set base `headers` for
-your API.
+Extend `AbstractApi` and add a typed accessor for each endpoint:
 
 ```php
-namespace MaggelanoApi\Environments;
+namespace ExampleSdk;
 
-use \WrkFlow\ApiSdkBuilder\Environments\AbstractEnvironment;
-use \JustSteveKing\UriBuilder\Uri;
-
-class LiveEnvironment  extends AbstractEnvironment  {
-    public function uri(): Uri {
-        return Uri::fromString('https://mgapi.mainapps.com/api/magellano');
-    }
-}
-```
-
-> Leave $headers if you want to allow custom headers. Can be used to pass UserAgent header.
-
-You can override `__constructor` for passing any data you want. Environment can be accessed from endpoints using:
-
-```php
-$this->api->environment()
-```
-
-### Authorization via query
-
-1. Override `__construct` and add new property `public readonly string $apiKey`. Make it public and readonly.
-2. Use `addQueryParam` function on the uri. This will ensure that all built URIs will have the query parameter.
-
-```php
-namespace MaggelanoApi\Environments;
-
-use \WrkFlow\ApiSdkBuilder\Environments\AbstractEnvironment;
-use \JustSteveKing\UriBuilder\Uri;
-
-class LiveEnvironment  extends AbstractEnvironment  {
-    public function __construct(public readonly string $apiKey, array $headers = []) {
-        parent::__construct($headers)
-    }
-    
-    public function uri(): Uri {
-        return Uri::fromString('https://mgapi.mainapps.com/api/magellano')
-            ->addQueryParam('apiKey', $this->apiKey);
-    }
-}
-```
-
-### Authorization via header (Bearer token)
-
-1. Override `__construct` and add new property `public readonly string $apiKey`. Make it public and readonly.
-2. Override `headers() : array` function and use `BearerTokenAuthorizationHeader` header. Do not forget to merge base
-   headers.
-
-```php
-namespace MaggelanoApi\Environments;
-
-use WrkFlow\ApiSdkBuilder\Headers\BearerTokenAuthorizationHeader;
-use \WrkFlow\ApiSdkBuilder\Environments\AbstractEnvironment;
-
-class LiveEnvironment extends AbstractEnvironment  {
-    public function __construct(public readonly string $apiKey, array $headers = []) {
-        parent::__construct($headers)
-    }
-    
-    public function headers() : array {
-        return array_merge(parent::headers(), [new BearerTokenAuthorizationHeader($this->apiKey)]);
-    }
-}
-```
-
-## 2. Create API class
-
-1. Create a file located in `src/MaggelanoApi.php`
-2. Extend `WrkFlow\ApiSdkBuilder\AbstractApi`
-
-```php
-namespace MagellanoApi;
-
-use App\ChannelManager\Magellano\Api\Endpoints\Units\UnitsEndpoint;
-use App\ChannelManager\Magellano\Api\Endpoints\UnitsAvailabilities\UnitsAvailabilitiesEndpoint;
+use ExampleSdk\Endpoints\Units\UnitsEndpoint;
 use WrkFlow\ApiSdkBuilder\AbstractApi;
-use WrkFlow\ApiSdkBuilder\Headers\JsonHeaders;
 
-class MagellanoApi extends AbstractApi
+final class ExampleApi extends AbstractApi
 {
-    
+    public function headers(): array
+    {
+        return [];
+    }
+
+    public function units(): UnitsEndpoint
+    {
+        return $this->makeEndpoint(UnitsEndpoint::class);
+    }
 }
 ```
 
-### Implement headers
-
-For this example we want to tell API that we are sending JSON, and we want to receive JSON data.
-
-If you do not want any headers set then return empty array.
-
-```php
-public function headers(): array
-{
-    return [new JsonHeaders()];
-}
-```
+The API implements `headers(): array` for API-wide defaults. Return an empty
+array when the environment and endpoints provide all headers. Keep credentials in the environment. Supply environment-wide headers through
+its `headers()` method and operation-specific headers through endpoint calls.
+The API receives an environment and an `ApiFactoryContract` through its inherited
+constructor. See [Create endpoint](/start-building/create-endpoint) and
+[Use your API](/start-building/use-it).

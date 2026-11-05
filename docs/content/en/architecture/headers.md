@@ -33,7 +33,7 @@ class AcceptsJsonHeaders implements HeadersInterface
     public function headers(): array
     {
         return [
-            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
         ];
     }
 }
@@ -50,7 +50,7 @@ class JsonHeaders implements HeadersInterface
     public function headers(): array
     {
         return [
-            new JsonContentTypeHeaders(), 
+            new JsonContentTypeHeaders(),
             new AcceptsJsonHeaders(),
             'X-test' => 'test',
         ];

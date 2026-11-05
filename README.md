@@ -29,12 +29,6 @@ This package helps you build PHP clients for external APIs with dependency injec
 
 [📖 Read the documentation](https://php-sdk-builder.wrk-flow.com)
 
-## APIs packages
-
-> List of APIs made with this package
-
-- Maggelano Channel manager - _TODO_
-
 ## LaraStrict class placement
 
 With `phpstan/extension-installer`, the SDK placement extension loads
@@ -52,7 +46,7 @@ includes:
 ```
 
 Entities may then stay beside their endpoint in `Endpoints/{endpoint}`, including
-`App/Confirme/Sdk/Endpoints/Verifiers/DeviceEntity.php`. Shared Entities keep their
+`App/Orders/Sdk/Endpoints/Devices/DeviceEntity.php`. Shared Entities keep their
 `Entities` folder. The extension also supports SDK roots named `Api` or another
 name. It requires an endpoint folder and preserves the other placement rules.
 
@@ -60,7 +54,7 @@ The adapter checks SDK constructor arguments by type and requires their factory
 names: endpoint `$di`, and response `$response`, `$body`, or `$container` when
 those arguments are accepted. `GetValue` in a response constructor is named
 `$body`; unrelated inputs and methods keep their names. Constructors may accept
-additional injected collaborators. With a current conventions version, those
+additional injected collaborators. Those
 collaborators receive naming and container-lookup checks. Endpoints and Responses
 are constructed through the SDK factory, so the adapter does not add them to the
 plain container-resolvability rule.

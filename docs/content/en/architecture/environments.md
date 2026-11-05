@@ -5,68 +5,39 @@ fullscreen: true
 position: 12
 ---
 
-> Place your environments in `YourApi\Environments` namespace and use Environment suffix.
-
-Environment is used for defining base URL and base headers for the given environment (like passing `Bearer` token).
-Environments are a good place to get "consumer" data to pass data to the API (credentials, headers, etc).
-
-If you are planning to have multiple environments I would recommend creating `AbstractYourApiEnvironment` and then
-creating something like `LiveEnvironment`.
-
-## Example
-
-Here as an example with passing API key using query parameter 🤔
+An environment supplies the base URI and headers for an API instance. Keep
+credentials and other caller-supplied configuration here. Extend
+`AbstractEnvironment` and implement `uri(): UriInterface`.
 
 ```php
-namespace MagellanoApi\Environments;
+namespace ExampleSdk\Environments;
 
-use JustSteveKing\UriBuilder\Uri;
+use GuzzleHttp\Psr7\Uri;
+use Psr\Http\Message\UriInterface;
 use WrkFlow\ApiSdkBuilder\Environments\AbstractEnvironment;
+use WrkFlow\ApiSdkBuilder\Headers\BearerTokenAuthorizationHeader;
 
-class LiveEnvironment extends AbstractEnvironment
+final class LiveEnvironment extends AbstractEnvironment
 {
-    public function __construct(
-        public readonly string $apiKey,
-        array $headers = [],
-    ) {
+    public function __construct(public readonly string $apiKey, array $headers = [])
+    {
         parent::__construct($headers);
     }
 
-    public function uri(): Uri
+    public function uri(): UriInterface
     {
-        return Uri::fromString('https://mgapi.mainapps.com/api/magellano')
-            ->addQueryParam('apiKey', $this->apiKey);
-    }
-}
-```
-
-## Headers
-
-Headers can be provided with the environment and can be built dynamically within the environment by extending `headers`:
-
-```php
-namespace MagellanoApi\Environments;
-
-use JustSteveKing\UriBuilder\Uri;
-use WrkFlow\ApiSdkBuilder\Environments\AbstractEnvironment;
-
-class LiveEnvironment extends AbstractEnvironment
-{
-    public function __construct(
-        public readonly string $apiKey,
-        array $headers = [],
-    ) {
-        parent::__construct($headers);
-    }
-
-    public function uri(): Uri
-    {
-        return Uri::fromString('https://mgapi.mainapps.com/api/magellano');
+        return new Uri('https://api.example.com/v1');
     }
 
     public function headers(): array
     {
-        return array_merge(parent::headers(), [new MyCustomHeader($this->apiKey)], 'X-KEY' => $this->apiKey);
+        return [...parent::headers(), new BearerTokenAuthorizationHeader($this->apiKey)];
     }
 }
 ```
+
+The parent constructor accepts headers. `addHeader()` mutates that header list;
+do not make the whole environment readonly when callers use this method.
+An endpoint can read its environment through `$this->di->api()->environment()`.
+For query-based authentication, build the query with `http_build_query()` and
+PSR URI `withQuery()`. Preserve any existing query parameters.

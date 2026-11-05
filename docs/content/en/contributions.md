@@ -30,29 +30,22 @@ Use the discussion functionality and propose your idea:
 
 ## Lint and tests
 
-```bash
-composer run check
-```
+Development requires PHP 8.3 or later. StrictPHP Conventions supplies Rector,
+ECS, and PHPStan. Install dependencies with `composer install`.
 
-We are using set of tools to ensure that the code is consistent. Run this before pushing your code changes.
-
-### [PHPStan](https://phpstan.org)
+Run `composer qa` to apply Rector and ECS, then run PHPStan and tests.
+For checks without code transformations, use:
 
 ```bash
-composer run check
+composer lint:upgrade:check
+composer lint:check
+composer analyse
+composer test
 ```
 
-### [Rector](https://github.com/rectorphp/rector)
-
-```bash
-composer run check
-```
-
-### [Easy coding standard](https://github.com/symplify/easy-coding-standard)
-
-```bash
-composer run check
-```
+The runtime SDK supports PHP 8.1 or later. Optional Larastrict adapter tests run
+with `composer test:larastrict` when compatible Larastrict conventions are
+available.
 
 ## Contributors
 

@@ -108,7 +108,23 @@
     },
     "archive": {
         "exclude": [
-            "/docs"
+            "/.agents",
+            "/.github",
+            "/.gitlab",
+            "/.idea",
+            "/.phpunit.cache",
+            "/.phpunit.result.cache",
+            "/composer.lock",
+            "/docs",
+            "/ecs.php",
+            "/phpstan-baseline.neon",
+            "/phpstan.neon",
+            "/phpstan/tests",
+            "/phpunit.xml",
+            "/phpunit.xml.bak",
+            "/rector.php",
+            "/tests",
+            "/vendor"
         ]
     },
     "funding": [
