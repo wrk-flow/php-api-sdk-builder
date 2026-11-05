@@ -29,7 +29,11 @@ This package helps you build PHP clients for external APIs with dependency injec
 
 [📖 Read the documentation](https://php-sdk-builder.wrk-flow.com)
 
-## LaraStrict class placement
+## Optional LaraStrict integration
+
+Class-placement rules belong to `larastrict/conventions`. This optional adapter
+extends those rules for SDK classes. Shared development tools and AI registration
+use `strictphp/conventions`.
 
 With `phpstan/extension-installer`, the SDK placement extension loads
 automatically when the LaraStrict `ClassPlacementExtension` interface is available.
@@ -59,14 +63,29 @@ collaborators receive naming and container-lookup checks. Endpoints and Response
 are constructed through the SDK factory, so the adapter does not add them to the
 plain container-resolvability rule.
 
-The package registers the general `api-sdk-builder` skill through
-`extra.strictphp/conventions.skills`. The `strictphp-sync-ai` command discovers it
-with the shared PHP skill. Read the skill for SDK conventions; LaraStrict-specific
-integration applies only when LaraStrict is installed.
-
 For extension development, install a compatible `larastrict/conventions` version
 as a development dependency, then run `composer test:larastrict`. These tests
 check the SDK allowance against the actual LaraStrict placement rule.
+
+## AI conventions
+
+The package registers the general `api-sdk-builder` skill through
+`extra.strictphp/conventions.skills`. To install the AI instructions in your
+application, use PHP 8.3 or later and install StrictPHP as a development dependency:
+
+```bash
+composer require --dev strictphp/conventions:^2.1
+vendor/bin/strictphp-sync-ai
+```
+
+Installing the SDK alone does not install StrictPHP. The sync command installs
+the SDK skill with the shared PHP skill and collects package rules in `AGENTS.md`.
+This works with or without LaraStrict. Read the skill for SDK conventions;
+LaraStrict-specific integration applies only when LaraStrict is installed.
+
+Run the sync command again after dependency updates, or configure Composer hooks
+as described in the [StrictPHP setup guide](https://github.com/strictphp/conventions/blob/main/doc/setup-guide.md).
+Use `vendor/bin/strictphp-sync-ai --check` to check that the instructions are current.
 
 ## Development
 

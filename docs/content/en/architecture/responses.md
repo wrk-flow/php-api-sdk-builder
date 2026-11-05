@@ -8,6 +8,9 @@ A response converts an HTTP result into typed application data. Extend
 `AbstractResponse` for a raw response, `AbstractJsonResponse` for JSON, or
 `AbstractXMLResponse` for XML. `getResponse()` returns the underlying PSR response.
 
+XML responses require PHP's SimpleXML extension (`ext-simplexml`). Install and
+enable it in each environment that uses XML responses.
+
 ## Status codes and errors
 
 The request action accepts status codes 200 and 201 by default. An endpoint can
@@ -15,9 +18,11 @@ set `expectedResponseStatusCode` to one code or an array. For an unexpected code
 `AbstractApi::createFailedResponseException()` selects `BadRequestException` for
 4xx responses and `ServerFailedException` for other codes.
 
-Body parsing and response construction errors are exposed as `ResponseException`
-with their original cause. A response class does not need an `isSuccessful()`
-method to participate in this flow.
+The request action wraps exceptions from body parsing and response construction
+in `ResponseException`, preserving the original cause. Existing
+`ResponseException` instances pass through unchanged. PHP `Error` instances,
+including `TypeError`, propagate unchanged. A response class does not need an
+`isSuccessful()` method to participate in this flow.
 
 ## JSON response
 
