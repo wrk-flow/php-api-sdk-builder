@@ -25,13 +25,13 @@ final class ExtensionDiscoveryTest extends TestCase
     }
     public function testOlderConventionsKeepPlacementWithoutUnsupportedInjectionSettings(): void
     {
-        $script = <<<'PHP'
+        $script = <<<'PHP_WRAP'
 namespace LaraStrict\Conventions\PHPStan {
     interface ClassPlacementExtension {}
     class ParameterNameRule { public function __construct() {} }
 }
 namespace { echo json_encode(require $argv[1]); }
-PHP;
+PHP_WRAP;
         $process = new Process([PHP_BINARY, '-r', $script, dirname(__DIR__, 2) . '/phpstan/extension.php']);
         $process->setTimeout(10);
         $process->run();
