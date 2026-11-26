@@ -15,7 +15,9 @@ final class BufferedResponseRequestBody implements StreamInterface
 {
     use StreamDecoratorTrait;
 
-    public function __construct(private StreamInterface $stream)
+    public function __construct(
+        private StreamInterface $stream,
+    )
     {
     }
 
