@@ -6,11 +6,13 @@ use Closure;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Promise\PromiseInterface;
 use Psr\Http\Message\RequestInterface;
+use WrkFlow\ApiSdkBuilder\Http\Services\TemporaryResponseStorageService;
 
 final class ResponseBufferMiddleware
 {
     public function __construct(
-        private readonly TemporaryResponseStorage $storage,
+        private readonly TemporaryResponseStorageService $storage,
+        private readonly bool $bufferAll = true,
     )
     {
     }
@@ -30,11 +32,20 @@ final class ResponseBufferMiddleware
     public function __invoke(callable $handler): Closure
     {
         return function (RequestInterface $request, array $options) use ($handler): PromiseInterface {
-            if (! ($options['stream'] ?? false)) {
+            // Use the SDK buffer in place of Guzzle's default temp stream so large bodies spill to our directory.
+            // Keep caller-provided sinks and leave live streams under the caller's control.
+            if (($this->bufferAll || $request->getBody() instanceof BufferedResponseRequestBody) && ! ($options['stream'] ?? false)) {
                 $options['sink'] ??= new BufferedResponseStream($this->storage);
             }
 
             return $handler($request, $options);
         };
+    }
+
+    public static function forceFor(RequestInterface $request): RequestInterface
+    {
+        $body = $request->getBody();
+
+        return $body instanceof BufferedResponseRequestBody ? $request : $request->withBody(new BufferedResponseRequestBody($body));
     }
 }

@@ -8,7 +8,7 @@ use GuzzleHttp\Psr7\Utils;
 use Psr\Http\Message\RequestInterface;
 use WrkFlow\ApiSdkBuilder\Actions\MakeBodyFromResponseAction;
 use WrkFlow\ApiSdkBuilder\Http\ResponseBufferMiddleware;
-use WrkFlow\ApiSdkBuilder\Http\TemporaryResponseStorage;
+use WrkFlow\ApiSdkBuilder\Http\Services\TemporaryResponseStorageService;
 use WrkFlow\ApiSdkBuilder\Responses\AbstractXMLResponse;
 use WrkFlow\ApiSdkBuilder\Responses\StreamedXmlBody;
 use Wrkflow\GetValue\GetValue;
@@ -145,7 +145,7 @@ if ($mode === 'buffered') {
         }
     });
 
-    $middleware = new ResponseBufferMiddleware(new TemporaryResponseStorage($directory));
+    $middleware = new ResponseBufferMiddleware(new TemporaryResponseStorageService($directory));
     $handler = $middleware(static function (RequestInterface $request, array $options) use ($input): PromiseInterface {
         $sink = $options['sink'];
         Utils::copyToStream($input, $sink);

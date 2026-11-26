@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace WrkFlow\ApiSdkBuilder\Http;
+namespace WrkFlow\ApiSdkBuilder\Http\Services;
 
 use DirectoryIterator;
 use GuzzleHttp\Psr7\FnStream;
@@ -8,7 +8,10 @@ use GuzzleHttp\Psr7\Stream;
 use Psr\Http\Message\StreamInterface;
 use WrkFlow\ApiSdkBuilder\Exceptions\ApiSdkRuntimeException;
 
-final class TemporaryResponseStorage
+/**
+ * Owns disk buffers and removes files that a stopped process left behind.
+ */
+final class TemporaryResponseStorageService
 {
     private const Prefix = 'api-sdk-response-';
 
@@ -45,6 +48,7 @@ final class TemporaryResponseStorage
 
         $resource = @fopen($path, 'r+b');
 
+        // Hold the lock while the response can still read the file. Cleanup can run in another process.
         if ($resource === false || ! flock($resource, LOCK_EX)) {
             if (is_resource($resource)) {
                 fclose($resource);
@@ -60,6 +64,7 @@ final class TemporaryResponseStorage
         return FnStream::decorate($stream, [
             'close' => static function () use ($stream, $path): void {
                 if ($stream->isReadable()) {
+                    // Remove the name while the stream still holds its lock.
                     @unlink($path);
                 }
 
@@ -102,6 +107,7 @@ final class TemporaryResponseStorage
             }
 
             try {
+                // A non-blocking lock skips active buffers without delaying the scheduled cleanup.
                 if (flock($file, LOCK_EX | LOCK_NB) && @unlink($path)) {
                     $deleted++;
                 }

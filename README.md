@@ -42,35 +42,20 @@ The SDK Guzzle middleware keeps responses up to 2 MiB in memory and spills large
 ```php
 use GuzzleHttp\Client;
 use WrkFlow\ApiSdkBuilder\Http\ResponseBufferMiddleware;
-use WrkFlow\ApiSdkBuilder\Http\TemporaryResponseStorage;
+use WrkFlow\ApiSdkBuilder\Http\Services\TemporaryResponseStorageService;
 
-$storage = new TemporaryResponseStorage('/path/to/private/response-tmp');
+$storage = new TemporaryResponseStorageService('/path/to/private/response-tmp');
 $middleware = new ResponseBufferMiddleware($storage);
 $client = new Client(['handler' => $middleware->stack()]);
 ```
 
 For an existing Guzzle handler stack, call `$stack->push($middleware)`. Calling `close()` on a response body deletes its buffer file. The same cleanup happens when PHP destroys the stream after its last reference is released. A response, iterator, or other retained reference can keep the stream and file alive. Closing XMLReader leaves the HTTP body available to those callers. If a process is killed before destruction, schedule `$storage->clearExpired(time() - 86400)` to remove abandoned buffers older than 24 hours. Cleanup skips locked files.
 
-Laravel applications can enable the SDK Guzzle middleware with `API_SDK_RESPONSE_BUFFERS_ENABLED=true`. By default, buffering uses `storage/app/api-sdk-response-tmp`. Set `API_SDK_RESPONSE_BUFFER_DIRECTORY` to use a different private, writable directory. If the application binds its own Guzzle client, add the middleware to that client's handler stack. Laravel then schedules `api-sdk:response-buffers:clear` hourly.
+Implement `WrkFlow\ApiSdkBuilder\Interfaces\BuffersResponsesInterface` on an SDK API class to enable buffering for its requests when global buffering is off. For a request sent outside the SDK, pass it through `ResponseBufferMiddleware::forceFor($request)` before sending it. The preference travels inside the PSR request body wrapper and adds no HTTP header. Explicit Guzzle sinks and live streams still take precedence.
 
-### Benchmark rate-plan XML
+Laravel installs the middleware on its default Guzzle client. Set `API_SDK_RESPONSE_BUFFERS_ENABLED=true` to use buffering for all requests on that transport. The default directory is `storage/app/api-sdk-response-tmp`. Set `API_SDK_RESPONSE_BUFFER_DIRECTORY` to use a different private, writable directory. If the application binds its own Guzzle client, push the container's `ResponseBufferMiddleware` onto that client's handler stack. Outside Laravel, use `new ResponseBufferMiddleware($storage, bufferAll: false)` to buffer only selected requests.
 
-Run the benchmark from an SDK source checkout with its Composer dependencies installed. SDK distribution archives exclude the benchmark tool. Use an existing response or generate a temporary one from a sample. The generator defaults to approximately 4 MiB and deletes the generated file after the run.
-
-```bash
-php tools/benchmark-rate-plan-xml.php compare /path/to/response.xml
-php tools/benchmark-rate-plan-xml.php compare-sample /path/to/sample.xml
-php tools/benchmark-rate-plan-xml.php compare-sample /path/to/sample.xml 32
-```
-
-The tool uses a fresh PHP process for each mode. It reports validation time, iteration time, peak PHP heap, peak process RSS, and rate counts. Compare counts and digests before comparing performance. The buffered mode reports the buffer write time separately and verifies that PHP deletes the spill file when it releases the response.
-
-The legacy parser can consume several times the file size in memory. For larger files you can run one mode. An optional final mode after the autoloader also works with `compare-sample`.
-
-```bash
-php tools/benchmark-rate-plan-xml.php buffered /path/to/response.xml
-php tools/benchmark-rate-plan-xml.php compare-sample /path/to/sample.xml 128 vendor/autoload.php buffered
-```
+Laravel schedules `api-sdk:response-buffers:clear` hourly regardless of the global setting. It can therefore clean up files left behind by a single SDK that opted in.
 
 ## Optional LaraStrict integration
 
@@ -143,3 +128,22 @@ Laravel dependencies support the adapter tests; the SDK does not require
 `larastrict/conventions` for its normal development workflow.
 
 For development read [CONTRIBUTIONS](https://php-sdk-builder.wrk-flow.com/contributions)
+
+### Benchmark rate-plan XML
+
+Run the benchmark from an SDK source checkout with its Composer dependencies installed. SDK distribution archives exclude the benchmark tool. Use an existing response or generate a temporary one from a sample. The generator defaults to approximately 4 MiB and deletes the generated file after the run.
+
+```bash
+php tools/benchmark-rate-plan-xml.php compare /path/to/response.xml
+php tools/benchmark-rate-plan-xml.php compare-sample /path/to/sample.xml
+php tools/benchmark-rate-plan-xml.php compare-sample /path/to/sample.xml 32
+```
+
+The tool uses a fresh PHP process for each mode. It reports validation time, iteration time, peak PHP heap, peak process RSS, and rate counts. Compare counts and digests before comparing performance. The buffered mode reports the buffer write time separately and verifies that PHP deletes the spill file when it releases the response.
+
+The legacy parser can consume several times the file size in memory. For larger files you can run one mode. An optional final mode after the autoloader also works with `compare-sample`.
+
+```bash
+php tools/benchmark-rate-plan-xml.php buffered /path/to/response.xml
+php tools/benchmark-rate-plan-xml.php compare-sample /path/to/sample.xml 128 vendor/autoload.php buffered
+```

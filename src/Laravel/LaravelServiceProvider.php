@@ -32,7 +32,7 @@ use WrkFlow\ApiSdkBuilder\Events\RequestFailedEvent;
 use WrkFlow\ApiSdkBuilder\Events\ResponseReceivedEvent;
 use WrkFlow\ApiSdkBuilder\Exceptions\ApiSdkRuntimeException;
 use WrkFlow\ApiSdkBuilder\Http\ResponseBufferMiddleware;
-use WrkFlow\ApiSdkBuilder\Http\TemporaryResponseStorage;
+use WrkFlow\ApiSdkBuilder\Http\Services\TemporaryResponseStorageService;
 use WrkFlow\ApiSdkBuilder\Interfaces\BodyIsStreamedXmlInterface;
 use WrkFlow\ApiSdkBuilder\Laravel\Commands\ClearFileLogsCommand;
 use WrkFlow\ApiSdkBuilder\Laravel\Commands\ClearResponseBuffersCommand;
@@ -63,17 +63,22 @@ final class LaravelServiceProvider extends ServiceProvider
     public function register(): void
     {
         parent::register();
+        $this->mergeConfigFrom(path: self::ConfigPath, key: self::ConfigKey);
 
         $this->bindApi();
         $this->bindEvents();
         $this->bindLogs();
-        $this->app->singleton(TemporaryResponseStorage::class, static function (Application $app): TemporaryResponseStorage {
+        $this->app->singleton(TemporaryResponseStorageService::class, static function (Application $app): TemporaryResponseStorageService {
             $directory = self::make($app, Repository::class)->get(self::ResponseBufferDirectory);
 
-            return new TemporaryResponseStorage(is_string($directory) && $directory !== ''
+            return new TemporaryResponseStorageService(is_string($directory) && $directory !== ''
                 ? $directory
                 : $app->storagePath('app/api-sdk-response-tmp'));
         });
+        $this->app->singleton(ResponseBufferMiddleware::class, static fn (Container $container): ResponseBufferMiddleware => new ResponseBufferMiddleware(
+            storage: self::make($container, TemporaryResponseStorageService::class),
+            bufferAll: self::make($container, Repository::class)->get(self::ResponseBuffersEnabled) === true,
+        ));
 
         if ($this->app->runningInConsole()) {
             $this->commands([ClearFileLogsCommand::class, ClearResponseBuffersCommand::class]);
@@ -82,8 +87,6 @@ final class LaravelServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->mergeConfigFrom(path: self::ConfigPath, key: self::ConfigKey);
-
         $config = self::getConfig($this->app);
         $this->passEventsToTelescopeHttpCatcher($config);
 
@@ -99,7 +102,12 @@ final class LaravelServiceProvider extends ServiceProvider
                 ->dailyAt($clearAt);
         });
 
-        if (self::make($this->app, Repository::class)->get(self::ResponseBuffersEnabled) === true) {
+        // Always clean abandoned files because an SDK can opt in without global buffering.
+        $this->callAfterResolving(Schedule::class, static function (Schedule $schedule): void {
+            $schedule->command(ClearResponseBuffersCommand::class)->hourly();
+        });
+
+        if (class_exists(Client::class) || self::make($this->app, Repository::class)->get(self::ResponseBuffersEnabled) === true) {
             $this->app->bindIf(ClientInterface::class, static function (Container $container): ClientInterface {
                 if (! class_exists(Client::class)) {
                     throw new ApiSdkRuntimeException('API SDK response buffering requires Guzzle or an explicitly configured HTTP client.');
@@ -110,10 +118,6 @@ final class LaravelServiceProvider extends ServiceProvider
                 return new Client([
                     'handler' => $middleware->stack(),
                 ]);
-            });
-
-            $this->callAfterResolving(Schedule::class, static function (Schedule $schedule): void {
-                $schedule->command(ClearResponseBuffersCommand::class)->hourly();
             });
         }
     }

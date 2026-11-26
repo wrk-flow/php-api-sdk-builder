@@ -3,6 +3,9 @@
 namespace WrkFlow\ApiSdkBuilderTests\Laravel;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Promise\Create;
+use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\FnStream;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
@@ -12,12 +15,17 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Http\Client\Events\ResponseReceived;
 use Illuminate\Support\Facades\Event;
 use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestInterface;
 use WrkFlow\ApiSdkBuilder\Actions\MakeApiFactory;
 use WrkFlow\ApiSdkBuilder\Contracts\ApiFactoryContract;
+use WrkFlow\ApiSdkBuilder\Contracts\SendRequestActionContract;
 use WrkFlow\ApiSdkBuilder\Events\RequestFailedEvent;
 use WrkFlow\ApiSdkBuilder\Events\ResponseReceivedEvent;
 use WrkFlow\ApiSdkBuilder\Exceptions\ResponseException;
+use WrkFlow\ApiSdkBuilder\Http\BufferedResponseStream;
+use WrkFlow\ApiSdkBuilder\Http\ResponseBufferMiddleware;
 use WrkFlow\ApiSdkBuilder\Interfaces\BodyIsStreamedXmlInterface;
+use WrkFlow\ApiSdkBuilder\Interfaces\BuffersResponsesInterface;
 use WrkFlow\ApiSdkBuilder\Laravel\LaravelServiceProvider;
 use WrkFlow\ApiSdkBuilder\Log\Actions\ClearFileLogsAction;
 use WrkFlow\ApiSdkBuilder\Log\Constants\LoggerConstants;
@@ -26,6 +34,9 @@ use WrkFlow\ApiSdkBuilder\Log\Entities\LoggersMapEntity;
 use WrkFlow\ApiSdkBuilder\Log\Interfaces\ApiLoggerInterface;
 use WrkFlow\ApiSdkBuilder\Log\Loggers\FileLogger;
 use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
+use WrkFlow\ApiSdkBuilder\Testing\Environments\TestingEnvironment;
+use WrkFlow\ApiSdkBuilderTests\TestApi\Endpoints\Json\JsonResponse;
+use WrkFlow\ApiSdkBuilderTests\TestApi\TestApi;
 
 class LaravelServiceProviderTest extends TestCase
 {
@@ -80,12 +91,9 @@ class LaravelServiceProviderTest extends TestCase
         );
     }
 
-    public function testResponseBufferCleanupUsesTheLaravelScheduleWhenOptedIn(): void
+    public function testResponseBufferCleanupIsScheduledWithGlobalBufferingDisabled(): void
     {
-        $app = $this->app();
-        $this->make(Repository::class)->set(LaravelServiceProvider::ResponseBuffersEnabled, true);
-        $provider = new LaravelServiceProvider($app);
-        $provider->boot();
+        self::assertFalse($this->make(Repository::class)->get(LaravelServiceProvider::ResponseBuffersEnabled));
 
         $schedule = $this->make(Schedule::class);
         $commands = [];
@@ -97,6 +105,39 @@ class LaravelServiceProviderTest extends TestCase
 
         self::assertSame(['0 * * * *'], $commands);
         self::assertInstanceOf(Client::class, $this->make(ApiFactoryContract::class)->client());
+    }
+
+    public function testOnlyTheOptedInSdkUsesTheCustomSinkWhenGlobalBufferingIsDisabled(): void
+    {
+        self::assertFalse($this->make(Repository::class)->get(LaravelServiceProvider::ResponseBuffersEnabled));
+
+        $usesSdkSink = [];
+        $stack = HandlerStack::create(static function (RequestInterface $request, array $options) use (&$usesSdkSink): PromiseInterface {
+            self::assertSame('payload', (string) $request->getBody());
+            self::assertSame('test', $request->getHeaderLine('X-Transport'));
+            $usesSdkSink[] = ($options['sink'] ?? null) instanceof BufferedResponseStream;
+
+            return Create::promiseFor(new Response(200, [], '{"success":true}'));
+        });
+        $stack->push($this->make(ResponseBufferMiddleware::class));
+        $this->app()->instance(ClientInterface::class, new Client([
+            'handler' => $stack,
+            'headers' => [
+                'X-Transport' => 'test',
+            ],
+        ]));
+        $factory = $this->make(MakeApiFactory::class)->execute();
+        $environment = new TestingEnvironment();
+        $ordinary = new TestApi($environment, $factory);
+        $buffered = new class($environment, $factory) extends TestApi implements BuffersResponsesInterface {
+        };
+        $send = $this->make(SendRequestActionContract::class);
+
+        foreach ([$ordinary, $buffered, $ordinary] as $api) {
+            $send->execute($api, new Request('POST', 'https://example.test', [], 'payload'), JsonResponse::class);
+        }
+
+        self::assertSame([false, true, false], $usesSdkSink);
     }
 
     public function testFilesystemOperatorIsInjectable(): void

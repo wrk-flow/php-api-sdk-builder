@@ -11,9 +11,9 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
 use WrkFlow\ApiSdkBuilder\Http\ResponseBufferMiddleware;
-use WrkFlow\ApiSdkBuilder\Http\TemporaryResponseStorage;
+use WrkFlow\ApiSdkBuilder\Http\Services\TemporaryResponseStorageService;
 
-final class TemporaryResponseStorageTest extends TestCase
+final class TemporaryResponseStorageServiceTest extends TestCase
 {
     private string $directory;
 
@@ -38,7 +38,7 @@ final class TemporaryResponseStorageTest extends TestCase
 
     public function testSmallResponsesStayInMemoryAndLargeResponsesReleaseTheDiskFile(): void
     {
-        $storage = new TemporaryResponseStorage($this->directory);
+        $storage = new TemporaryResponseStorageService($this->directory);
         $middleware = new ResponseBufferMiddleware($storage);
         $payload = 'small response';
         $handler = $middleware(static function (RequestInterface $request, array $options) use (&$payload): PromiseInterface {
@@ -85,7 +85,7 @@ final class TemporaryResponseStorageTest extends TestCase
             self::assertTrue(touch($file, time() - 172800));
         }
 
-        self::assertSame(1, (new TemporaryResponseStorage($this->directory))->clearExpired(time() - 86400));
+        self::assertSame(1, (new TemporaryResponseStorageService($this->directory))->clearExpired(time() - 86400));
         self::assertFileDoesNotExist($old);
         self::assertFileExists($new);
         self::assertFileExists($other);
@@ -93,7 +93,7 @@ final class TemporaryResponseStorageTest extends TestCase
 
     public function testDroppingTheLastReferenceClosesAndRemovesTheBuffer(): void
     {
-        $stream = (new TemporaryResponseStorage($this->directory))->createFile();
+        $stream = (new TemporaryResponseStorageService($this->directory))->createFile();
         $path = $stream->getMetadata('uri');
         self::assertIsString($path);
 
@@ -111,7 +111,7 @@ final class TemporaryResponseStorageTest extends TestCase
 
     public function testExplicitSinkAndUnbufferedRequestsArePreserved(): void
     {
-        $middleware = new ResponseBufferMiddleware(new TemporaryResponseStorage($this->directory));
+        $middleware = new ResponseBufferMiddleware(new TemporaryResponseStorageService($this->directory));
         $sink = Utils::streamFor();
         $handler = $middleware(static function (RequestInterface $request, array $options) use ($sink): PromiseInterface {
             if (($options['stream'] ?? false) === true) {
