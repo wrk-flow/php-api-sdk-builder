@@ -2,9 +2,13 @@
 
 namespace WrkFlow\ApiSdkBuilder\Laravel;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Utils;
+use Illuminate\Config\Repository;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Filesystem\FilesystemManager;
 use Illuminate\Http\Client\ConnectionException;
@@ -17,6 +21,7 @@ use Laravel\Telescope\Watchers\ClientRequestWatcher;
 use League\Flysystem\FilesystemOperator;
 use LogicException;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\Http\Client\ClientInterface;
 use WrkFlow\ApiSdkBuilder\Actions\MakeApiFactory;
 use WrkFlow\ApiSdkBuilder\Actions\SendRequestAction;
 use WrkFlow\ApiSdkBuilder\Contracts\ApiFactoryContract;
@@ -25,7 +30,11 @@ use WrkFlow\ApiSdkBuilder\Contracts\SendRequestActionContract;
 use WrkFlow\ApiSdkBuilder\Events\RequestConnectionFailedEvent;
 use WrkFlow\ApiSdkBuilder\Events\RequestFailedEvent;
 use WrkFlow\ApiSdkBuilder\Events\ResponseReceivedEvent;
+use WrkFlow\ApiSdkBuilder\Http\ResponseBufferMiddleware;
+use WrkFlow\ApiSdkBuilder\Http\Services\TemporaryResponseStorageService;
+use WrkFlow\ApiSdkBuilder\Interfaces\BodyIsStreamedXmlInterface;
 use WrkFlow\ApiSdkBuilder\Laravel\Commands\ClearFileLogsCommand;
+use WrkFlow\ApiSdkBuilder\Laravel\Commands\ClearResponseBuffersCommand;
 use WrkFlow\ApiSdkBuilder\Laravel\Configs\ApiSdkConfig;
 use WrkFlow\ApiSdkBuilder\Log\Actions\BuildRequestHttpFileAction;
 use WrkFlow\ApiSdkBuilder\Log\Actions\ClearFileLogsAction;
@@ -45,26 +54,36 @@ use WrkFlow\ApiSdkBuilder\Log\Services\FileLogPathService;
 final class LaravelServiceProvider extends ServiceProvider
 {
     public const KeyFilesystemOperator = 'api_sdk_filesystem_operator';
+    public const ResponseBufferDirectory = 'api_sdk.response_buffer_directory';
     private const ConfigPath = __DIR__ . '/Configs/api_sdk.php';
     private const ConfigKey = 'api_sdk';
 
     public function register(): void
     {
         parent::register();
+        $this->mergeConfigFrom(path: self::ConfigPath, key: self::ConfigKey);
 
         $this->bindApi();
         $this->bindEvents();
         $this->bindLogs();
+        $this->app->singleton(TemporaryResponseStorageService::class, static function (Application $app): TemporaryResponseStorageService {
+            $directory = self::make($app, Repository::class)->get(self::ResponseBufferDirectory);
+
+            return new TemporaryResponseStorageService(is_string($directory) && $directory !== ''
+                ? $directory
+                : $app->storagePath('app/api-sdk-response-tmp'));
+        });
+        $this->app->singleton(ResponseBufferMiddleware::class, static fn (Container $container): ResponseBufferMiddleware => new ResponseBufferMiddleware(
+            storage: self::make($container, TemporaryResponseStorageService::class),
+        ));
 
         if ($this->app->runningInConsole()) {
-            $this->commands([ClearFileLogsCommand::class]);
+            $this->commands([ClearFileLogsCommand::class, ClearResponseBuffersCommand::class]);
         }
     }
 
     public function boot(): void
     {
-        $this->mergeConfigFrom(path: self::ConfigPath, key: self::ConfigKey);
-
         $config = self::getConfig($this->app);
         $this->passEventsToTelescopeHttpCatcher($config);
 
@@ -79,6 +98,20 @@ final class LaravelServiceProvider extends ServiceProvider
                 ->command(ClearFileLogsCommand::class)
                 ->dailyAt($clearAt);
         });
+
+        $this->callAfterResolving(Schedule::class, static function (Schedule $schedule): void {
+            $schedule->command(ClearResponseBuffersCommand::class)->hourly();
+        });
+
+        if (class_exists(Client::class)) {
+            $this->app->bindIf(ClientInterface::class, static function (Container $container): ClientInterface {
+                $middleware = self::make($container, ResponseBufferMiddleware::class);
+
+                return new Client([
+                    'handler' => $middleware->stack(),
+                ]);
+            });
+        }
     }
 
     /**
@@ -222,11 +255,16 @@ final class LaravelServiceProvider extends ServiceProvider
         $events->listen(
             events: RequestFailedEvent::class,
             listener: function (RequestFailedEvent $event): void {
+                $response = $event->exception->getResponse();
+                $size = $response->getBody()->getSize();
+
+                if ($size === null || $size > 2 * 1024 * 1024) {
+                    $response = $response->withBody(Utils::streamFor());
+                }
+
                 $events = $this->getEventDispatcher();
 
-                $newEvent = new ResponseReceived(new Request($event->request), new Response(
-                    $event->exception->getResponse(),
-                ));
+                $newEvent = new ResponseReceived(new Request($event->request), new Response($response));
                 $events->dispatch($newEvent);
             },
         );
@@ -234,11 +272,16 @@ final class LaravelServiceProvider extends ServiceProvider
         $events->listen(
             events: ResponseReceivedEvent::class,
             listener: function (ResponseReceivedEvent $event): void {
+                $response = $event->response->getResponse();
+
+                // Telescope reads the whole body even when it purges the response later.
+                if ($event->response instanceof BodyIsStreamedXmlInterface) {
+                    $response = $response->withBody(Utils::streamFor());
+                }
+
                 $events = $this->getEventDispatcher();
 
-                $newEvent = new ResponseReceived(new Request($event->request), new Response(
-                    $event->response->getResponse(),
-                ));
+                $newEvent = new ResponseReceived(new Request($event->request), new Response($response));
                 $events->dispatch($newEvent);
             },
         );

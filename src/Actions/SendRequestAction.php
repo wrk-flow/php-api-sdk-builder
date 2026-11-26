@@ -15,7 +15,9 @@ use WrkFlow\ApiSdkBuilder\Events\RequestFailedEvent;
 use WrkFlow\ApiSdkBuilder\Events\ResponseReceivedEvent;
 use WrkFlow\ApiSdkBuilder\Events\SendingRequestEvent;
 use WrkFlow\ApiSdkBuilder\Exceptions\ResponseException;
+use WrkFlow\ApiSdkBuilder\Http\ResponseBufferMiddleware;
 use WrkFlow\ApiSdkBuilder\Interfaces\ApiInterface;
+use WrkFlow\ApiSdkBuilder\Interfaces\BuffersResponsesInterface;
 use WrkFlow\ApiSdkBuilder\Interfaces\EnvironmentFakeResponseInterface;
 use WrkFlow\ApiSdkBuilder\Interfaces\OptionsInterface;
 use WrkFlow\ApiSdkBuilder\Log\Entities\LoggerConfigEntity;
@@ -122,7 +124,7 @@ final class SendRequestAction implements SendRequestActionContract
 
             return $api->factory()
                 ->client()
-                ->sendRequest($request);
+                ->sendRequest($api instanceof BuffersResponsesInterface ? ResponseBufferMiddleware::forceFor($request) : $request);
         } catch (Exception $exception) {
             $this->rethrowIfPHPUnitException($exception);
 

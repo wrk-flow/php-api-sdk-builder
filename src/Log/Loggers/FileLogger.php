@@ -3,6 +3,7 @@
 namespace WrkFlow\ApiSdkBuilder\Log\Loggers;
 
 use Exception;
+use GuzzleHttp\Psr7\StreamWrapper;
 use League\Flysystem\FilesystemOperator;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -86,7 +87,24 @@ class FileLogger implements FileLoggerContract
             );
 
             $responseFilePath = $basePath . '.' . $extension;
-            $this->filesystemOperator->write(location: $responseFilePath, contents: (string) $response->getBody());
+            $body = $response->getBody();
+
+            if (! $body->isSeekable()) {
+                $this->filesystemOperator->write(location: $responseFilePath, contents: (string) $body);
+
+                return;
+            }
+
+            $position = $body->tell();
+            $body->rewind();
+            $resource = StreamWrapper::getResource($body);
+
+            try {
+                $this->filesystemOperator->writeStream($responseFilePath, $resource);
+            } finally {
+                fclose($resource);
+                $body->seek($position);
+            }
         } catch (Exception $exception) {
             $this->logger->error('Failed to write request to file', [
                 'exception' => $exception,

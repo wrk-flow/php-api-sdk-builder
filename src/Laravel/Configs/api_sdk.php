@@ -4,6 +4,8 @@ use WrkFlow\ApiSdkBuilder\Laravel\Configs\ApiSdkConfig;
 use WrkFlow\ApiSdkBuilder\Log\Constants\LoggerConstants;
 
 return [
+    'response_buffer_directory' => env('API_SDK_RESPONSE_BUFFER_DIRECTORY'),
+
     /**
      * Enable passing requests events to telescopes HTTP watcher.
      */
