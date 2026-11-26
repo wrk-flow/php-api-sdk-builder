@@ -29,6 +29,49 @@ This package helps you build PHP clients for external APIs with dependency injec
 
 [📖 Read the documentation](https://php-sdk-builder.wrk-flow.com)
 
+## Large XML responses
+
+Implement `BodyIsStreamedXmlInterface` on a response to skip the default whole-document XML parser. Construct `StreamedXmlBody` with the PSR response. Call `readHeader(['Success', 'Errors'])` to validate the document and read selected root children before applying updates. Use `elements(['RatePlans', 'RatePlan'])` to read matching elements one at a time. If attributes identify the elements you need, pass a filter as the second argument. The filter receives the XMLReader on the matching element and must leave it on that node. This feature requires XMLReader and a seekable response body.
+
+Use `mapElements($path, $map)` when you only need attributes or an XML fragment for another decoder. The callback receives the XMLReader on the matching element and must leave it there. This avoids importing the subtree into SimpleXML.
+
+On PHP 8.1 through 8.3, `XmlReaderStream` provides the URI wrapper that connects XMLReader to the PSR stream. PHP 8.4 and later use `XMLReader::fromStream()` directly. When the DOM extension is available, the parser imports each subtree into SimpleXML without a second XML parse. With only XMLReader and SimpleXML, it parses the serialized XML of each matching element.
+
+The SDK Guzzle middleware keeps responses up to 2 MiB in memory and spills larger responses to a private temporary directory. A disk buffer keeps the HTTP body seekable while limiting PHP heap usage. The parser can validate the complete response, rewind it, then load one matching XML subtree at a time. Any framework or standalone PHP application can install the middleware on its Guzzle client.
+
+```php
+use GuzzleHttp\Client;
+use WrkFlow\ApiSdkBuilder\Http\ResponseBufferMiddleware;
+use WrkFlow\ApiSdkBuilder\Http\TemporaryResponseStorage;
+
+$storage = new TemporaryResponseStorage('/path/to/private/response-tmp');
+$middleware = new ResponseBufferMiddleware($storage);
+$client = new Client(['handler' => $middleware->stack()]);
+```
+
+For an existing Guzzle handler stack, call `$stack->push($middleware)`. Calling `close()` on a response body deletes its buffer file. The same cleanup happens when PHP destroys the stream after its last reference is released. A response, iterator, or other retained reference can keep the stream and file alive. Closing XMLReader leaves the HTTP body available to those callers. If a process is killed before destruction, schedule `$storage->clearExpired(time() - 86400)` to remove abandoned buffers older than 24 hours. Cleanup skips locked files.
+
+Laravel applications can enable the SDK Guzzle middleware with `API_SDK_RESPONSE_BUFFERS_ENABLED=true`. By default, buffering uses `storage/app/api-sdk-response-tmp`. Set `API_SDK_RESPONSE_BUFFER_DIRECTORY` to use a different private, writable directory. If the application binds its own Guzzle client, add the middleware to that client's handler stack. Laravel then schedules `api-sdk:response-buffers:clear` hourly.
+
+### Benchmark rate-plan XML
+
+Run the benchmark from an SDK source checkout with its Composer dependencies installed. SDK distribution archives exclude the benchmark tool. Use an existing response or generate a temporary one from a sample. The generator defaults to approximately 4 MiB and deletes the generated file after the run.
+
+```bash
+php tools/benchmark-rate-plan-xml.php compare /path/to/response.xml
+php tools/benchmark-rate-plan-xml.php compare-sample /path/to/sample.xml
+php tools/benchmark-rate-plan-xml.php compare-sample /path/to/sample.xml 32
+```
+
+The tool uses a fresh PHP process for each mode. It reports validation time, iteration time, peak PHP heap, peak process RSS, and rate counts. Compare counts and digests before comparing performance. The buffered mode reports the buffer write time separately and verifies that PHP deletes the spill file when it releases the response.
+
+The legacy parser can consume several times the file size in memory. For larger files you can run one mode. An optional final mode after the autoloader also works with `compare-sample`.
+
+```bash
+php tools/benchmark-rate-plan-xml.php buffered /path/to/response.xml
+php tools/benchmark-rate-plan-xml.php compare-sample /path/to/sample.xml 128 vendor/autoload.php buffered
+```
+
 ## Optional LaraStrict integration
 
 Class-placement rules belong to `larastrict/conventions`. This optional adapter

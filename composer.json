@@ -34,6 +34,8 @@
         "strictphp/conventions": "^2.1"
     },
     "suggest": {
+        "ext-xmlreader": "For opt-in streamed XML responses.",
+        "guzzlehttp/guzzle": "For HTTP response buffering with Guzzle.",
         "laravel/framework": "SDKs work great with Laravel - solid container.",
         "wrkflow/larastrict": "Improve your Laravel code base with strict conventions."
     },
@@ -116,14 +118,15 @@
             "/.phpunit.result.cache",
             "/composer.lock",
             "/docs",
+            "[Ff]ixtures/",
             "/ecs.php",
             "/phpstan-baseline.neon",
             "/phpstan.neon",
-            "/phpstan/tests",
             "/phpunit.xml",
             "/phpunit.xml.bak",
             "/rector.php",
-            "/tests",
+            "tests/",
+            "tools/",
             "/vendor"
         ]
     },

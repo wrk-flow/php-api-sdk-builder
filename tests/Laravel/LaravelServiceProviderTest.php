@@ -2,13 +2,30 @@
 
 namespace WrkFlow\ApiSdkBuilderTests\Laravel;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\FnStream;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\Utils;
+use Illuminate\Config\Repository;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Http\Client\Events\ResponseReceived;
+use Illuminate\Support\Facades\Event;
+use Psr\Http\Client\ClientInterface;
+use WrkFlow\ApiSdkBuilder\Actions\MakeApiFactory;
+use WrkFlow\ApiSdkBuilder\Contracts\ApiFactoryContract;
+use WrkFlow\ApiSdkBuilder\Events\RequestFailedEvent;
+use WrkFlow\ApiSdkBuilder\Events\ResponseReceivedEvent;
+use WrkFlow\ApiSdkBuilder\Exceptions\ResponseException;
+use WrkFlow\ApiSdkBuilder\Interfaces\BodyIsStreamedXmlInterface;
+use WrkFlow\ApiSdkBuilder\Laravel\LaravelServiceProvider;
 use WrkFlow\ApiSdkBuilder\Log\Actions\ClearFileLogsAction;
 use WrkFlow\ApiSdkBuilder\Log\Constants\LoggerConstants;
 use WrkFlow\ApiSdkBuilder\Log\Entities\LoggerConfigEntity;
 use WrkFlow\ApiSdkBuilder\Log\Entities\LoggersMapEntity;
 use WrkFlow\ApiSdkBuilder\Log\Interfaces\ApiLoggerInterface;
 use WrkFlow\ApiSdkBuilder\Log\Loggers\FileLogger;
+use WrkFlow\ApiSdkBuilder\Responses\AbstractResponse;
 
 class LaravelServiceProviderTest extends TestCase
 {
@@ -63,6 +80,25 @@ class LaravelServiceProviderTest extends TestCase
         );
     }
 
+    public function testResponseBufferCleanupUsesTheLaravelScheduleWhenOptedIn(): void
+    {
+        $app = $this->app();
+        $this->make(Repository::class)->set(LaravelServiceProvider::ResponseBuffersEnabled, true);
+        $provider = new LaravelServiceProvider($app);
+        $provider->boot();
+
+        $schedule = $this->make(Schedule::class);
+        $commands = [];
+        foreach ($schedule->events() as $event) {
+            if ($event->command !== null && str_contains($event->command, 'api-sdk:response-buffers:clear')) {
+                $commands[] = $event->expression;
+            }
+        }
+
+        self::assertSame(['0 * * * *'], $commands);
+        self::assertInstanceOf(Client::class, $this->make(ApiFactoryContract::class)->client());
+    }
+
     public function testFilesystemOperatorIsInjectable(): void
     {
         $this->assertInstanceOf(FileLogger::class, $this->app()->make(FileLogger::class));
@@ -71,5 +107,54 @@ class LaravelServiceProviderTest extends TestCase
             $this->app()
                 ->make(ClearFileLogsAction::class),
         );
+    }
+
+    public function testMakeApiFactoryResolvesTheClientOnEachCall(): void
+    {
+        $this->app()->bind(ClientInterface::class, Client::class);
+        $makeApiFactory = $this->make(MakeApiFactory::class);
+
+        self::assertNotSame($makeApiFactory->execute()->client(), $makeApiFactory->execute()->client());
+    }
+
+    public function testTelescopeReceivesHeadersAndStatusForLargeFailuresAndStreamedResponses(): void
+    {
+        $events = Event::fake([ResponseReceived::class]);
+        $request = new Request('GET', 'https://example.test');
+        $headers = [
+            'Content-Type' => 'application/xml',
+            'X-Request-Id' => 'provider-id',
+        ];
+        $large = new Response(502, $headers, str_repeat('x', 2 * 1024 * 1024 + 1));
+        $large->getBody()->seek(1);
+        $streamed = new Response(200, $headers, '<Response/>');
+        $streamedResponse = new class($streamed) extends AbstractResponse implements BodyIsStreamedXmlInterface {
+        };
+        $small = new Response(400, $headers, '<Error/>');
+        $unknown = new Response(503, $headers, FnStream::decorate(Utils::streamFor('<Unknown/>'), [
+            'getSize' => static fn (): ?int => null,
+        ]));
+
+        $events->dispatch(new RequestFailedEvent('large', $request, new ResponseException($large), 0.1));
+        $events->dispatch(new ResponseReceivedEvent('streamed', $request, $streamedResponse, 0.1));
+        $events->dispatch(new RequestFailedEvent('small', $request, new ResponseException($small), 0.1));
+        $events->dispatch(new RequestFailedEvent('unknown', $request, new ResponseException($unknown), 0.1));
+
+        $events->assertDispatchedTimes(ResponseReceived::class, 4);
+        foreach ([$large, $streamed, $unknown] as $original) {
+            $events->assertDispatched(ResponseReceived::class, static fn(ResponseReceived $event): bool => $event->response->status() === $original->getStatusCode()
+                && $event->response->toPsrResponse()->getHeaders() === $original->getHeaders()
+                && $event->response->body() === '');
+        }
+
+        $events->assertDispatched(
+            ResponseReceived::class,
+            static fn (ResponseReceived $event): bool => $event->response->status() === 400 && $event->response->body() === '<Error/>',
+        );
+
+        self::assertSame(1, $large->getBody()->tell());
+        self::assertSame('x', $large->getBody()->read(1));
+        self::assertSame('<Response/>', $streamed->getBody()->getContents());
+        self::assertSame('<Unknown/>', $unknown->getBody()->getContents());
     }
 }
