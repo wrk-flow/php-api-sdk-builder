@@ -50,7 +50,7 @@ final class TemporaryResponseStorageServiceTest extends TestCase
 
             return Create::promiseFor(new Response(200, [], $stream));
         });
-        $request = new Request('GET', 'https://example.test');
+        $request = ResponseBufferMiddleware::forceFor(new Request('GET', 'https://example.test'));
 
         $response = $handler($request, [])->wait();
         self::assertInstanceOf(Response::class, $response);
@@ -109,7 +109,7 @@ final class TemporaryResponseStorageServiceTest extends TestCase
         self::assertFileDoesNotExist($path);
     }
 
-    public function testExplicitSinkAndUnbufferedRequestsArePreserved(): void
+    public function testOptedInRequestsPreserveExplicitSinksAndLiveStreams(): void
     {
         $middleware = new ResponseBufferMiddleware(new TemporaryResponseStorageService($this->directory));
         $sink = Utils::streamFor();
@@ -122,7 +122,7 @@ final class TemporaryResponseStorageServiceTest extends TestCase
 
             return Create::promiseFor(new Response());
         });
-        $request = new Request('GET', 'https://example.test');
+        $request = ResponseBufferMiddleware::forceFor(new Request('GET', 'https://example.test'));
         $handler($request, [
             'sink' => $sink,
         ])->wait();

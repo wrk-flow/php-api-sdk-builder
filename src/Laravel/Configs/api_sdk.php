@@ -4,7 +4,6 @@ use WrkFlow\ApiSdkBuilder\Laravel\Configs\ApiSdkConfig;
 use WrkFlow\ApiSdkBuilder\Log\Constants\LoggerConstants;
 
 return [
-    'response_buffers_enabled' => env('API_SDK_RESPONSE_BUFFERS_ENABLED', false),
     'response_buffer_directory' => env('API_SDK_RESPONSE_BUFFER_DIRECTORY'),
 
     /**

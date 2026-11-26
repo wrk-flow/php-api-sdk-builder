@@ -153,8 +153,9 @@ if ($mode === 'buffered') {
 
         return Create::promiseFor(new Response(200, [], $sink));
     });
+    $request = ResponseBufferMiddleware::forceFor(new Request('GET', 'https://example.test'));
     $bufferStarted = hrtime(true);
-    $response = $handler(new Request('GET', 'https://example.test'), [])->wait();
+    $response = $handler($request, [])->wait();
     $bufferSeconds = round((hrtime(true) - $bufferStarted) / 1e9, 3);
     $uri = $response->getBody()->getMetadata('uri');
 

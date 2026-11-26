@@ -12,7 +12,6 @@ final class ResponseBufferMiddleware
 {
     public function __construct(
         private readonly TemporaryResponseStorageService $storage,
-        private readonly bool $bufferAll = true,
     )
     {
     }
@@ -34,7 +33,7 @@ final class ResponseBufferMiddleware
         return function (RequestInterface $request, array $options) use ($handler): PromiseInterface {
             // Use the SDK buffer in place of Guzzle's default temp stream so large bodies spill to our directory.
             // Keep caller-provided sinks and leave live streams under the caller's control.
-            if (($this->bufferAll || $request->getBody() instanceof BufferedResponseRequestBody) && ! ($options['stream'] ?? false)) {
+            if ($request->getBody() instanceof BufferedResponseRequestBody && ! ($options['stream'] ?? false)) {
                 $options['sink'] ??= new BufferedResponseStream($this->storage);
             }
 

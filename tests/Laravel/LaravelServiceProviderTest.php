@@ -10,7 +10,6 @@ use GuzzleHttp\Psr7\FnStream;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Utils;
-use Illuminate\Config\Repository;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Http\Client\Events\ResponseReceived;
 use Illuminate\Support\Facades\Event;
@@ -26,7 +25,6 @@ use WrkFlow\ApiSdkBuilder\Http\BufferedResponseStream;
 use WrkFlow\ApiSdkBuilder\Http\ResponseBufferMiddleware;
 use WrkFlow\ApiSdkBuilder\Interfaces\BodyIsStreamedXmlInterface;
 use WrkFlow\ApiSdkBuilder\Interfaces\BuffersResponsesInterface;
-use WrkFlow\ApiSdkBuilder\Laravel\LaravelServiceProvider;
 use WrkFlow\ApiSdkBuilder\Log\Actions\ClearFileLogsAction;
 use WrkFlow\ApiSdkBuilder\Log\Constants\LoggerConstants;
 use WrkFlow\ApiSdkBuilder\Log\Entities\LoggerConfigEntity;
@@ -91,10 +89,8 @@ class LaravelServiceProviderTest extends TestCase
         );
     }
 
-    public function testResponseBufferCleanupIsScheduledWithGlobalBufferingDisabled(): void
+    public function testResponseBufferCleanupIsScheduledHourly(): void
     {
-        self::assertFalse($this->make(Repository::class)->get(LaravelServiceProvider::ResponseBuffersEnabled));
-
         $schedule = $this->make(Schedule::class);
         $commands = [];
         foreach ($schedule->events() as $event) {
@@ -107,10 +103,8 @@ class LaravelServiceProviderTest extends TestCase
         self::assertInstanceOf(Client::class, $this->make(ApiFactoryContract::class)->client());
     }
 
-    public function testOnlyTheOptedInSdkUsesTheCustomSinkWhenGlobalBufferingIsDisabled(): void
+    public function testOnlyTheOptedInSdkUsesTheCustomSink(): void
     {
-        self::assertFalse($this->make(Repository::class)->get(LaravelServiceProvider::ResponseBuffersEnabled));
-
         $usesSdkSink = [];
         $stack = HandlerStack::create(static function (RequestInterface $request, array $options) use (&$usesSdkSink): PromiseInterface {
             self::assertSame('payload', (string) $request->getBody());

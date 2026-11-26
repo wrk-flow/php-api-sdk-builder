@@ -37,7 +37,7 @@ Use `mapElements($path, $map)` when you only need attributes or an XML fragment 
 
 On PHP 8.1 through 8.3, `XmlReaderStream` provides the URI wrapper that connects XMLReader to the PSR stream. PHP 8.4 and later use `XMLReader::fromStream()` directly. When the DOM extension is available, the parser imports each subtree into SimpleXML without a second XML parse. With only XMLReader and SimpleXML, it parses the serialized XML of each matching element.
 
-The SDK Guzzle middleware keeps responses up to 2 MiB in memory and spills larger responses to a private temporary directory. A disk buffer keeps the HTTP body seekable while limiting PHP heap usage. The parser can validate the complete response, rewind it, then load one matching XML subtree at a time. Any framework or standalone PHP application can install the middleware on its Guzzle client.
+For requests that opt in, the SDK Guzzle middleware keeps responses up to 2 MiB in memory and spills larger responses to a private temporary directory. A disk buffer keeps the HTTP body seekable while limiting PHP heap usage. The parser can validate the complete response, rewind it, then load one matching XML subtree at a time. Any framework or standalone PHP application can install the middleware on its Guzzle client.
 
 ```php
 use GuzzleHttp\Client;
@@ -51,11 +51,11 @@ $client = new Client(['handler' => $middleware->stack()]);
 
 For an existing Guzzle handler stack, call `$stack->push($middleware)`. Calling `close()` on a response body deletes its buffer file. The same cleanup happens when PHP destroys the stream after its last reference is released. A response, iterator, or other retained reference can keep the stream and file alive. Closing XMLReader leaves the HTTP body available to those callers. If a process is killed before destruction, schedule `$storage->clearExpired(time() - 86400)` to remove abandoned buffers older than 24 hours. Cleanup skips locked files.
 
-Implement `WrkFlow\ApiSdkBuilder\Interfaces\BuffersResponsesInterface` on an SDK API class to enable buffering for its requests when global buffering is off. For a request sent outside the SDK, pass it through `ResponseBufferMiddleware::forceFor($request)` before sending it. The preference travels inside the PSR request body wrapper and adds no HTTP header. Explicit Guzzle sinks and live streams still take precedence.
+Implement `WrkFlow\ApiSdkBuilder\Interfaces\BuffersResponsesInterface` on an SDK API class to enable buffering for its requests. For a request sent outside the SDK, pass it through `ResponseBufferMiddleware::forceFor($request)` before sending it. The preference travels inside the PSR request body wrapper and adds no HTTP header. Explicit Guzzle sinks and live streams still take precedence.
 
-Laravel installs the middleware on its default Guzzle client. Set `API_SDK_RESPONSE_BUFFERS_ENABLED=true` to use buffering for all requests on that transport. The default directory is `storage/app/api-sdk-response-tmp`. Set `API_SDK_RESPONSE_BUFFER_DIRECTORY` to use a different private, writable directory. If the application binds its own Guzzle client, push the container's `ResponseBufferMiddleware` onto that client's handler stack. Outside Laravel, use `new ResponseBufferMiddleware($storage, bufferAll: false)` to buffer only selected requests.
+Laravel installs the middleware on its default Guzzle client. The default directory is `storage/app/api-sdk-response-tmp`. Set `API_SDK_RESPONSE_BUFFER_DIRECTORY` to use a different private, writable directory. If the application binds its own Guzzle client, push the container's `ResponseBufferMiddleware` onto that client's handler stack.
 
-Laravel schedules `api-sdk:response-buffers:clear` hourly regardless of the global setting. It can therefore clean up files left behind by a single SDK that opted in.
+Laravel schedules `api-sdk:response-buffers:clear` hourly to clean up abandoned files.
 
 ## Optional LaraStrict integration
 

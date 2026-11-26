@@ -30,7 +30,6 @@ use WrkFlow\ApiSdkBuilder\Contracts\SendRequestActionContract;
 use WrkFlow\ApiSdkBuilder\Events\RequestConnectionFailedEvent;
 use WrkFlow\ApiSdkBuilder\Events\RequestFailedEvent;
 use WrkFlow\ApiSdkBuilder\Events\ResponseReceivedEvent;
-use WrkFlow\ApiSdkBuilder\Exceptions\ApiSdkRuntimeException;
 use WrkFlow\ApiSdkBuilder\Http\ResponseBufferMiddleware;
 use WrkFlow\ApiSdkBuilder\Http\Services\TemporaryResponseStorageService;
 use WrkFlow\ApiSdkBuilder\Interfaces\BodyIsStreamedXmlInterface;
@@ -55,7 +54,6 @@ use WrkFlow\ApiSdkBuilder\Log\Services\FileLogPathService;
 final class LaravelServiceProvider extends ServiceProvider
 {
     public const KeyFilesystemOperator = 'api_sdk_filesystem_operator';
-    public const ResponseBuffersEnabled = 'api_sdk.response_buffers_enabled';
     public const ResponseBufferDirectory = 'api_sdk.response_buffer_directory';
     private const ConfigPath = __DIR__ . '/Configs/api_sdk.php';
     private const ConfigKey = 'api_sdk';
@@ -77,7 +75,6 @@ final class LaravelServiceProvider extends ServiceProvider
         });
         $this->app->singleton(ResponseBufferMiddleware::class, static fn (Container $container): ResponseBufferMiddleware => new ResponseBufferMiddleware(
             storage: self::make($container, TemporaryResponseStorageService::class),
-            bufferAll: self::make($container, Repository::class)->get(self::ResponseBuffersEnabled) === true,
         ));
 
         if ($this->app->runningInConsole()) {
@@ -102,17 +99,12 @@ final class LaravelServiceProvider extends ServiceProvider
                 ->dailyAt($clearAt);
         });
 
-        // Always clean abandoned files because an SDK can opt in without global buffering.
         $this->callAfterResolving(Schedule::class, static function (Schedule $schedule): void {
             $schedule->command(ClearResponseBuffersCommand::class)->hourly();
         });
 
-        if (class_exists(Client::class) || self::make($this->app, Repository::class)->get(self::ResponseBuffersEnabled) === true) {
+        if (class_exists(Client::class)) {
             $this->app->bindIf(ClientInterface::class, static function (Container $container): ClientInterface {
-                if (! class_exists(Client::class)) {
-                    throw new ApiSdkRuntimeException('API SDK response buffering requires Guzzle or an explicitly configured HTTP client.');
-                }
-
                 $middleware = self::make($container, ResponseBufferMiddleware::class);
 
                 return new Client([
